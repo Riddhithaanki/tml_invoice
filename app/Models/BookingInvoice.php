@@ -11,7 +11,6 @@ class BookingInvoice extends Model
 
     protected $table = 'tbl_booking_invoice';
     protected $primaryKey = 'InvoiceId';
-    public $timestamps = false;
     public function booking() {
         return $this->belongsTo(Booking::class, 'BookingRequestID', 'BookingRequestID');
     }

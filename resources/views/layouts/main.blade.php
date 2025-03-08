@@ -111,6 +111,10 @@
             @if (session('error'))
                 toastr.error("{{ session('error') }}");
             @endif
+
+            @if(session('network_error'))
+                toastr.error("{{ session('network_error') }}");
+            @endif
         });
     </script>
 </body>

@@ -145,13 +145,10 @@
     </style>
 
     <div class="container-fluid px-4 py-2">
-        <div class="welcome-banner">
-            <i class="fas fa-user-circle mr-2"></i> Welcome back, {{ Auth::user()->name }}!
-        </div>
         <div class="dashboard-container">
             <div class="row mb-2">
                 <div class="col-12">
-                    <h2 class="mb-4" style="color: #333; font-weight: 700;">Dashboard Overview</h2>
+                    <h2 class="mb-4" style="color: #333; font-weight: 700;">Daywork Invoices</h2>
                 </div>
             </div>
 
@@ -196,7 +193,7 @@
 
             <div class="table-container mt-5">
                 <div class="table-header">
-                    <h3 class="table-title text-center text-white">Recent Invoices</h3>
+                    <h3 class="table-title text-center text-white">Daywork Invoices</h3>
                 </div>
                 <div class="table-responsive">
                     <table id="invoiceTable" class="table table-hover">

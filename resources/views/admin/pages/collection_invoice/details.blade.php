@@ -144,14 +144,11 @@
         }
     </style>
 
-    <div class="container-fluid px-4 py-2">
-        <div class="welcome-banner">
-            <i class="fas fa-user-circle mr-2"></i> Welcome back, {{ Auth::user()->name }}!
-        </div>
+    <div class="container-fluid">
         <div class="dashboard-container">
-            <div class="row mb-2">
+            <div class="row mb-4">
                 <div class="col-12">
-                    <h2 class="mb-4" style="color: #333; font-weight: 700;">Dashboard Overview</h2>
+                    <h2 class="mb-4" style="color: #333; font-weight: 700;">Invoice No. 00005</h2>
                 </div>
             </div>
 
@@ -159,44 +156,44 @@
                 <div class="col-md-4">
                     <div class="stat-card">
                         <div class="card-body">
-                            {{-- <i class="fas fa-users icon-card"></i> --}}
-                            <div class="card-title">Ready Invoice</div>
-                            <div class="card-value">{{ $readyHoldInvoiceCount }}</div>
-                            {{-- <div class="card-trend">
-                                <i class="fas fa-arrow-up mr-1"></i> 12% from last month
-                            </div> --}}
+                            <ul class="list-unstyled mt-3">
+                                <li><strong>Company Name:</strong> Dipak's Company</li>
+                                <li><strong>Opportunity Name:</strong> Lorem ipsum dolor sit amet consectetur, adipisicing elit.</li>
+                                <li><strong>Contact Name:</strong> Dipak</li>
+                                <li><strong>Contact Email:</strong> test@gmail.com</li>
+                                <li><strong>Contact Number:</strong> 5415151</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="stat-card">
                         <div class="card-body">
-                            {{-- <i class="fas fa-chart-line icon-card"></i> --}}
-                            <div class="card-title">Completed Invoice</div>
-                            <div class="card-value">{{ $completedInvoice }}</div>
-                            {{-- <div class="card-trend">
-                                <i class="fas fa-arrow-up mr-1"></i> 8% from last month
-                            </div> --}}
+                            <ul class="list-unstyled mt-3">
+                                <li><strong>Company Name:</strong> Dipak's Company</li>
+                                <li><strong>Opportunity Name:</strong> Lorem ipsum dolor sit amet consectetur, adipisicing elit.</li>
+                                <li><strong>Contact Name:</strong> Dipak</li>
+                                <li><strong>Contact Email:</strong> test@gmail.com</li>
+                                <li><strong>Contact Number:</strong> 5415151</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
-                {{-- <div class="col-md-4">
+                <div class="col-md-4">
                     <div class="stat-card">
                         <div class="card-body">
-                            <i class="fas fa-file-invoice-dollar icon-card"></i>
-                            <div class="card-title">Completed Jobs</div>
-                            <div class="card-value">15</div>
-                            <div class="card-trend">
-                                <i class="fas fa-arrow-up mr-1"></i> 5% from last month
-                            </div>
+                            <ul class="list-unstyled mt-3">
+                                <li><strong>Contact Email:</strong> test@gmail.com</li>
+                                <li><strong>Contact Number:</strong> 5415151</li>
+                            </ul>
                         </div>
                     </div>
-                </div> --}}
+                </div>
             </div>
 
             <div class="table-container mt-5">
                 <div class="table-header">
-                    <h3 class="table-title text-center text-white">Recent Invoices</h3>
+                    <h3 class="table-title text-center text-white">Booking Load List</h3>
                 </div>
                 <div class="table-responsive">
                     <table id="invoiceTable" class="table table-hover">
@@ -208,7 +205,6 @@
                                 <th>Company Name</th>
                                 <th>Site Name</th>
                                 <th>Type Of Job</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -231,9 +227,6 @@
                                         @else
                                             <span class="badge bg-secondary">N/A</span>
                                         @endif
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('invoice.show',Crypt::encrypt($invoice->InvoiceID)) }}" class="btn btn-sm btn-primary">View</a>
                                     </td>
                                 </tr>
                             @endforeach

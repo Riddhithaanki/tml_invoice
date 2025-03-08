@@ -145,13 +145,10 @@
     </style>
 
     <div class="container-fluid px-4 py-2">
-        <div class="welcome-banner">
-            <i class="fas fa-user-circle mr-2"></i> Welcome back, {{ Auth::user()->name }}!
-        </div>
         <div class="dashboard-container">
             <div class="row mb-2">
                 <div class="col-12">
-                    <h2 class="mb-4" style="color: #333; font-weight: 700;">Dashboard Overview</h2>
+                    <h2 class="mb-4" style="color: #333; font-weight: 700;">Collection Invoices</h2>
                 </div>
             </div>
 
@@ -193,10 +190,19 @@
                     </div>
                 </div> --}}
             </div>
-
+      </div>
+        
             <div class="table-container mt-5">
                 <div class="table-header">
-                    <h3 class="table-title text-center text-white">Recent Invoices</h3>
+                    <h3 class="table-title text-center text-white">Collection Invoices</h3>
+                </div>
+                <div>
+                    <div class="card-body">
+                        <div class="demo-inline-spacing text-center">
+                            <a href="{{ route('collection.invoices.list', ['type' => 'loads']) }}" type="button" class="btn btn-outline-primary waves-effect {{ request('type') === 'loads' ? 'active' : '' }}">Loads</a>
+                            <a href="{{ route('collection.invoices.list', ['type' => 'tonnage']) }}" type="button" class="btn btn-outline-primary waves-effect {{ request('type') === 'tonnage' ? 'active' : '' }}">Tonnage</a>
+                        </div>
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table id="invoiceTable" class="table table-hover">
@@ -212,7 +218,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($recentInvoice as $key => $invoice)
+                            @foreach ($invoices as $key => $invoice)
                                 <tr>
                                     <td><strong>{{ $key + 1 }}</strong></td>
                                     <td>{{ $invoice->booking ? $invoice->booking->BookingID : 'N/A' }}</td>
