@@ -29,7 +29,7 @@ class LoginController extends Controller
         }
 
         $user = User::where('email', $request->email)
-            ->where('roleId', 1)
+            ->whereIn('roleId', [1, 8])
             ->first();
 
         if (!$user) {
@@ -38,6 +38,7 @@ class LoginController extends Controller
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $request->session()->regenerate();
+            session(['roleId' => $user->roleId]);
             return redirect()->route('dashboard')->with('success', 'Welcome to the Dashboard!');
         }
 

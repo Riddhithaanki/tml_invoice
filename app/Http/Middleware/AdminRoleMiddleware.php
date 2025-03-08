@@ -17,9 +17,9 @@ class AdminRoleMiddleware
         $user = Auth::user();
         // dd($user); // Check if user data is available
 
-        if ($user->roleId !== 1) {
+        if (!in_array($user->roleId, [1, 8])) {
             return response()->json(['error' => 'Unauthorized user!'], 403);
-        }
+        }        
 
         return $next($request);
     }

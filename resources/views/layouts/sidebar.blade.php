@@ -60,7 +60,7 @@
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="{{ route('work') }}" class="menu-link">
+                    <a href="{{ route('daywork.index') }}" class="menu-link">
                         <div data-i18n="Daywork Invoice List">Daywork Invoice List</div>
                     </a>
                 </li>
@@ -73,7 +73,7 @@
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="{{ route('work') }}" class="menu-link">
+                    <a href="{{ route('haulage.index') }}" class="menu-link">
                         <div data-i18n="Haulage Invoice List">Haulage Invoice List</div>
                     </a>
                 </li>
@@ -86,38 +86,40 @@
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="{{ route('work') }}" class="menu-link">
+                    <a href="{{ route('waitingtime.index') }}" class="menu-link">
                         <div data-i18n="Waiting Time Invoice List">Waiting Time Invoice List</div>
                     </a>
                 </li>
             </ul>
         </li>
-        <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons mdi mdi-account-group"></i>
-                <div data-i18n="Users">Users</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="{{ route('users.list') }}" class="menu-link">
-                        <div data-i18n="Users List">Users List</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons mdi mdi-math-log"></i>
-                <div data-i18n="System Logs">System Logs</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="{{ route('work') }}" class="menu-link">
-                        <div data-i18n="System Logs">System Logs</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
+        @if(session('roleId') != 8)
+            <li class="menu-item">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-account-group"></i>
+                    <div data-i18n="Users">Users</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="{{ route('users.list') }}" class="menu-link">
+                            <div data-i18n="Users List">Users List</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu-item">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons mdi mdi-math-log"></i>
+                    <div data-i18n="System Logs">System Logs</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="{{ route('systemlogs.list') }}" class="menu-link">
+                            <div data-i18n="System Logs">System Logs</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        @endif
     </ul>
     </ul>
 </aside>
