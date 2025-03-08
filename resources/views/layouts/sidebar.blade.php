@@ -1,5 +1,5 @@
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-    <div class="app-brand demo mt-5">
+    <div class="app-brand demo">
         <a href="{{ route('dashboard') }}" class="app-brand-link">
             <span class="app-brand-text demo menu-text fw-bold ms-2">TML Invoice</span>
         </a>
@@ -18,7 +18,7 @@
 
     <div class="menu-inner-shadow"></div>
 
-    <ul class="menu-inner py-2">
+    <ul class="menu-inner py-1">
 
         <li class="menu-item">
             <a href="{{ route('dashboard') }}" class="menu-link">
@@ -34,7 +34,7 @@
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="{{ route('delivery.index') }}" class="menu-link">
+                    <a href="{{ route('work') }}" class="menu-link">
                         <div data-i18n="Delivery Invoice List">Delivery Invoice List</div>
                     </a>
                 </li>
@@ -47,7 +47,7 @@
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="{{ route('collection.index') }}" class="menu-link">
+                    <a href="{{ route('collection.invoices.list') }}" class="menu-link">
                         <div data-i18n="Collection Invoice List">Collection Invoice List</div>
                     </a>
                 </li>
@@ -60,7 +60,7 @@
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="{{ route('work') }}" class="menu-link">
+                    <a href="{{ route('daywork.invoices.list') }}" class="menu-link">
                         <div data-i18n="Daywork Invoice List">Daywork Invoice List</div>
                     </a>
                 </li>
@@ -112,7 +112,7 @@
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="{{ route('work') }}" class="menu-link">
+                    <a href="{{ route('systemlogs.list') }}" class="menu-link">
                         <div data-i18n="System Logs">System Logs</div>
                     </a>
                 </li>
