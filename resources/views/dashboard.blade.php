@@ -207,7 +207,7 @@
                                 <th>Booking Date</th>
                                 <th>Company Name</th>
                                 <th>Site Name</th>
-                                <th>Type Of Job</th>
+                                {{-- <th>Type Of Job</th> --}}
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -215,11 +215,11 @@
                             @foreach ($recentInvoice as $key => $invoice)
                                 <tr>
                                     <td><strong>{{ $key + 1 }}</strong></td>
-                                    <td>{{ $invoice->booking ? $invoice->booking->BookingID : 'N/A' }}</td>
-                                    <td>{{ $invoice->booking ? date('d M Y', strtotime($invoice->booking->CreateDateTime)) : 'N/A' }}</td>
+                                    <td>{{ $invoice->BookingRequestID ?? 'N/A' }}</td>
+                                    <td>{{ $invoice->CreateDateTime ??  'N/A' }}</td>
                                     <td>{{ $invoice->CompanyName ?? 'N/A' }}</td>
                                     <td>{{ $invoice->OpportunityName ?? 'N/A' }}</td>
-                                    <td>
+                                    {{-- <td>
                                         @if ($invoice->booking && $invoice->booking->BookingType !== null)
                                             @if ($invoice->booking->BookingType == '1')
                                                 <span class="badge bg-primary">Collection</span>
@@ -231,9 +231,9 @@
                                         @else
                                             <span class="badge bg-secondary">N/A</span>
                                         @endif
-                                    </td>
+                                    </td> --}}
                                     <td>
-                                        <a href="{{ route('invoice.show',Crypt::encrypt($invoice->InvoiceID)) }}" class="btn btn-sm btn-primary">View</a>
+                                        <a href="{{ route('invoice.show',Crypt::encrypt($invoice->BookingRequestID)) }}" class="btn btn-sm btn-primary">View</a>
                                     </td>
                                 </tr>
                             @endforeach

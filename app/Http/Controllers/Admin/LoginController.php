@@ -32,7 +32,6 @@ class LoginController extends Controller
             ->where('roleId', 1)
             ->first();
 
-           // return  $user;
         if (!$user) {
             return redirect()->back()->with('error', 'No admin account found with this email.');
         }
