@@ -38,6 +38,7 @@ Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->g
     Route::get('/invoices/data', [DashboardController::class, 'getInvoices'])->name('invoices.data');
     Route::get('invoice-data/{id}', [DashboardController::class, 'getInvoiceData'])->name('invoice.show');
     Route::get('/get-invoice-items', [DashboardController::class, 'getInvoiceItems'])->name('get.invoice.items');
+    Route::get('/get-split-invoice-items', [DashboardController::class, 'getSplitInvoiceItems'])->name('get.splitinvoice.items');
     Route::post('/split-invoice', [DashboardController::class, 'splitInvoice'])->name('split.invoice');
 
     // User List Route
@@ -53,11 +54,11 @@ Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->g
     // Collection
     Route::get('collection-invoice-list',[CollectionController::class,'index'])->name('collection.index');
     Route::get('collection-invoice-data',[CollectionController::class,'getCollectionInvoiceData'])->name('collection.data');
- 
+
      //Daywork Invoice
     Route::get('daywork-invoice-list',[DayworkInvoiceController::class,'index'])->name('daywork.index');
     Route::get('daywork-invoice-data',[DayworkInvoiceController::class,'getDayworkInvoiceData'])->name('daywork.data');
-    
+
      //haulage Invoice
      Route::get('haulage-invoice-list',[HaulageInvoiceController::class,'index'])->name('haulage.index');
      Route::get('haulage-invoice-data',[HaulageInvoiceController::class,'getHaulageInvoiceData'])->name('haulage.data');
@@ -65,7 +66,7 @@ Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->g
      //waitingtime Invoice
      Route::get('waitingtime-invoice-list',[WaitingTimeInvoicesController::class,'index'])->name('waitingtime.index');
      Route::get('waitingtime-invoice-data',[WaitingTimeInvoicesController::class,'getWaitingtimeInvoiceData'])->name('waitingtime.data');
- 
+
      //System logs
      Route::get('systemlogs-list', [SystemLogsController::class, 'index'])->name('systemlogs.list');
      Route::get('systemlogs-details/{user_id}', [SystemLogsController::class, 'details'])->name('systemlogs.details');

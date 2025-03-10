@@ -26,21 +26,38 @@ class DashboardController extends Controller
     {
         $id = Crypt::decrypt($id);
 
-        $item = BookingInvoice::with('booking', 'invoice_items')->where('BookingRequestID', $id)->get();
-        $booking = $item->first()->booking ?? null;
-        return view('admin.pages.invoice.invoice_details', compact('item', 'booking'));
+        $items = BookingInvoice::with('booking', 'invoice_items')->where('BookingRequestID', $id)->get();
+        $bookings = collect();
+        foreach ($items as $item) {
+            foreach ($item->booking as $booking) {
+                $booking->InvoiceID = $item->InvoiceID; // Assign InvoiceID
+                $bookings->push($booking); // Add modified booking to collection
+            }
+        }
+
+        $booking = $bookings->first();
+        // dd($items,$booking);
+        return view('admin.pages.invoice.invoice_details', compact('items', 'booking'));
     }
 
     public function getInvoiceItems(Request $request)
     {
-        $invoiceId = $request->invoice_id;
-        // dd($invoiceId);
-        $invoice = BookingInvoice::where('InvoiceId', $invoiceId)->first();
+        // dd($request->all());
+        $bookingId = $request->booking_id;
+        $booking = Booking::where('BookingId',$bookingId)->first();
         $invoiceItems = Booking::with('loads')
-            ->where('BookingRequestID', $invoice->BookingRequestID)
+            ->where('BookingID', $booking->BookingID)
             ->get();
 
         return response()->json(['invoice_items' => $invoiceItems]);
+    }
+
+    public function getSplitInvoiceItems(Request $request){
+        $id =$request->invoice_id;
+
+        $items = BookingInvoice::with('booking', 'invoice_items')->where('BookingRequestID', $id)->get();
+        // dd($items);
+        return response()->json(['invoice_items' => $items]);
     }
 
     public function splitInvoice(Request $request)

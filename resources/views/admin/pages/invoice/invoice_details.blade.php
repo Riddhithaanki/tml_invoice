@@ -91,32 +91,35 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($item as $data)
-                                <tr>
-                                    <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary toggle-invoice"
-                                            data-invoice-id="{{ $data['InvoiceID'] }}">
-                                            <i class="fas fa-chevron-down"></i>
-                                        </button>
-                                    </td>
-                                    <td>{{ $data->InvoiceDate }}</td>
-                                    <td><span class="badge bg-primary">{{ $data->booking->BookingType }}</span></td>
-                                    <td>{{ $data->booking->MaterialName }}</td>
-                                    <td>{{ $data->booking->LoadType }}</td>
-                                    <td>{{ $data->booking->LorryType }}</td>
-                                    <td class="text-center fw-bold">{{ $data->booking->Loads }}</td>
-                                    <td class="text-center"><span
-                                            class="text-primary fw-bold">£{{ $data->booking->Price }}</span></td>
-                                    <td class="text-end fw-bold">£{{ $data->booking->TotalAmount }}</td>
-                                </tr>
-                                <tr class="invoice-items-container d-none" id="invoice-items-{{ $data->InvoiceID }}">
-                                    <td colspan="9" class="p-0">
-                                        <div class="invoice-items-content p-3 bg-light">
-                                            <!-- Fetched invoice items will be displayed here -->
-                                        </div>
-                                    </td>
-                                </tr>
+                            @foreach ($items as $invoice)
+                                @foreach ($invoice->booking as $booking)
+                                    <tr>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-primary toggle-invoice"
+                                                data-booking-id="{{ $booking->BookingID }}">
+                                                <i class="fas fa-chevron-down"></i>
+                                            </button>
+                                        </td>
+                                        <td>{{ $invoice->InvoiceDate }}</td>
+                                        <td><span class="badge bg-primary">{{ $booking->BookingType }}</span></td>
+                                        <td>{{ $booking->MaterialName }}</td>
+                                        <td>{{ $booking->LoadType }}</td>
+                                        <td>{{ $booking->LorryType }}</td>
+                                        <td class="text-center fw-bold">{{ $booking->Loads }}</td>
+                                        <td class="text-center"><span class="text-primary fw-bold">£{{ $booking->Price }}</span>
+                                        </td>
+                                        <td class="text-end fw-bold">£{{ $booking->TotalAmount }}</td>
+                                    </tr>
+                                    <tr class="invoice-items-container d-none" data-booking-id="{{ $booking->BookingID }}">
+                                        <td colspan="9" class="p-0">
+                                            <div class="invoice-items-content p-3 bg-light">
+                                                <!-- Fetched invoice items will be displayed here -->
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             @endforeach
+
                         </tbody>
                         <tfoot class="table">
                             <tr>
@@ -158,7 +161,7 @@
                     </div>
                     <div class="text-end">
                         <button class="btn btn-secondary btn-lg px-4 me-2" data-bs-toggle="modal"
-                            data-bs-target="#splitInvoiceModal" data-invoice-id="{{ $data['InvoiceID'] }}">
+                            data-bs-target="#splitInvoiceModal" data-invoice-id="{{ $booking['BookingRequestID'] }}">
                             <i class="fas fa-random me-2"></i>Split Invoice
                         </button>
 
@@ -206,61 +209,74 @@
     <script>
         $(document).ready(function () {
             $('.toggle-invoice').on('click', function () {
-                let invoiceId = $(this).data('invoice-id');
-                let container = $('#invoice-items-' + invoiceId);
+                let bookingId = $(this).data('booking-id');
+                let container = $('.invoice-items-container[data-booking-id="' + bookingId + '"]');
                 let content = container.find('.invoice-items-content');
 
                 if (container.hasClass('d-none')) {
-                    // Show loader with animation
-                    content.html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading invoice details...</p></div>');
-                    container.removeClass('d-none');
+                    // Show loader
+                    content.html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading booking details...</p></div>');
+                    container.removeClass('d-none').slideDown(300);
 
                     $.ajax({
                         url: "{{ route('get.invoice.items') }}",
                         type: "GET",
-                        data: { invoice_id: invoiceId },
+                        data: { booking_id: bookingId },
                         success: function (response) {
+                            if (!response.invoice_items || response.invoice_items.length === 0) {
+                                content.html('<div class="text-center py-4 text-danger fw-bold">No details found for this booking.</div>');
+                                return;
+                            }
+
                             let html = `<div class="table-responsive">
-                                                                                <table class="table table-bordered table-striped table-hover">
-                                                                                <thead class="table-primary">
-                                                                                    <tr>
-                                                                                        <th>Conveyance No</th>
-                                                                                        <th>Ticket ID</th>
-                                                                                        <th>Date Time</th>
-                                                                                        <th>Driver Name</th>
-                                                                                        <th>Vehicle Reg</th>
-                                                                                        <th>Gross (kg)</th>
-                                                                                        <th>Tare (kg)</th>
-                                                                                        <th>Net (kg)</th>
-                                                                                        <th>Material</th>
-                                                                                        <th>Wait Time</th>
-                                                                                        <th>Status</th>
-                                                                                        <th>Price</th>
-                                                                                    </tr>
-                                                                                </thead>
-                                                                                <tbody>`;
+                                                <table class="table table-bordered table-striped table-hover">
+                                                    <thead class="table-primary">
+                                                        <tr>
+                                                            <th>Conveyance No</th>
+                                                            <th>Ticket ID</th>
+                                                            <th>Date Time</th>
+                                                            <th>Driver Name</th>
+                                                            <th>Vehicle Reg</th>
+                                                            <th>Gross (kg)</th>
+                                                            <th>Tare (kg)</th>
+                                                            <th>Net (kg)</th>
+                                                            <th>Material</th>
+                                                            <th>Wait Time</th>
+                                                            <th>Status</th>
+                                                            <th>Price</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>`;
 
                             response.invoice_items.forEach(item => {
-                                item.loads.forEach(load => {
-                                    let waitTime = calculateWaitTime(load.SiteInDateTime, load.SiteOutDateTime);
-                                    let statusText = getStatusText(load.Status);
-                                    let statusClass = getStatusClass(load.Status);
-
+                                if (!item.loads || item.loads.length === 0) {
+                                    // If loads is empty, show "No data found"
                                     html += `<tr>
-                                                                                        <td>${load.ConveyanceNo}</td>
-                                                                                        <td><span class="badge bg-dark">${load.TicketID}</span></td>
-                                                                                        <td>${formatDateTime(load.JobStartDateTime)}</td>
-                                                                                        <td>${load.DriverName}</td>
-                                                                                        <td>${load.VehicleRegNo}</td>
-                                                                                        <td class="text-end">${formatWeight(load.GrossWeight)}</td>
-                                                                                        <td class="text-end">${formatWeight(load.Tare)}</td>
-                                                                                        <td class="text-end fw-bold">${formatWeight(load.Net)}</td>
-                                                                                        <td>${item.MaterialName}</td>
-                                                                                        <td>${waitTime}</td>
-                                                                                        <td><span class="badge ${statusClass}">${statusText}</span></td>
-                                                                                        <td class="text-end fw-bold">£${load.LoadPrice}</td>
-                                                                                    </tr>`;
-                                });
+                                                    <td colspan="12" class="text-center text-warning fw-bold">No details available for this material.</td>
+                                                 </tr>`;
+                                } else {
+                                    // Loop through loads if available
+                                    item.loads.forEach(load => {
+                                        let waitTime = calculateWaitTime(load.SiteInDateTime, load.SiteOutDateTime);
+                                        let statusText = getStatusText(load.Status);
+                                        let statusClass = getStatusClass(load.Status);
+
+                                        html += `<tr>
+                                                        <td>${load.ConveyanceNo}</td>
+                                                        <td><span class="badge bg-dark">${load.TicketID}</span></td>
+                                                        <td>${formatDateTime(load.JobStartDateTime)}</td>
+                                                        <td>${load.DriverName}</td>
+                                                        <td>${load.VehicleRegNo}</td>
+                                                        <td class="text-end">${formatWeight(load.GrossWeight)}</td>
+                                                        <td class="text-end">${formatWeight(load.Tare)}</td>
+                                                        <td class="text-end fw-bold">${formatWeight(load.Net)}</td>
+                                                        <td>${item.MaterialName}</td>
+                                                        <td>${waitTime}</td>
+                                                        <td><span class="badge ${statusClass}">${statusText}</span></td>
+                                                        <td class="text-end fw-bold">£${load.LoadPrice}</td>
+                                                    </tr>`;
+                                    });
+                                }
                             });
 
                             html += '</tbody></table></div>';
@@ -271,16 +287,19 @@
                                     $(this).html(html).fadeIn(300);
                                 });
                             }, 500);
+                        },
+                        error: function () {
+                            content.html('<div class="text-center py-4 text-danger fw-bold">Error loading details. Please try again.</div>');
                         }
                     });
                 } else {
-                    // Slide up animation when hiding
+                    // Hide content
                     container.slideUp(300, function () {
                         $(this).addClass('d-none').css('display', '');
                     });
                 }
 
-                // Toggle expand icon with animation
+                // Toggle expand icon
                 $(this).find('i').toggleClass('fa-chevron-down fa-chevron-up');
             });
 
@@ -289,13 +308,7 @@
                 let inTime = new Date(siteIn);
                 let outTime = new Date(siteOut);
                 let diffMinutes = Math.round((outTime - inTime) / 60000);
-
-                if (diffMinutes > 60) {
-                    let hours = Math.floor(diffMinutes / 60);
-                    let mins = diffMinutes % 60;
-                    return `${hours}h ${mins}m`;
-                }
-                return diffMinutes + " min";
+                return diffMinutes > 60 ? `${Math.floor(diffMinutes / 60)}h ${diffMinutes % 60}m` : `${diffMinutes} min`;
             }
 
             function getStatusText(status) {
@@ -351,55 +364,52 @@
 
                 // Fetch invoice items via AJAX
                 $.ajax({
-                    url: "{{ route('get.invoice.items') }}",
+                    url: "{{ route('get.splitinvoice.items') }}",
                     type: "GET",
                     data: { invoice_id: invoiceId },
                     success: function (response) {
+                        if (!response.invoice_items || response.invoice_items.length === 0) {
+                            modalBody.html('<div class="text-center py-4 text-danger fw-bold">No details found for this invoice.</div>');
+                            return;
+                        }
+
                         var html = `<div class="table-responsive">
                                         <table class="table table-bordered table-striped table-hover">
                                             <thead class="table-primary">
                                                 <tr>
                                                     <th>Select</th>
-                                                    <th>Conveyance No</th>
-                                                    <th>Ticket ID</th>
-                                                    <th>Date Time</th>
-                                                    <th>Driver Name</th>
-                                                    <th>Vehicle Reg</th>
-                                                    <th>Gross (kg)</th>
-                                                    <th>Tare (kg)</th>
-                                                    <th>Net (kg)</th>
+                                                    <th>Booking ID</th>
                                                     <th>Material</th>
-                                                    <th>Wait Time</th>
-                                                    <th>Status</th>
-                                                    <th>Price</th>
+                                                    <th>Load Type</th>
+                                                    <th>Total Loads</th>
+                                                    <th>Price/Load</th>
+                                                    <th>Total Price</th>
                                                 </tr>
                                             </thead>
                                             <tbody>`;
 
-                        response.invoice_items.forEach(item => {
-                            item.loads.forEach(load => {
-                                var waitTime = calculateWaitTime(load.SiteInDateTime, load.SiteOutDateTime);
-                                var statusText = getStatusText(load.Status);
-                                var statusClass = getStatusClass(load.Status);
-
+                        // Iterate through invoice_items
+                        response.invoice_items.forEach(invoice => {
+                            if (!invoice.booking || invoice.booking.length === 0) {
                                 html += `<tr>
+                                            <td colspan="7" class="text-center text-warning fw-bold">No bookings found.</td>
+                                         </tr>`;
+                            } else {
+                                // Iterate through booking data
+                                invoice.booking.forEach(booking => {
+                                    html += `<tr>
                                                 <td class="text-center">
-                                                    <input type="checkbox" class="form-check-input split-checkbox" value="${load.TicketID}">
+                                                    <input type="checkbox" class="form-check-input split-checkbox" value="${booking.BookingID}">
                                                 </td>
-                                                <td>${load.ConveyanceNo}</td>
-                                                <td><span class="badge bg-dark">${load.TicketID}</span></td>
-                                                <td>${formatDateTime(load.JobStartDateTime)}</td>
-                                                <td>${load.DriverName}</td>
-                                                <td>${load.VehicleRegNo}</td>
-                                                <td class="text-end">${formatWeight(load.GrossWeight)}</td>
-                                                <td class="text-end">${formatWeight(load.Tare)}</td>
-                                                <td class="text-end fw-bold">${formatWeight(load.Net)}</td>
-                                                <td>${item.MaterialName}</td>
-                                                <td>${waitTime}</td>
-                                                <td><span class="badge ${statusClass}">${statusText}</span></td>
-                                                <td class="text-end fw-bold">£${load.LoadPrice}</td>
+                                                <td>${booking.BookingID}</td>
+                                                <td>${booking.MaterialName}</td>
+                                                <td>${booking.LoadType}</td>
+                                                <td class="text-center fw-bold">${booking.Loads}</td>
+                                                <td class="text-center">£${booking.Price}</td>
+                                                <td class="text-end fw-bold">£${booking.TotalAmount}</td>
                                             </tr>`;
-                            });
+                                });
+                            }
                         });
 
                         html += '</tbody></table></div>';
@@ -416,116 +426,6 @@
                     }
                 });
             });
-
-            $(document).ready(function () {
-                $('#splitInvoiceModal').on('show.bs.modal', function (e) {
-                    var button = $(e.relatedTarget);
-                    var invoiceId = button.data('invoice-id');
-                    var modal = $(this);
-                    var modalBody = modal.find('.modal-body');
-
-                    // Show loader
-                    modalBody.html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-primary">Loading invoice items...</p></div>');
-
-                    // Fetch invoice items
-                    $.ajax({
-                        url: "{{ route('get.invoice.items') }}",
-                        type: "GET",
-                        data: { invoice_id: invoiceId },
-                        success: function (response) {
-                            var html = `<div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Select</th>
-                                            <th>Conveyance No</th>
-                                            <th>Ticket ID</th>
-                                            <th>Date Time</th>
-                                            <th>Driver Name</th>
-                                            <th>Vehicle Reg</th>
-                                            <th>Gross (kg)</th>
-                                            <th>Tare (kg)</th>
-                                            <th>Net (kg)</th>
-                                            <th>Material</th>
-                                            <th>Wait Time</th>
-                                            <th>Status</th>
-                                            <th>Price</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>`;
-
-                            response.invoice_items.forEach(item => {
-                                item.loads.forEach(load => {
-                                    var statusClass = getStatusClass(load.Status);
-
-                                    html += `<tr>
-                                        <td class="text-center">
-                                            <input type="checkbox" class="form-check-input split-checkbox" value='${JSON.stringify(load)}'>
-                                        </td>
-                                        <td>${load.ConveyanceNo}</td>
-                                        <td><span class="badge bg-dark">${load.TicketID}</span></td>
-                                        <td>${formatDateTime(load.JobStartDateTime)}</td>
-                                        <td>${load.DriverName}</td>
-                                        <td>${load.VehicleRegNo}</td>
-                                        <td class="text-end">${formatWeight(load.GrossWeight)}</td>
-                                        <td class="text-end">${formatWeight(load.Tare)}</td>
-                                        <td class="text-end fw-bold">${formatWeight(load.Net)}</td>
-                                        <td>${item.MaterialName}</td>
-                                        <td>${calculateWaitTime(load.SiteInDateTime, load.SiteOutDateTime)}</td>
-                                        <td><span class="badge ${statusClass}">${getStatusText(load.Status)}</span></td>
-                                        <td class="text-end fw-bold">£${load.LoadPrice}</td>
-                                    </tr>`;
-                                });
-                            });
-
-                            html += '</tbody></table></div>';
-
-                            // Append submit button
-                            html += `<button id="submitSelectedLoads" class="btn btn-primary mt-3">Submit Selected Loads</button>`;
-
-                            modalBody.fadeOut(200, function () {
-                                $(this).html(html).fadeIn(300);
-                            });
-                        }
-                    });
-                });
-
-                // Submit selected loads
-                $(document).on('click', '#submitSelectedLoads', function () {
-                    var selectedLoads = [];
-
-                    $('.split-checkbox:checked').each(function () {
-                        selectedLoads.push(JSON.parse($(this).val())); // Parse JSON to object
-                    });
-
-                    if (selectedLoads.length === 0) {
-                        alert('Please select at least one load.');
-                        return;
-                    }
-
-                    console.log(selectedLoads); // Debugging: Check the selected loads in console
-
-                    // Send data to backend
-                    $.ajax({
-                        url: "{{ route('split.invoice') }}",
-                        type: "POST",
-                        data: {
-                            _token: "{{ csrf_token() }}", // Include CSRF token
-                            invoice_id: $('#splitInvoiceModal').data('invoice-id'),
-                            loads: selectedLoads
-                        },
-                        success: function (response) {
-                            alert('Loads submitted successfully!');
-                            $('#splitInvoiceModal').modal('hide');
-                        },
-                        error: function () {
-                            alert('Something went wrong. Please try again.');
-                        }
-                    });
-                });
-            });
-
-
             function calculateWaitTime(siteIn, siteOut) {
                 if (!siteIn || !siteOut) return "N/A";
                 let inTime = new Date(siteIn);
@@ -580,7 +480,6 @@
                 return weight ? parseFloat(weight).toLocaleString('en-GB') : "0";
             }
         });
-
     </script>
 
 @endsection

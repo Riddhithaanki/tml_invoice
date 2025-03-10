@@ -13,7 +13,7 @@ class BookingInvoice extends Model
     protected $primaryKey = 'InvoiceId';
     public $timestamps = false;
     public function booking() {
-        return $this->belongsTo(Booking::class, 'BookingRequestID', 'BookingRequestID');
+        return $this->hasMany(Booking::class, 'BookingRequestID', 'BookingRequestID');
     }
 
     public function invoice_items(){
