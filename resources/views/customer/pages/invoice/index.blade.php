@@ -1,13 +1,19 @@
-@extends('layouts.main')
+@extends('customer.layouts.main')
 @section('content')
     <div class="table-container mt-4">
         <div class="tab-container mb-3">
             <ul class="nav nav-tabs" id="invoiceTabs">
                 <li class="nav-item">
-                    <a class="nav-link {{ $type === 'loads' ? 'active' : '' }}" id="loads" data-toggle="tab" href="{{ route('collection.index', ['type' => 'loads']) }}" role="tab">Loads</a>
+                    <a class="nav-link active" id="loads" data-toggle="tab" href="{{ route('customer.invoice.index') }}" role="tab">Collection</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ $type === 'tonnage' ? 'active' : '' }}" id="tonnage" data-toggle="tab" href="{{ route('collection.index', ['type' => 'tonnage']) }}" role="tab">Tonnage</a>
+                    <a class="nav-link" id="tonnage" data-toggle="tab" href="{{ route('customer.invoice.index') }}" role="tab">Delivery</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="tonnage" data-toggle="tab" href="{{ route('customer.invoice.index') }}" role="tab">Daywork</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="tonnage" data-toggle="tab" href="{{ route('customer.invoice.index') }}" role="tab">Haulage</a>
                 </li>
             </ul>
         </div>
@@ -50,7 +56,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('collection.data') }}",
+                    url: "{{ route('customer.invoice.data') }}",
                     data: function (d) {
                         d.type = type; // Pass the type parameter to the server
                     }

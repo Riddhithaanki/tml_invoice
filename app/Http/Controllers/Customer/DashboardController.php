@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookingLoad;
@@ -10,17 +10,16 @@ use App\Models\BookingInvoice;
 use App\Models\BookingInvoiceItem;
 use App\Models\Booking;
 
-use Illuminate\Support\Facades\Crypt;
-
 class DashboardController extends Controller
 {
     public function index()
     {
+        //return "test";
         $recentInvoice = BookingInvoice::with('booking')->where('BookingRequestID', 52634)->get();
         // dd($recentInvoice);
         $readyHoldInvoiceCount = BookingInvoice::where('Status', '0')->count();
         $completedInvoice = BookingInvoice::where('Status', '1')->count();
-        return view('dashboard', compact('recentInvoice', 'readyHoldInvoiceCount', 'completedInvoice'));
+        return view('customer.dashboard', compact('recentInvoice', 'readyHoldInvoiceCount', 'completedInvoice'));
     }
 
     public function getInvoiceData($id)
@@ -112,5 +111,4 @@ class DashboardController extends Controller
             return response()->json(['success' => 'Invoice created successfully', 'invoice' => $invoice]);
         }
     }
-
 }

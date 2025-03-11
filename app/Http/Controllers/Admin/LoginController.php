@@ -29,7 +29,7 @@ class LoginController extends Controller
         }
 
         $user = User::where('email', $request->email)
-            ->whereIn('roleId', [1, 8])
+            ->whereIn('roleId', [1, 8, 13])
             ->first();
 
         if (!$user) {
@@ -39,7 +39,16 @@ class LoginController extends Controller
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $request->session()->regenerate();
             session(['roleId' => $user->roleId]);
-            return redirect()->route('dashboard')->with('success', 'Welcome to the Dashboard!');
+
+            if($user->roleId == 1 || $user->roleId == 8)
+            {
+                return redirect()->route('dashboard')->with('success', 'Welcome to the Dashboard!');
+            }
+            else
+            {
+                return redirect()->route('customer.dashboard')->with('success', 'Welcome to the Dashboard!');
+            }
+            
         }
 
         return redirect()->back()->with('error', 'Invalid email or password.');

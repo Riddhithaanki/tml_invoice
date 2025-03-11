@@ -10,6 +10,8 @@ use App\Http\Controllers\Admin\CollectionInvoicesController;
 use App\Http\Controllers\Admin\DayworkInvoiceController;
 use App\Http\Controllers\Admin\HaulageInvoiceController;
 use App\Http\Controllers\Admin\WaitingTimeInvoicesController;
+use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
+use App\Http\Controllers\Customer\InvoiceController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 /*
@@ -48,11 +50,11 @@ Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->g
 
     // Delivery Data
 
-    Route::get('delivery-invoice-list',[DeliveryController::class,'index'])->name('delivery.index');
+    Route::get('delivery-invoice-list/{type?}',[DeliveryController::class,'index'])->name('delivery.index');
     Route::get('delivery-invoice-data',[DeliveryController::class,'getDeliveryInvoiceData'])->name('delivery.data');
 
     // Collection
-    Route::get('collection-invoice-list',[CollectionController::class,'index'])->name('collection.index');
+    Route::get('collection-invoice-list/{type?}',[CollectionController::class,'index'])->name('collection.index');
     Route::get('collection-invoice-data',[CollectionController::class,'getCollectionInvoiceData'])->name('collection.data');
 
      //Daywork Invoice
@@ -72,7 +74,14 @@ Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->g
      Route::get('systemlogs-details/{user_id}', [SystemLogsController::class, 'details'])->name('systemlogs.details');
 });
 
+Route::group(['middleware' => ['web', 'auth', 'customer' , 'log_activity', 'network_error'], 'prefix' => 'customer', 'as' => 'customer.'], function () 
+{
+    Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
 
+    Route::get('invoice-list/{type?}',[InvoiceController::class,'index'])->name('invoice.index');
+    Route::get('invoice-data',[InvoiceController::class,'getInvoiceData'])->name('invoice.data');
+
+});
 
 Route::get('working-progress', function () {
     return view('workinprogress');

@@ -20,18 +20,46 @@ class UserActivityLog
         // Proceed with the request first
         $response = $next($request);
 
-        // You can filter the request types here if you want to log only specific actions
-        // For example, only log POST, PUT, PATCH, DELETE requests:
+        // Log only specific actions (POST, PUT, PATCH, DELETE)
         if (in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
             $userId = Auth::check() ? Auth::id() : null;
             $activity = $request->path();
-            // Optionally, add more details such as request data (be cautious with sensitive data)
-            $details = json_encode($request->except(['password', 'password_confirmation', '_token']));
 
+            // Initialize details array
+            $details = [];
+
+            // Handle UPDATE operations (PUT, PATCH)
+            if (in_array($request->method(), ['PUT', 'PATCH'])) {
+                // Get the model ID from the request (assuming it's passed in the URL)
+                $modelId = $request->route('id'); // Adjust based on your route parameter
+
+                // Fetch the old data from the database
+                $tableName = $this->getTableNameFromRequest($request); // Helper method to get table name
+                $oldData = DB::table($tableName)->where('id', $modelId)->first();
+
+                if ($oldData) {
+                    // Convert old data to array and exclude sensitive fields
+                    $oldData = collect($oldData)->except(['password', 'created_at', 'updated_at'])->toArray();
+                    $details['old_data'] = $oldData;
+                }
+
+                // Get new data from the request (excluding sensitive fields)
+                $newData = $request->except(['password', 'password_confirmation', '_token']);
+                $details['new_data'] = $newData;
+            }
+
+            // Handle CREATE operations (POST)
+            if ($request->method() === 'POST') {
+                // Get new data from the request (excluding sensitive fields)
+                $newData = $request->except(['password', 'password_confirmation', '_token']);
+                $details['new_data'] = $newData;
+            }
+
+            // Log the activity
             SystemLog::create([
                 'user_id'   => $userId,
                 'activity'  => $activity,
-                'details'   => $details,
+                'details'   => json_encode($details), // Store details as JSON
             ]);
         }
 

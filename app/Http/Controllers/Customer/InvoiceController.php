@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -8,18 +8,19 @@ use App\Models\BookingRequest;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Crypt;
 
-class DeliveryController extends Controller
+class InvoiceController extends Controller
 {
     public function index($type = null)
     {
-        return view('admin.pages.delivery.index' , compact('type'));
+        return view('customer.pages.invoice.index' , compact('type'));
     }
-    
-    public function getDeliveryInvoiceData(Request $request)
+
+    public function getInvoiceData(Request $request)
     {
         $type = $request->input('type');
         
         $query = BookingRequest::select([
+            'InvoiceID',
             'BookingRequestID',
             'CreateDateTime',
             'CompanyName',
@@ -30,11 +31,10 @@ class DeliveryController extends Controller
                 $q->where('BookingType', 2);
             });
 
-
         return DataTables::of($query)
             ->addIndexColumn() // Adds SR. No column
             ->addColumn('action', function ($invoice) {
-                return '<a href="' . route('invoice.show', Crypt::encrypt($invoice->BookingRequestID)) . '"
+                return '<a href="' . route('invoice.show', Crypt::encrypt($invoice->InvoiceID)) . '"
                         class="btn btn-sm btn-primary">View</a>';
             })
             ->rawColumns(['action']) // Ensures HTML is rendered

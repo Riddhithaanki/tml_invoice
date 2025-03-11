@@ -10,13 +10,17 @@ use Illuminate\Support\Facades\Crypt;
 
 class CollectionController extends Controller
 {
-    public function index()
+    public function index($type = null)
     {
-        return view('admin.pages.collection.index');
+        return view('admin.pages.collection.index' , compact('type'));
     }
-    public function getDeliveryInvoiceData()
+
+    public function getCollectionInvoiceData(Request $request)
     {
+        $type = $request->input('type');
+        
         $query = BookingRequest::select([
+            'InvoiceID',
             'BookingRequestID',
             'CreateDateTime',
             'CompanyName',
@@ -24,17 +28,17 @@ class CollectionController extends Controller
         ])
             ->with('booking')
             ->whereHas('booking', function ($q) {
-                $q->where('BookingType', 1);
+                $q->where('BookingType', 2);
             });
-
 
         return DataTables::of($query)
             ->addIndexColumn() // Adds SR. No column
             ->addColumn('action', function ($invoice) {
-                return '<a href="' . route('invoice.show', Crypt::encrypt($invoice->BookingRequestID)) . '"
+                return '<a href="' . route('invoice.show', Crypt::encrypt($invoice->InvoiceID)) . '"
                         class="btn btn-sm btn-primary">View</a>';
             })
             ->rawColumns(['action']) // Ensures HTML is rendered
             ->make(true);
     }
+
 }
