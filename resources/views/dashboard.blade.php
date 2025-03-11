@@ -233,7 +233,7 @@
                                         @endif
                                     </td> --}}
                                     <td>
-                                        <a href="{{ route('invoice.show',Crypt::encrypt($invoice->BookingRequestID)) }}" class="btn btn-sm btn-primary">View</a>
+                                        <a href="{{ route('invoice.show',Crypt::encrypt($invoice->InvoiceID)) }}" class="btn btn-sm btn-primary">View</a>
                                     </td>
                                 </tr>
                             @endforeach

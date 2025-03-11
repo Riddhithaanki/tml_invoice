@@ -16,7 +16,8 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $recentInvoice = BookingRequest::with('loads')->where('BookingRequestID', 52634)->get();
+        $recentInvoice = BookingInvoice::with('booking')->where('BookingRequestID', 52634)->get();
+        // dd($recentInvoice);
         $readyHoldInvoiceCount = BookingInvoice::where('Status', '0')->count();
         $completedInvoice = BookingInvoice::where('Status', '1')->count();
         return view('dashboard', compact('recentInvoice', 'readyHoldInvoiceCount', 'completedInvoice'));
@@ -26,25 +27,29 @@ class DashboardController extends Controller
     {
         $id = Crypt::decrypt($id);
 
-        $items = BookingInvoice::with('booking', 'invoice_items')->where('BookingRequestID', $id)->get();
-        $bookings = collect();
-        foreach ($items as $item) {
-            foreach ($item->booking as $booking) {
-                $booking->InvoiceID = $item->InvoiceID; // Assign InvoiceID
-                $bookings->push($booking); // Add modified booking to collection
-            }
+        // Retrieve the invoice with related booking and invoice items
+        $invoice = BookingInvoice::with('booking', 'invoice_items')->where('InvoiceID', $id)->first();
+
+        if (!$invoice) {
+            return abort(404, 'Invoice not found');
         }
 
+        // Determine whether to use InvoiceID or BookingRequestID
+        $filterColumn = !is_null($invoice->BookingID) ? 'BookingID' : 'BookingRequestID';
+
+        // Fetch bookings based on the determined filter
+        $bookings = Booking::where($filterColumn, $invoice->$filterColumn)->get();
         $booking = $bookings->first();
-        // dd($items,$booking);
-        return view('admin.pages.invoice.invoice_details', compact('items', 'booking'));
+
+        return view('admin.pages.invoice.invoice_details', compact('invoice', 'bookings','booking'));
     }
+
 
     public function getInvoiceItems(Request $request)
     {
         // dd($request->all());
         $bookingId = $request->booking_id;
-        $booking = Booking::where('BookingId',$bookingId)->first();
+        $booking = Booking::where('BookingId', $bookingId)->first();
         $invoiceItems = Booking::with('loads')
             ->where('BookingID', $booking->BookingID)
             ->get();
@@ -52,8 +57,9 @@ class DashboardController extends Controller
         return response()->json(['invoice_items' => $invoiceItems]);
     }
 
-    public function getSplitInvoiceItems(Request $request){
-        $id =$request->invoice_id;
+    public function getSplitInvoiceItems(Request $request)
+    {
+        $id = $request->invoice_id;
 
         $items = BookingInvoice::with('booking', 'invoice_items')->where('BookingRequestID', $id)->get();
         // dd($items);
@@ -62,9 +68,11 @@ class DashboardController extends Controller
 
     public function splitInvoice(Request $request)
     {
-        foreach ($request->loads as $load) {
-            $loads = BookingLoad::where('LoadID', $load['LoadID'])->first();
 
+        foreach ($request->loads as $load) {
+            // dd($load);
+            $loads = Booking::where('BookingID', $load['LoadID'])->first();
+            // dd($loads);
             if (!$loads) {
                 return response()->json(['error' => 'Load not found'], 404);
             }
@@ -75,9 +83,8 @@ class DashboardController extends Controller
             }
 
             $lastInvoice = BookingInvoice::orderBy('CreateDateTime', 'DESC')->first();
-            // dd($bookingRequest);
-            // Generate a new Invoice Number (ensure it's numeric)
-            $newInvoiceNumber = $lastInvoice ? ((int) $lastInvoice->InvoiceNumber + 1) : 1001;
+
+            $newInvoiceNumber = $lastInvoice ? str_pad((int) $lastInvoice->InvoiceNumber + 1, 7, '0', STR_PAD_LEFT) : '0000001';
 
             $invoice = new BookingInvoice();
             $invoice->BookingRequestID = $loads->BookingRequestID;
