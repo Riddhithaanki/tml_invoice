@@ -63,7 +63,7 @@
             <div class="layout-page">
                 {{-- Header --}}
                 @include('layouts.header')
-                <div class="container" style="margin-top: 30px">
+                <div class="container">
                     <div class="content-wrapper">
                         {{-- Main Content --}}
                         @yield('content')

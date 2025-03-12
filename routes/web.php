@@ -34,6 +34,7 @@ Route::get('register', [LoginController::class, 'registerView'])->name('admin.re
 Route::post('admin-register', [LoginController::class, 'registerAdmin'])->name('admin.register');
 // Route::get('login', [LoginController::class, 'loginAdminView'])->name('admin.loginView');
 Route::post('admin-login', [LoginController::class, 'loginAdmin'])->middleware(['log_activity'])->name('admin.login');
+Route::post('admin-logout', [LoginController::class, 'logout'])->middleware(['log_activity'])->name('admin.logout');
 
 Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

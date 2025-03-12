@@ -15,7 +15,7 @@
                 <div class="col-md-4 mb-3">
                     <div class="card h-100 border-0 shadow-sm">
                         <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0"><i class="fas fa-building me-2"></i>Company Details</h5>
+                            <h5 class="text-white mb-0"><i class="fas fa-building me-2"></i>Company Details</h5>
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
@@ -32,7 +32,7 @@
                 <div class="col-md-4 mb-3">
                     <div class="card h-100 border-0 shadow-sm">
                         <div class="card-header bg-info text-white">
-                            <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Booking Details</h5>
+                            <h5 class="text-white mb-0"><i class="fas fa-clock me-2"></i>Booking Details</h5>
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
@@ -56,7 +56,7 @@
                 <div class="col-md-4 mb-3">
                     <div class="card h-100 border-0 shadow-sm">
                         <div class="card-header bg-success text-white">
-                            <h5 class="mb-0"><i class="fas fa-credit-card me-2"></i>Payment Information</h5>
+                            <h5 class="text-white mb-0"><i class="fas fa-credit-card me-2"></i>Payment Information</h5>
                         </div>
                         <div class="card-body">
                             <div class="mb-3">

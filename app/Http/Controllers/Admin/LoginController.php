@@ -62,4 +62,14 @@ class LoginController extends Controller
     {
         dd($request->all());
     }
+
+    public function logout(Request $request)
+    {
+        Auth::logout(); // Logout the user
+
+        $request->session()->invalidate(); // Invalidate the session
+        $request->session()->regenerateToken(); // Regenerate the CSRF token
+
+        return redirect()->route('admin.loginView')->with('success', 'Logged out successfully!');
+    }
 }
