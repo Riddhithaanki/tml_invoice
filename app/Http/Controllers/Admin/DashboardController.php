@@ -28,8 +28,8 @@ class DashboardController extends Controller
         $id = Crypt::decrypt($id);
 
         // Retrieve the invoice with related booking and invoice items
-        $invoice = BookingInvoice::with('booking', 'invoice_items')->where('InvoiceID', $id)->first();
-
+        $invoice = BookingRequest::with('booking', 'invoice_items','invoice')->where('BookingRequestID', $id)->first();
+        // dd($id,$invoice);
         if (!$invoice) {
             return abort(404, 'Invoice not found');
         }
@@ -61,7 +61,7 @@ class DashboardController extends Controller
     {
         $id = $request->invoice_id;
 
-        $items = BookingInvoice::with('booking', 'invoice_items')->where('BookingRequestID', $id)->get();
+        $items = BookingInvoice::with('booking', 'invoice_items')->where('isSplit',0)->where('BookingRequestID', $id)->get();
         // dd($items);
         return response()->json(['invoice_items' => $items]);
     }

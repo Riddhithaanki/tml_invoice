@@ -1,20 +1,21 @@
-<nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
-    id="layout-navbar">
-    <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
-        <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
-            <i class="mdi mdi-menu mdi-24px"></i>
-        </a>
-        
-    </div>
-    <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+<nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center"
+    id="layout-navbar" style="background-color: #3c8dbc;">
 
-        <ul class="navbar-nav flex-row align-items-center ms-auto">
-            <!-- User -->
+    <div class="d-flex align-items-center ms-auto w-100 justify-content-start">
+        <span class="text-white mx-5">TML Invoice Portal</span>
+    </div>
+    <div class="d-flex align-items-center ms-auto w-100 justify-content-end">
+        <span class="text-white me-4">Version: 1.0.0</span>
+
+        <ul class="navbar-nav flex-row align-items-center">
+            <!-- User Dropdown -->
             <li class="nav-item navbar-dropdown dropdown-user dropdown">
-                <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-                    <div class="avatar avatar-online" style="height: 20px">
-                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt class="w-px-10 h-auto rounded" />
+                <a class="nav-link dropdown-toggle hide-arrow text-white d-flex align-items-center" href="javascript:void(0);" data-bs-toggle="dropdown">
+                    <div class="avatar avatar-online me-2" style="height: 30px;">
+                        <img src="{{ Auth::user()->profile_image ?? 'https://images.unsplash.com/photo-1676195470090-7c90bf539b3b?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }}"
+                            alt="User Profile" class="w-px-30 h-px-30 rounded-circle border" />
                     </div>
+                    <span class="fw-medium">{{ Auth::user()->name }}</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li>
@@ -22,8 +23,8 @@
                             <div class="d-flex">
                                 <div class="flex-shrink-0 me-3">
                                     <div class="avatar avatar-online">
-                                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt
-                                            class="w-px-40 h-auto rounded-circle" />
+                                        <img src="https://images.unsplash.com/photo-1676195470090-7c90bf539b3b?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                            alt="User Profile" class="w-px-40 h-auto rounded-circle" />
                                     </div>
                                 </div>
                                 <div class="flex-grow-1">
@@ -36,6 +37,7 @@
                     <li>
                         <div class="dropdown-divider"></div>
                     </li>
+                    <li>
                         <!-- Logout Link -->
                         <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
                             <i class="mdi mdi-logout me-2"></i>
@@ -44,18 +46,10 @@
                     </li>
                 </ul>
             </li>
-            <!--/ User -->
+            <!--/ User Dropdown -->
         </ul>
     </div>
-
-    <!-- Search Small Screens -->
-    <div class="navbar-search-wrapper search-input-wrapper d-none">
-        <input type="text" class="form-control search-input container-xxl border-0" placeholder="Search..."
-            aria-label="Search..." />
-        <i class="mdi mdi-close search-toggler cursor-pointer"></i>
-    </div>
 </nav>
-
 
 <!-- Logout Confirmation Modal -->
 <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">

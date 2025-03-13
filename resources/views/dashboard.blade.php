@@ -145,9 +145,6 @@
     </style>
 
     <div class="container-fluid px-4 py-2">
-        <div class="welcome-banner">
-            <i class="fas fa-user-circle mr-2"></i> Welcome back, {{ Auth::user()->name }}!
-        </div>
         <div class="dashboard-container">
             <div class="row mb-2">
                 <div class="col-12">
@@ -233,7 +230,7 @@
                                         @endif
                                     </td> --}}
                                     <td>
-                                        <a href="{{ route('invoice.show',Crypt::encrypt($invoice->InvoiceID)) }}" class="btn btn-sm btn-primary">View</a>
+                                        <a href="{{ route('invoice.show',Crypt::encrypt($invoice->BookingRequestID)) }}" class="btn btn-sm btn-primary">View</a>
                                     </td>
                                 </tr>
                             @endforeach
