@@ -193,7 +193,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button id="submitSelectedLoads" class="btn btn-primary mt-3">Confirm Split</button>
+                    <button id="submitSelectedLoads" class="btn btn-primary mt-3" data-booking-request-id="{{$booking['BookingRequestID']}}">Confirm Split</button>
 
                 </div>
             </div>
@@ -489,6 +489,8 @@
         $(document).ready(function () {
             $('#submitSelectedLoads').on('click', function () {
                 var selectedLoads = [];
+                var bookingRequestID = $(this).data('booking-request-id'); // Fetch BookingRequestID
+                console.log(bookingRequestID);
 
                 $('.split-checkbox:checked').each(function () {
                     selectedLoads.push({ LoadID: $(this).val() });
@@ -504,6 +506,7 @@
                     type: "POST",
                     data: {
                         _token: "{{ csrf_token() }}",
+                        booking_request_id: bookingRequestID,
                         loads: selectedLoads
                     },
                     success: function (response) {

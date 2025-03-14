@@ -10,7 +10,8 @@ class Booking extends Model
     use HasFactory;
 
     protected $table = 'tbl_booking1';
-
+    protected $primaryKey = 'BookingID';
+    public $timestamps = false;
     public function loads(){
         return $this->hasMany(BookingLoad::class,'BookingID','BookingID');
     }
