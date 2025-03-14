@@ -76,8 +76,7 @@ class DashboardController extends Controller
     {
         $id = $request->invoice_id;
         // dd($id);
-        $items = BookingInvoice::with('booking', 'invoice_items')
-            ->where('is_split', 0) // Fetch only split invoices
+        $items = BookingRequest::with('booking', 'invoice_items')
             ->where('BookingRequestID', $id)
             ->get();
 

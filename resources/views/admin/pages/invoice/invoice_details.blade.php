@@ -99,7 +99,7 @@
                                             <i class="fas fa-chevron-down"></i>
                                         </button>
                                     </td>
-                                    <td>{{ $invoice->InvoiceDate }}</td>
+                                    <td>{{ $invoice->CreateDateTime }}</td>
                                     <td><span class="badge bg-primary">{{ $booking->BookingType }}</span></td>
                                     <td>{{ $booking->MaterialName }}</td>
                                     <td>{{ $booking->LoadType }}</td>
@@ -193,7 +193,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button id="submitSelectedLoads" class="btn btn-primary mt-3" data-booking-request-id="{{$booking['BookingRequestID']}}">Confirm Split</button>
+                    <button id="submitSelectedLoads" class="btn btn-primary mt-3"
+                        data-booking-request-id="{{$booking['BookingRequestID']}}">Confirm Split</button>
 
                 </div>
             </div>
@@ -227,31 +228,31 @@
                             }
 
                             let html = `<div class="table-responsive">
-                                                        <table class="table table-bordered table-striped table-hover">
-                                                            <thead class="table-primary">
-                                                                <tr>
-                                                                    <th>Conveyance No</th>
-                                                                    <th>Ticket ID</th>
-                                                                    <th>Date Time</th>
-                                                                    <th>Driver Name</th>
-                                                                    <th>Vehicle Reg</th>
-                                                                    <th>Gross (kg)</th>
-                                                                    <th>Tare (kg)</th>
-                                                                    <th>Net (kg)</th>
-                                                                    <th>Material</th>
-                                                                    <th>Wait Time</th>
-                                                                    <th>Status</th>
-                                                                    <th>Price</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>`;
+                                                            <table class="table table-bordered table-striped table-hover">
+                                                                <thead class="table-primary">
+                                                                    <tr>
+                                                                        <th>Conveyance No</th>
+                                                                        <th>Ticket ID</th>
+                                                                        <th>Date Time</th>
+                                                                        <th>Driver Name</th>
+                                                                        <th>Vehicle Reg</th>
+                                                                        <th>Gross (kg)</th>
+                                                                        <th>Tare (kg)</th>
+                                                                        <th>Net (kg)</th>
+                                                                        <th>Material</th>
+                                                                        <th>Wait Time</th>
+                                                                        <th>Status</th>
+                                                                        <th>Price</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>`;
 
                             response.invoice_items.forEach(item => {
                                 if (!item.loads || item.loads.length === 0) {
                                     // If loads is empty, show "No data found"
                                     html += `<tr>
-                                                            <td colspan="12" class="text-center text-warning fw-bold">No details available for this material.</td>
-                                                         </tr>`;
+                                                                <td colspan="12" class="text-center text-warning fw-bold">No details available for this material.</td>
+                                                             </tr>`;
                                 } else {
                                     // Loop through loads if available
                                     item.loads.forEach(load => {
@@ -260,19 +261,19 @@
                                         let statusClass = getStatusClass(load.Status);
 
                                         html += `<tr>
-                                                                <td>${load.ConveyanceNo}</td>
-                                                                <td><span class="badge bg-dark">${load.TicketID}</span></td>
-                                                                <td>${formatDateTime(load.JobStartDateTime)}</td>
-                                                                <td>${load.DriverName}</td>
-                                                                <td>${load.VehicleRegNo}</td>
-                                                                <td class="text-end">${formatWeight(load.GrossWeight)}</td>
-                                                                <td class="text-end">${formatWeight(load.Tare)}</td>
-                                                                <td class="text-end fw-bold">${formatWeight(load.Net)}</td>
-                                                                <td>${item.MaterialName}</td>
-                                                                <td>${waitTime}</td>
-                                                                <td><span class="badge ${statusClass}">${statusText}</span></td>
-                                                                <td class="text-end fw-bold">£${load.LoadPrice}</td>
-                                                            </tr>`;
+                                                                    <td>${load.ConveyanceNo}</td>
+                                                                    <td><span class="badge bg-dark">${load.TicketID}</span></td>
+                                                                    <td>${formatDateTime(load.JobStartDateTime)}</td>
+                                                                    <td>${load.DriverName}</td>
+                                                                    <td>${load.VehicleRegNo}</td>
+                                                                    <td class="text-end">${formatWeight(load.GrossWeight)}</td>
+                                                                    <td class="text-end">${formatWeight(load.Tare)}</td>
+                                                                    <td class="text-end fw-bold">${formatWeight(load.Net)}</td>
+                                                                    <td>${item.MaterialName}</td>
+                                                                    <td>${waitTime}</td>
+                                                                    <td><span class="badge ${statusClass}">${statusText}</span></td>
+                                                                    <td class="text-end fw-bold">£${load.LoadPrice}</td>
+                                                                </tr>`;
                                     });
                                 }
                             });
@@ -377,45 +378,50 @@
                             modalBody.html('<div class="text-center py-4 text-danger fw-bold">No details found for this invoice.</div>');
                             return;
                         }
+                        console.log(response);
 
                         var html = `<div class="table-responsive">
-                                                <table class="table table-bordered table-striped table-hover">
-                                                    <thead class="table-primary">
-                                                        <tr>
-                                                            <th>Select</th>
-                                                            <th>Booking ID</th>
-                                                            <th>Material</th>
-                                                            <th>Load Type</th>
-                                                            <th>Total Loads</th>
-                                                            <th>Price/Load</th>
-                                                            <th>Total Price</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>`;
+                                                    <table class="table table-bordered table-striped table-hover">
+                                                        <thead class="table-primary">
+                                                            <tr>
+                                                                <th>Select</th>
+                                                                <th>Booking ID</th>
+                                                                <th>Material</th>
+                                                                <th>Load Type</th>
+                                                                <th>Total Loads</th>
+                                                                <th>Price/Load</th>
+                                                                <th>Total Price</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>`;
 
                         // Iterate through invoice_items
                         response.invoice_items.forEach(invoice => {
-                            if (!invoice.booking || invoice.booking.length === 0) {
+                            if (!invoice.booking || (Array.isArray(invoice.booking) && invoice.booking.length === 0)) {
                                 html += `<tr>
-                                                    <td colspan="7" class="text-center text-warning fw-bold">No bookings found.</td>
-                                                 </tr>`;
+                        <td colspan="7" class="text-center text-warning fw-bold">No bookings found.</td>
+                     </tr>`;
                             } else {
-                                // Iterate through booking data
-                                invoice.booking.forEach(booking => {
+                                // Ensure `invoice.booking` is an array
+                                let bookings = Array.isArray(invoice.booking) ? invoice.booking : [invoice.booking];
+
+                                // Loop through the bookings
+                                bookings.forEach(booking => {
                                     html += `<tr>
-                                                        <td class="text-center">
-                                                            <input type="checkbox" class="form-check-input split-checkbox" value="${booking.BookingID}">
-                                                        </td>
-                                                        <td>${booking.BookingID}</td>
-                                                        <td>${booking.MaterialName}</td>
-                                                        <td>${booking.LoadType}</td>
-                                                        <td class="text-center fw-bold">${booking.Loads}</td>
-                                                        <td class="text-center">£${booking.Price}</td>
-                                                        <td class="text-end fw-bold">£${booking.TotalAmount}</td>
-                                                    </tr>`;
+                            <td class="text-center">
+                                <input type="checkbox" class="form-check-input split-checkbox" value="${booking.BookingID}">
+                            </td>
+                            <td>${booking.BookingID}</td>
+                            <td>${booking.MaterialName}</td>
+                            <td>${booking.LoadType}</td>
+                            <td class="text-center fw-bold">${booking.Loads}</td>
+                            <td class="text-center">£${booking.Price}</td>
+                            <td class="text-end fw-bold">£${booking.TotalAmount}</td>
+                        </tr>`;
                                 });
                             }
                         });
+
 
                         html += '</tbody></table></div>';
 
