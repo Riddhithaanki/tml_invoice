@@ -50,8 +50,7 @@ Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->g
     Route::get('users-data', [UsersController::class, 'getUsersData'])->name('users.data');
 
     // Delivery Data
-
-    Route::get('delivery-invoice-list/{type?}',[DeliveryController::class,'index'])->name('delivery.index');
+    Route::get('/delivery-invoice-list', [DeliveryController::class, 'index'])->name('delivery.index');
     Route::get('delivery-invoice-data',[DeliveryController::class,'getDeliveryInvoiceData'])->name('delivery.data');
 
     // Collection

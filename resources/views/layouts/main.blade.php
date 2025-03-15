@@ -53,6 +53,17 @@
     <script src="{{ url('vendor/js/template-customizer.js') }}"></script>
     <script src="{{ url('vendor/js/helpers.js') }}"></script>
     <script src="{{ url('js/config.js') }}"></script>
+    <style>
+        .btn-primary {
+            background-color: #3c8dbc;
+            border-color: #3c8dbc;
+        }
+
+        .btn-primary:hover {
+            background-color: #367fa9;
+            border-color: #367fa9;
+        }
+    </style>
 </head>
 
 <body>

@@ -2,20 +2,39 @@
 @section('content')
     <div class="table-container mt-4">
         <div class="tab-container mb-3">
-            <ul class="nav nav-tabs" id="invoiceTabs">
+        <ul class="nav nav-tabs d-flex justify-content-between" id="invoiceTabs" style="
+            overflow-y: unset;
+            overflow-x: unset !important;!i;!;
+        ">
+            <div class="d-flex">
+                <!-- Left side tabs -->
                 <li class="nav-item">
-                    <a class="nav-link {{ $type === 'withtipticket' ? 'active' : '' }}" id="with-tip-tab" data-toggle="tab" href="{{ route('delivery.index', ['type' => 'withtipticket']) }}" role="tab">With Tip Ticket</a>
+                    <a class="nav-link {{ $type === 'withtipticket' ? 'active' : '' }}" id="with-tip-tab" data-toggle="tab"
+                        href="{{ route('delivery.index', ['type' => 'withtipticket', 'invoice_type' => $invoice_type]) }}"
+                        role="tab">With Tip Ticket</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ $type === 'withouttipticket' ? 'active' : '' }}" id="without-tip-tab" data-toggle="tab" href="{{ route('delivery.index', ['type' => 'withouttipticket']) }}" role="tab">Without Tip Ticket</a>
+                    <a class="nav-link {{ $type === 'withouttipticket' ? 'active' : '' }}" id="without-tip-tab" data-toggle="tab"
+                        href="{{ route('delivery.index', ['type' => 'withouttipticket', 'invoice_type' => $invoice_type]) }}"
+                        role="tab">Without Tip Ticket</a>
                 </li>
-                <li class="nav-item ml-auto">
-                    <a class="nav-link {{ $type === 'preinvoice' ? 'active' : '' }}" id="pre-invoice-tab" data-toggle="tab" href="{{ route('delivery.index', ['type' => 'preinvoice']) }}" role="tab">Pre Invoice</a>
+            </div>
+
+            <div class="d-flex">
+                <!-- Right side tabs -->
+                <li class="nav-item">
+                    <a class="nav-link {{ $invoice_type === 'preinvoice' ? 'active' : '' }}" id="pre-invoice-tab" data-toggle="tab"
+                        href="{{ route('delivery.index', ['type' => $type, 'invoice_type' => 'preinvoice']) }}"
+                        role="tab">Pre Invoice</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ $type === 'readyinvoice' ? 'active' : '' }}" id="ready-invoice-tab" data-toggle="tab" href="{{ route('delivery.index', ['type' => 'readyinvoice']) }}" role="tab">Ready Invoice</a>
+                    <a class="nav-link {{ $invoice_type === 'readyinvoice' ? 'active' : '' }}" id="ready-invoice-tab" data-toggle="tab"
+                        href="{{ route('delivery.index', ['type' => $type, 'invoice_type' => 'readyinvoice']) }}"
+                        role="tab">Ready Invoice</a>
                 </li>
-            </ul>
+            </div>
+        </ul>
+
         </div>
         <div class="table-header">
             <h3 class="table-title text-center text-white">Delivery Invoices</h3>
@@ -50,7 +69,9 @@
 
     <script>
         $(document).ready(function () {
-            var type = "{{ $type }}";
+           
+            var type = '{{ request("type", "withtipticket") }}';
+            var invoice_type = '{{ request("invoice_type", "preinvoice") }}';
             // Initialize DataTable with individual column searching
             var table = $('#invoiceTable').DataTable({
                 processing: true,
@@ -58,7 +79,8 @@
                 ajax: {
                     url: "{{ route('delivery.data') }}",
                     data: function (d) {
-                        d.type = type; // Pass the type parameter to the server
+                        d.type = type; // Send the type parameter
+                        d.invoice_type = invoice_type;
                     }
                 },
                 columns: [

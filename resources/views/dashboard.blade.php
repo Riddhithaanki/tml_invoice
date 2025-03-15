@@ -123,24 +123,39 @@
             </div>
 
             <!-- Stat Cards -->
-            <div class="row g-3">
+            <div class="row">
+                <!-- Ready Invoice -->
                 <div class="col-md-3 col-sm-6">
-                    <div class="stat-card">
+                    <div class="stat-card d-flex align-items-center justify-content-between border p-3 rounded">
                         <div class="card-body">
                             <div class="card-title">Ready Invoice</div>
                             <div class="card-value">{{ $readyHoldInvoiceCount }}</div>
                         </div>
+                        <div class="icon-box border rounded-circle p-2">
+                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 2H16L20 6V21C20 21.55 19.55 22 19 22H5C4.45 22 4 21.55 4 21V3C4 2.45 4.45 2 5 2H8ZM14 3H10V7H14V3ZM6 20H18V8H6V20ZM12 12H7V14H12V12ZM17 16H7V18H17V16Z" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Completed Invoice -->
                 <div class="col-md-3 col-sm-6">
-                    <div class="stat-card">
+                    <div class="stat-card d-flex align-items-center justify-content-between border p-3 rounded">
                         <div class="card-body">
                             <div class="card-title">Completed Invoice</div>
                             <div class="card-value">{{ $completedInvoice }}</div>
                         </div>
+                        <div class="icon-box border rounded-circle p-2">
+                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10" stroke="black" stroke-width="2" fill="none"/>
+                                <path d="M9 12l2 2 4-4" stroke="black" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </div>
+
 
             <!-- Recent Invoices Table -->
             <div class="table-container">

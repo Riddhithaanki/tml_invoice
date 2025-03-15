@@ -10,14 +10,19 @@ use Illuminate\Support\Facades\Crypt;
 
 class DeliveryController extends Controller
 {
-    public function index($type = null)
+    public function index(Request $request)
     {
-        return view('admin.pages.delivery.index' , compact('type'));
+        // Get parameters with default values
+        $type = $request->query('type', 'withtipticket'); // Default: 'withtipticket'
+        $invoice_type = $request->query('invoice_type', 'preinvoice'); // Default: 'preinvoice'
+
+        return view('admin.pages.delivery.index' , compact('type', 'invoice_type') );
     }
     
     public function getDeliveryInvoiceData(Request $request)
     {
-        $type = $request->input('type');
+        $type = $request->input('type', 'withtipticket');
+        $invoiceType = $request->input('invoice_type', 'preinvoice');
         
         $query = BookingRequest::select([
             'BookingRequestID',
