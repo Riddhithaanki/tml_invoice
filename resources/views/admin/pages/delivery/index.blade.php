@@ -1,6 +1,6 @@
 @extends('layouts.main')
 @section('content')
-    <div class="table-container mt-4">
+    <div class="table-container container-fluid mt-4">
         <div class="tab-container mb-3">
         <ul class="nav nav-tabs d-flex justify-content-between" id="invoiceTabs" style="
             overflow-y: unset;
@@ -69,7 +69,7 @@
 
     <script>
         $(document).ready(function () {
-           
+
             var type = '{{ request("type", "withtipticket") }}';
             var invoice_type = '{{ request("invoice_type", "preinvoice") }}';
             // Initialize DataTable with individual column searching
