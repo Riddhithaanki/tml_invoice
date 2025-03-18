@@ -1,8 +1,8 @@
-<nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center"
+<nav class="layout-navbar navbar navbar-expand-xl navbar-detached align-items-center"
     id="layout-navbar" style="background-color: #3c8dbc;">
 
     <div class="d-flex align-items-center ms-auto w-100 justify-content-start">
-        <span class="text-white mx-5">TML Invoice Portal</span>
+        <h3 class="text-white mx-5 mt-2 ">TML Invoice Portal</h3>
     </div>
     <div class="d-flex align-items-center ms-auto w-100 justify-content-end">
         <span class="text-white me-4">Version: 1.0.0</span>
@@ -72,3 +72,32 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* Connect navbar with sidebar */
+    .layout-navbar {
+        width: 100% !important; /* Adjust based on your sidebar width */
+        margin-left: auto !important;
+        margin-right: 0 !important;
+        transition: width 0.3s ease;
+    }
+
+    /* Style for when sidebar is collapsed */
+    .layout-menu-collapsed .layout-navbar {
+        width: calc(100% - 80px) !important; /* Adjust based on your collapsed sidebar width */
+    }
+
+    /* Make navbar sticky */
+    .layout-navbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    /* Remove container-fluid class which limits width */
+    @media (min-width: 1200px) {
+        .layout-navbar {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        }
+    }
+</style>

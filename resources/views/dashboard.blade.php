@@ -113,7 +113,7 @@
         }
     </style>
 
-    <div class="container-fluid px-2 py-1">
+    <div class="container px-2 py-1">
         <div class="dashboard-container">
             <!-- Header -->
             <div class="row mb-2">
