@@ -68,6 +68,8 @@
                 lengthMenu: [10, 25, 50, 100],
                 responsive: true,
                 orderCellsTop: true,
+                searching: false,    // Hide the search box
+                lengthChange: false, // Hide the "Show entries" dropdown
                 language: {
                     search: "_INPUT_",
                     searchPlaceholder: "Search invoices...",
