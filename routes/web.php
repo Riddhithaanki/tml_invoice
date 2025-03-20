@@ -42,7 +42,9 @@ Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->g
     Route::get('invoice-data/{id}', [DashboardController::class, 'getInvoiceData'])->name('invoice.show');
     Route::get('/get-invoice-items', [DashboardController::class, 'getInvoiceItems'])->name('get.invoice.items');
     Route::get('/get-split-invoice-items', [DashboardController::class, 'getSplitInvoiceItems'])->name('get.splitinvoice.items');
+    Route::get('/get-merge-booking-items', [DashboardController::class, 'getMergeBookingItems'])->name('get.mergebookings.items');
     Route::post('/split-invoice', [DashboardController::class, 'splitInvoice'])->name('split.invoice');
+    Route::post('/merge-booking', [DashboardController::class, 'mergeBooking'])->name('merge.booking');
 
     // User List Route
 
