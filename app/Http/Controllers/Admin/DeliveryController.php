@@ -31,6 +31,7 @@ class DeliveryController extends Controller
             'OpportunityName',
         ])
             ->with('booking')
+            ->where('is_delete', 0) 
             ->whereHas('booking', function ($q) {
                 $q->where('BookingType', 2);
             });

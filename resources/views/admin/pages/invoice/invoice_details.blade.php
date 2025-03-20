@@ -659,8 +659,8 @@
                     },
                     success: function (response) {
                         if (response.success) {
-                            alert('Invoice split successfully!');
-                            $('#splitInvoiceModal').modal('hide'); // Close modal on success
+                            alert('Booking Merge successfully!');
+                            $('#mergeBookingModal').modal('hide'); // Close modal on success
                             location.reload(); // Reload the page to update the UI
                         } else {
                             alert(response.error || 'An error occurred.');
