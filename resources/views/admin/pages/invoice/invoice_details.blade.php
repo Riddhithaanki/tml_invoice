@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('content')
-    <div class="container-fluid">
+    <div class="container">
         <div class="booking-section p-4 bg-light rounded shadow-sm">
             <div class="d-flex align-items-center mb-4">
                 <a href="#" class="text-decoration-none text-primary">
@@ -19,10 +19,10 @@
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
-                                <strong>Company Name:</strong> {{ $booking->CompanyName }}
+                                <strong>Company Name:</strong> {{ $booking->bookingRequest->CompanyName }}
                             </div>
                             <div class="mb-3">
-                                <strong>Opportunity Name:</strong> {{ $booking->OpportunityName }}
+                                <strong>Opportunity Name:</strong> {{ $booking->bookingRequest->OpportunityName }}
                             </div>
                         </div>
                     </div>
@@ -36,13 +36,16 @@
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
-                                <strong>Waiting Time:</strong> <span class="badge bg-light text-dark">15 minutes</span>
+                                <strong>Waiting Time:</strong> <span
+                                    class="badge bg-light text-dark">{{ $booking->bookingRequest->WaitingTime }}</span>
                             </div>
                             <div class="mb-3">
-                                <strong>Wait Charges:</strong> <span class="badge bg-light text-dark">1 £/minute</span>
+                                <strong>Wait Charges:</strong> <span class="badge bg-light text-dark">
+                                    {{ $booking->bookingRequest->WaitingCharge }} </span>
                             </div>
                             <div class="mb-3">
-                                <strong>Purchase Order:</strong> <span class="badge bg-light text-dark">215/102649</span>
+                                <strong>Purchase Order:</strong> <span class="badge bg-light text-dark">
+                                    {{ $booking->PurchaseOrderNo }} </span>
                             </div>
                             <div class="mb-3">
                                 <strong>Notes:</strong> <span class="text-muted fst-italic">Req: 8 AM Start - 8 AM Onwards -
@@ -102,10 +105,29 @@
                                     <td>{{ $invoice->CreateDateTime }}</td>
                                     <td><span class="badge bg-primary">{{ $booking->BookingType }}</span></td>
                                     <td>{{ $booking->MaterialName }}</td>
-                                    <td>{{ $booking->LoadType }}</td>
-                                    <td>{{ $booking->LorryType }}</td>
+                                    <td>
+                                        @if ($booking->LoadType == '1')
+                                            <span class="badge bg-success">Loads</span>
+                                        @elseif ($booking->LoadType == '2')
+                                            <span class="badge bg-warning">Turnaround</span>
+                                        @else
+                                            <span class="badge bg-info">Both</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($booking->LorryType == '1')
+                                            <span class="badge bg-primary">Tipper</span>
+                                        @elseif ($booking->LorryType == '2')
+                                            <span class="badge bg-info">Grab</span>
+                                        @elseif ($booking->LorryType == '3')
+                                            <span class="badge bg-success">Bin</span>
+                                        @else
+                                            <span class="badge bg-warning">NA</span>
+                                        @endif
+                                    </td>
                                     <td class="text-center fw-bold">{{ $booking->Loads }}</td>
-                                    <td class="text-center"><span class="text-primary fw-bold">£{{ $booking->Price }}</span>
+                                    <td class="text-center"><span
+                                            class="text-primary fw-bold">£{{ $booking->Price }}</span>
                                     </td>
                                     <td class="text-end fw-bold">£{{ $booking->TotalAmount }}</td>
                                 </tr>
@@ -132,7 +154,7 @@
                             <tr>
                                 <td colspan="7"></td>
                                 <td class="text-end"><strong>Total</strong></td>
-                                <td class="text-end fw-bold fs-5">£{{ $invoice->FinalAmount }}</td>
+                                <td class="text-end fw-bold fs-5">£{{ $invoice->TotalAmount }}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -154,8 +176,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="comment" class="form-label fw-bold">Comment:</label>
-                        <textarea class="form-control border-2" id="comment" rows="4"
-                            placeholder="Please Enter Your Any Comment Here."></textarea>
+                        <textarea class="form-control border-2" id="comment" rows="4" placeholder="Please Enter Your Any Comment Here."></textarea>
                     </div>
                     <div class="text-end">
                         <button class="btn btn-secondary btn-lg px-4 me-2" data-bs-toggle="modal"
@@ -194,7 +215,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button id="submitSelectedLoads" class="btn btn-primary mt-3"
-                        data-booking-request-id="{{$booking['BookingRequestID']}}">Confirm Split</button>
+                        data-booking-request-id="{{ $booking['BookingRequestID'] }}">Confirm Split</button>
 
                 </div>
             </div>
@@ -206,24 +227,31 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
-        $(document).ready(function () {
-            $('.toggle-invoice').on('click', function () {
+        $(document).ready(function() {
+            $('.toggle-invoice').on('click', function() {
                 let bookingId = $(this).data('booking-id');
                 let container = $('.invoice-items-container[data-booking-id="' + bookingId + '"]');
                 let content = container.find('.invoice-items-content');
 
                 if (container.hasClass('d-none')) {
                     // Show loader
-                    content.html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading booking details...</p></div>');
+                    content.html(
+                        '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading booking details...</p></div>'
+                        );
                     container.removeClass('d-none').slideDown(300);
 
                     $.ajax({
                         url: "{{ route('get.invoice.items') }}",
                         type: "GET",
-                        data: { booking_id: bookingId },
-                        success: function (response) {
-                            if (!response.invoice_items || response.invoice_items.length === 0) {
-                                content.html('<div class="text-center py-4 text-danger fw-bold">No details found for this booking.</div>');
+                        data: {
+                            booking_id: bookingId
+                        },
+                        success: function(response) {
+                            if (!response.invoice_items || response.invoice_items.length ===
+                                0) {
+                                content.html(
+                                    '<div class="text-center py-4 text-danger fw-bold">No details found for this booking.</div>'
+                                    );
                                 return;
                             }
 
@@ -256,9 +284,13 @@
                                 } else {
                                     // Loop through loads if available
                                     item.loads.forEach(load => {
-                                        let waitTime = calculateWaitTime(load.SiteInDateTime, load.SiteOutDateTime);
-                                        let statusText = getStatusText(load.Status);
-                                        let statusClass = getStatusClass(load.Status);
+                                        let waitTime = calculateWaitTime(load
+                                            .SiteInDateTime, load
+                                            .SiteOutDateTime);
+                                        let statusText = getStatusText(load
+                                            .Status);
+                                        let statusClass = getStatusClass(load
+                                            .Status);
 
                                         html += `<tr>
                                                                     <td>${load.ConveyanceNo}</td>
@@ -282,18 +314,20 @@
 
                             // Animate content replacement
                             setTimeout(() => {
-                                content.fadeOut(200, function () {
+                                content.fadeOut(200, function() {
                                     $(this).html(html).fadeIn(300);
                                 });
                             }, 500);
                         },
-                        error: function () {
-                            content.html('<div class="text-center py-4 text-danger fw-bold">Error loading details. Please try again.</div>');
+                        error: function() {
+                            content.html(
+                                '<div class="text-center py-4 text-danger fw-bold">Error loading details. Please try again.</div>'
+                                );
                         }
                     });
                 } else {
                     // Hide content
-                    container.slideUp(300, function () {
+                    container.slideUp(300, function() {
                         $(this).addClass('d-none').css('display', '');
                     });
                 }
@@ -307,7 +341,8 @@
                 let inTime = new Date(siteIn);
                 let outTime = new Date(siteOut);
                 let diffMinutes = Math.round((outTime - inTime) / 60000);
-                return diffMinutes > 60 ? `${Math.floor(diffMinutes / 60)}h ${diffMinutes % 60}m` : `${diffMinutes} min`;
+                return diffMinutes > 60 ? `${Math.floor(diffMinutes / 60)}h ${diffMinutes % 60}m` :
+                    `${diffMinutes} min`;
             }
 
             function getStatusText(status) {
@@ -358,24 +393,30 @@
             }
         });
 
-        $(document).ready(function () {
-            $('#splitInvoiceModal').on('show.bs.modal', function (e) {
+        $(document).ready(function() {
+            $('#splitInvoiceModal').on('show.bs.modal', function(e) {
                 var button = $(e.relatedTarget);
                 var invoiceId = button.data('invoice-id');
                 var modal = $(this);
                 var modalBody = modal.find('.modal-body');
 
                 // Show loader
-                modalBody.html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading invoice items...</p></div>');
+                modalBody.html(
+                    '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading invoice items...</p></div>'
+                    );
 
                 // Fetch invoice items via AJAX
                 $.ajax({
                     url: "{{ route('get.splitinvoice.items') }}",
                     type: "GET",
-                    data: { invoice_id: invoiceId },
-                    success: function (response) {
+                    data: {
+                        invoice_id: invoiceId
+                    },
+                    success: function(response) {
                         if (!response.invoice_items || response.invoice_items.length === 0) {
-                            modalBody.html('<div class="text-center py-4 text-danger fw-bold">No details found for this invoice.</div>');
+                            modalBody.html(
+                                '<div class="text-center py-4 text-danger fw-bold">No details found for this invoice.</div>'
+                                );
                             return;
                         }
                         console.log(response);
@@ -397,13 +438,15 @@
 
                         // Iterate through invoice_items
                         response.invoice_items.forEach(invoice => {
-                            if (!invoice.booking || (Array.isArray(invoice.booking) && invoice.booking.length === 0)) {
+                            if (!invoice.booking || (Array.isArray(invoice.booking) &&
+                                    invoice.booking.length === 0)) {
                                 html += `<tr>
                         <td colspan="7" class="text-center text-warning fw-bold">No bookings found.</td>
                      </tr>`;
                             } else {
                                 // Ensure `invoice.booking` is an array
-                                let bookings = Array.isArray(invoice.booking) ? invoice.booking : [invoice.booking];
+                                let bookings = Array.isArray(invoice.booking) ? invoice
+                                    .booking : [invoice.booking];
 
                                 // Loop through the bookings
                                 bookings.forEach(booking => {
@@ -427,16 +470,19 @@
 
                         // Fade out loader and show content
                         setTimeout(() => {
-                            modalBody.fadeOut(200, function () {
+                            modalBody.fadeOut(200, function() {
                                 $(this).html(html).fadeIn(300);
                             });
                         }, 500);
                     },
-                    error: function () {
-                        modalBody.html('<p class="text-danger text-center">Error loading data. Please try again.</p>');
+                    error: function() {
+                        modalBody.html(
+                            '<p class="text-danger text-center">Error loading data. Please try again.</p>'
+                            );
                     }
                 });
             });
+
             function calculateWaitTime(siteIn, siteOut) {
                 if (!siteIn || !siteOut) return "N/A";
                 let inTime = new Date(siteIn);
@@ -492,14 +538,16 @@
             }
         });
 
-        $(document).ready(function () {
-            $('#submitSelectedLoads').on('click', function () {
+        $(document).ready(function() {
+            $('#submitSelectedLoads').on('click', function() {
                 var selectedLoads = [];
                 var bookingRequestID = $(this).data('booking-request-id'); // Fetch BookingRequestID
                 console.log(bookingRequestID);
 
-                $('.split-checkbox:checked').each(function () {
-                    selectedLoads.push({ LoadID: $(this).val() });
+                $('.split-checkbox:checked').each(function() {
+                    selectedLoads.push({
+                        LoadID: $(this).val()
+                    });
                 });
 
                 if (selectedLoads.length === 0) {
@@ -515,7 +563,7 @@
                         booking_request_id: bookingRequestID,
                         loads: selectedLoads
                     },
-                    success: function (response) {
+                    success: function(response) {
                         if (response.success) {
                             alert('Invoice split successfully!');
                             $('#splitInvoiceModal').modal('hide'); // Close modal on success
@@ -524,13 +572,11 @@
                             alert(response.error || 'An error occurred.');
                         }
                     },
-                    error: function (xhr) {
+                    error: function(xhr) {
                         alert('Something went wrong. Please try again.');
                     }
                 });
             });
         });
-
     </script>
-
 @endsection

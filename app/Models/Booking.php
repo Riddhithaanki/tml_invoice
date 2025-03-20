@@ -15,4 +15,8 @@ class Booking extends Model
     public function loads(){
         return $this->hasMany(BookingLoad::class,'BookingID','BookingID');
     }
+
+    public function bookingRequest(){
+        return $this->belongsTo(BookingRequest::class,'BookingRequestID','BookingRequestID');
+    }
 }

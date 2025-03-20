@@ -27,9 +27,19 @@ class DashboardController extends Controller
     {
         $id = Crypt::decrypt($id);
 
+        // Find the booking entry using BookingID
+        $booking = Booking::with('loads','bookingRequest')->where('BookingID', $id)->first();
+        // dd($booking);
+        if (!$booking) {
+            return abort(404, 'Booking not found');
+        }
+
+        // Fetch the BookingRequestID from the booking
+        $bookingRequestId = $booking->BookingRequestID;
+
         // Fetch Invoice (Original or Split)
         $invoice = BookingRequest::with('booking', 'invoice_items', 'invoice')
-            ->where('BookingRequestID', $id)
+            ->where('BookingRequestID', $bookingRequestId)
             ->first();
 
         if (!$invoice) {
@@ -51,10 +61,11 @@ class DashboardController extends Controller
         }
 
         $bookings = $bookings->get();
-        $booking = $bookings->first();
-
+        // $booking = $bookings->first();
+        // dd($invoice);
         return view('admin.pages.invoice.invoice_details', compact('invoice', 'bookings', 'booking', 'isSplitInvoice'));
     }
+
 
 
 
