@@ -51,7 +51,7 @@ class DashboardController extends Controller
 
         // Fetch bookings related to this invoice only
         $bookings = Booking::where('BookingRequestID', $invoice->BookingRequestID);
-        
+
         if ($isSplitInvoice) {
             // If it's a split invoice, fetch only this split invoice
             $bookings->where('parent_invoice_id', $invoice->InvoiceID);
@@ -61,21 +61,12 @@ class DashboardController extends Controller
         }
 
         $bookings = $bookings->get();
-<<<<<<< HEAD
-        // $booking = $bookings->first();
-        // dd($invoice);
-        return view('admin.pages.invoice.invoice_details', compact('invoice', 'bookings', 'bookingData', 'isSplitInvoice'));
-    }
 
-
-=======
-        
         $booking = $bookings->first();
-        
+
         return view('admin.pages.invoice.invoice_details', compact('invoice', 'bookings', 'booking', 'isSplitInvoice'));
     }
 
->>>>>>> 04ff2a03132aa4570129b5ce4eb45e514332322d
     public function getInvoiceItems(Request $request)
     {
         // dd($request->all());
@@ -125,14 +116,14 @@ class DashboardController extends Controller
         $item = BookingRequest::with('booking', 'invoice_items')
             ->where('BookingRequestID', $id)
             ->first();
-        
+
             if (!$item) {
                 return response()->json(['error' => 'Booking request not found'], 404);
             }
-        
+
             $CompanyName = $item->CompanyName;
             $CreateDate = \Carbon\Carbon::parse($item->CreateDateTime)->toDateString(); // Extract only date (YYYY-MM-DD)
-        
+
             // Fetch records where CompanyName matches and CreateDate (date part) matches
             $items = BookingRequest::with('booking', 'invoice_items')
                 ->where('CompanyName', $CompanyName)

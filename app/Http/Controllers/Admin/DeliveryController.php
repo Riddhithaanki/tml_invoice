@@ -24,9 +24,7 @@ class DeliveryController extends Controller
     {
         $type = $request->input('type', 'withtipticket');
         $invoiceType = $request->input('invoice_type', 'preinvoice');
-<<<<<<< HEAD
-=======
-        
+
         $query = BookingRequest::select([
             'BookingRequestID',
             'CreateDateTime',
@@ -34,11 +32,10 @@ class DeliveryController extends Controller
             'OpportunityName',
         ])
             ->with('booking')
-            ->where('is_delete', 0) 
+            ->where('is_delete', 0)
             ->whereHas('booking', function ($q) {
                 $q->where('BookingType', 2);
             });
->>>>>>> 04ff2a03132aa4570129b5ce4eb45e514332322d
 
         // Fetch bookings first, as we need BookingID as the main identifier
         $query = Booking::select([
