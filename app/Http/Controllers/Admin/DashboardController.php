@@ -51,7 +51,7 @@ class DashboardController extends Controller
 
         // Fetch bookings related to this invoice only
         $bookings = Booking::where('BookingRequestID', $invoice->BookingRequestID);
-
+        
         if ($isSplitInvoice) {
             // If it's a split invoice, fetch only this split invoice
             $bookings->where('parent_invoice_id', $invoice->InvoiceID);
@@ -61,12 +61,21 @@ class DashboardController extends Controller
         }
 
         $bookings = $bookings->get();
+<<<<<<< HEAD
         // $booking = $bookings->first();
         // dd($invoice);
         return view('admin.pages.invoice.invoice_details', compact('invoice', 'bookings', 'bookingData', 'isSplitInvoice'));
     }
 
 
+=======
+        
+        $booking = $bookings->first();
+        
+        return view('admin.pages.invoice.invoice_details', compact('invoice', 'bookings', 'booking', 'isSplitInvoice'));
+    }
+
+>>>>>>> 04ff2a03132aa4570129b5ce4eb45e514332322d
     public function getInvoiceItems(Request $request)
     {
         // dd($request->all());
@@ -109,6 +118,29 @@ class DashboardController extends Controller
         return response()->json(['invoice_items' => $items]);
     }
 
+    public function getMergeBookingItems(Request $request)
+    {
+        $id = $request->invoice_id;
+        // dd($id);
+        $item = BookingRequest::with('booking', 'invoice_items')
+            ->where('BookingRequestID', $id)
+            ->first();
+        
+            if (!$item) {
+                return response()->json(['error' => 'Booking request not found'], 404);
+            }
+        
+            $CompanyName = $item->CompanyName;
+            $CreateDate = \Carbon\Carbon::parse($item->CreateDateTime)->toDateString(); // Extract only date (YYYY-MM-DD)
+        
+            // Fetch records where CompanyName matches and CreateDate (date part) matches
+            $items = BookingRequest::with('booking', 'invoice_items')
+                ->where('CompanyName', $CompanyName)
+                ->whereDate('CreateDateTime', $CreateDate) // Compare only the date part
+                ->get();
+
+        return response()->json(['invoice_items' => $items]);
+    }
 
 
     public function splitInvoice(Request $request)
@@ -209,7 +241,41 @@ class DashboardController extends Controller
         return response()->json(['success' => 'Split invoice created successfully', 'invoice' => $invoice]);
     }
 
+    public function mergeBooking(Request $request)
+    {
+        $originalBooking = BookingRequest::with('booking', 'invoice_items')
+            ->where('BookingRequestID', $request->booking_request_id)
+            ->first();
 
+        if (!$originalBooking) {
+            return response()->json(['error' => 'Original Booking not found'], 404);
+        }
+
+        foreach ($request->bookings as $booking) {
+            // $loads = Booking::where('BookingID', $load['LoadID'])->first();
+            // // dd($loads);
+            // if (!$loads) {
+            //     return response()->json(['error' => 'Load not found'], 404);
+            // }
+
+            $bookingRequest = BookingRequest::where('BookingRequestID', $booking['BookingID'])->first();
+            if (!$bookingRequest) {
+                return response()->json(['error' => 'Booking request not found'], 404);
+            }
+
+            Booking::where('BookingRequestID', $booking['BookingID'])
+            ->update([
+                'BookingRequestID' => $request->booking_request_id,
+                'OriginalBookingRequestID' => $booking['BookingID']
+            ]);
+
+            BookingRequest::where('BookingRequestID', $booking['BookingID'])
+                            ->update(['is_delete' => 1]);
+
+        }
+
+        return response()->json(['success' => 'Booking Merge successfully', 'invoice' => $bookingRequest]);
+    }
 
 
 }
