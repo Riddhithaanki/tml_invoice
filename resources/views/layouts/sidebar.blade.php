@@ -154,10 +154,11 @@
         display: flex;
         justify-content: center;
         width: 100%;
+        border-radius: 12px;
     }
 
     .logo-img {
-        width: 150px;
+        width: 250px;
         height: auto;
         transition: transform 0.3s ease;
     }

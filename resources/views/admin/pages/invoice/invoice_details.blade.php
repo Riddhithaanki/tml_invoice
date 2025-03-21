@@ -7,7 +7,7 @@
                 <a href="#" class="text-decoration-none text-primary">
                     <i class="fas fa-arrow-left me-2"></i>
                 </a>
-                <h4 class="m-0 fw-bold">Booking No. : {{ $booking->BookingID }}</h4>
+                <h4 class="m-0 fw-bold">Booking No. : {{ $bookingData->BookingID }}</h4>
             </div>
 
             <div class="row g-4">
@@ -19,10 +19,10 @@
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
-                                <strong>Company Name:</strong> {{ $booking->bookingRequest->CompanyName }}
+                                <strong>Company Name:</strong> {{ $bookingData->bookingRequest->CompanyName }}
                             </div>
                             <div class="mb-3">
-                                <strong>Opportunity Name:</strong> {{ $booking->bookingRequest->OpportunityName }}
+                                <strong>Opportunity Name:</strong> {{ $bookingData->bookingRequest->OpportunityName }}
                             </div>
                         </div>
                     </div>
@@ -37,15 +37,15 @@
                         <div class="card-body">
                             <div class="mb-3">
                                 <strong>Waiting Time:</strong> <span
-                                    class="badge bg-light text-dark">{{ $booking->bookingRequest->WaitingTime }}</span>
+                                    class="badge bg-light text-dark">{{ $bookingData->bookingRequest->WaitingTime }}</span>
                             </div>
                             <div class="mb-3">
                                 <strong>Wait Charges:</strong> <span class="badge bg-light text-dark">
-                                    {{ $booking->bookingRequest->WaitingCharge }} </span>
+                                    {{ $bookingData->bookingRequest->WaitingCharge }} </span>
                             </div>
                             <div class="mb-3">
                                 <strong>Purchase Order:</strong> <span class="badge bg-light text-dark">
-                                    {{ $booking->PurchaseOrderNo }} </span>
+                                    {{ $bookingData->PurchaseOrderNo }} </span>
                             </div>
                             <div class="mb-3">
                                 <strong>Notes:</strong> <span class="text-muted fst-italic">Req: 8 AM Start - 8 AM Onwards -
@@ -176,11 +176,12 @@
                     </div>
                     <div class="mb-3">
                         <label for="comment" class="form-label fw-bold">Comment:</label>
-                        <textarea class="form-control border-2" id="comment" rows="4" placeholder="Please Enter Your Any Comment Here."></textarea>
+                        <textarea class="form-control border-2" id="comment" rows="4"
+                            placeholder="Please Enter Your Any Comment Here."></textarea>
                     </div>
                     <div class="text-end">
                         <button class="btn btn-secondary btn-lg px-4 me-2" data-bs-toggle="modal"
-                            data-bs-target="#splitInvoiceModal" data-invoice-id="{{ $booking['BookingRequestID'] }}">
+                            data-bs-target="#splitInvoiceModal" data-invoice-id="{{ $bookingData->BookingID }}">
                             <i class="fas fa-random me-2"></i>Split Invoice
                         </button>
 
@@ -215,7 +216,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button id="submitSelectedLoads" class="btn btn-primary mt-3"
-                        data-booking-request-id="{{ $booking['BookingRequestID'] }}">Confirm Split</button>
+                        data-booking-request-id="{{ $bookingData->BookingRequestID }}">Confirm Split</button>
 
                 </div>
             </div>
@@ -237,7 +238,7 @@
                     // Show loader
                     content.html(
                         '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading booking details...</p></div>'
-                        );
+                    );
                     container.removeClass('d-none').slideDown(300);
 
                     $.ajax({
@@ -251,7 +252,7 @@
                                 0) {
                                 content.html(
                                     '<div class="text-center py-4 text-danger fw-bold">No details found for this booking.</div>'
-                                    );
+                                );
                                 return;
                             }
 
@@ -322,7 +323,7 @@
                         error: function() {
                             content.html(
                                 '<div class="text-center py-4 text-danger fw-bold">Error loading details. Please try again.</div>'
-                                );
+                            );
                         }
                     });
                 } else {
@@ -402,8 +403,11 @@
 
                 // Show loader
                 modalBody.html(
-                    '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading invoice items...</p></div>'
-                    );
+                    '<div class="text-center py-4">' +
+                    '<div class="spinner-border text-primary" role="status">' +
+                    '<span class="visually-hidden">Loading...</span></div>' +
+                    '<p class="mt-2 text-primary">Loading invoice items...</p></div>'
+                );
 
                 // Fetch invoice items via AJAX
                 $.ajax({
@@ -416,59 +420,50 @@
                         if (!response.invoice_items || response.invoice_items.length === 0) {
                             modalBody.html(
                                 '<div class="text-center py-4 text-danger fw-bold">No details found for this invoice.</div>'
-                                );
+                            );
                             return;
                         }
-                        console.log(response);
+
+                        console.log(response); // Debugging the response
 
                         var html = `<div class="table-responsive">
-                                                    <table class="table table-bordered table-striped table-hover">
-                                                        <thead class="table-primary">
-                                                            <tr>
-                                                                <th>Select</th>
-                                                                <th>Booking ID</th>
-                                                                <th>Material</th>
-                                                                <th>Load Type</th>
-                                                                <th>Total Loads</th>
-                                                                <th>Price/Load</th>
-                                                                <th>Total Price</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>`;
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Select</th>
+                                <th>Booking ID</th>
+                                <th>Company Name</th>
+                                <th>Material</th>
+                                <th>Load Type</th>
+                                <th>Total Loads</th>
+                                <th>Price/Load</th>
+                                <th>Total Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
 
-                        // Iterate through invoice_items
-                        response.invoice_items.forEach(invoice => {
-                            if (!invoice.booking || (Array.isArray(invoice.booking) &&
-                                    invoice.booking.length === 0)) {
-                                html += `<tr>
-                        <td colspan="7" class="text-center text-warning fw-bold">No bookings found.</td>
-                     </tr>`;
-                            } else {
-                                // Ensure `invoice.booking` is an array
-                                let bookings = Array.isArray(invoice.booking) ? invoice
-                                    .booking : [invoice.booking];
+                        // Loop through each invoice item (Booking)
+                        response.invoice_items.forEach(booking => {
+                            let bookingRequest = booking
+                            .booking_request; // Related booking request
 
-                                // Loop through the bookings
-                                bookings.forEach(booking => {
-                                    html += `<tr>
-                            <td class="text-center">
-                                <input type="checkbox" class="form-check-input split-checkbox" value="${booking.BookingID}">
-                            </td>
-                            <td>${booking.BookingID}</td>
-                            <td>${booking.MaterialName}</td>
-                            <td>${booking.LoadType}</td>
-                            <td class="text-center fw-bold">${booking.Loads}</td>
-                            <td class="text-center">£${booking.Price}</td>
-                            <td class="text-end fw-bold">£${booking.TotalAmount}</td>
-                        </tr>`;
-                                });
-                            }
+                            html += `<tr>
+                        <td class="text-center">
+                            <input type="checkbox" class="form-check-input split-checkbox" value="${booking.BookingID}">
+                        </td>
+                        <td>${booking.BookingID}</td>
+                        <td>${bookingRequest ? bookingRequest.CompanyName : 'N/A'}</td>
+                        <td>${booking.MaterialName || 'N/A'}</td>
+                        <td>${booking.LoadType || 'N/A'}</td>
+                        <td class="text-center fw-bold">${booking.Loads || 0}</td>
+                        <td class="text-center">£${parseFloat(booking.Price).toFixed(2) || '0.00'}</td>
+                        <td class="text-end fw-bold">£${parseFloat(booking.TotalAmount).toFixed(2) || '0.00'}</td>
+                    </tr>`;
                         });
-
 
                         html += '</tbody></table></div>';
 
-                        // Fade out loader and show content
+                        // Fade out loader and show table
                         setTimeout(() => {
                             modalBody.fadeOut(200, function() {
                                 $(this).html(html).fadeIn(300);
@@ -478,10 +473,12 @@
                     error: function() {
                         modalBody.html(
                             '<p class="text-danger text-center">Error loading data. Please try again.</p>'
-                            );
+                        );
                     }
                 });
             });
+
+
 
             function calculateWaitTime(siteIn, siteOut) {
                 if (!siteIn || !siteOut) return "N/A";

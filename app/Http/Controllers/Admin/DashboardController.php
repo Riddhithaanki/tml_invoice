@@ -28,14 +28,14 @@ class DashboardController extends Controller
         $id = Crypt::decrypt($id);
 
         // Find the booking entry using BookingID
-        $booking = Booking::with('loads','bookingRequest')->where('BookingID', $id)->first();
+        $bookingData = Booking::with('loads', 'bookingRequest')->where('BookingID', $id)->first();
         // dd($booking);
-        if (!$booking) {
+        if (!$bookingData) {
             return abort(404, 'Booking not found');
         }
 
         // Fetch the BookingRequestID from the booking
-        $bookingRequestId = $booking->BookingRequestID;
+        $bookingRequestId = $bookingData->BookingRequestID;
 
         // Fetch Invoice (Original or Split)
         $invoice = BookingRequest::with('booking', 'invoice_items', 'invoice')
@@ -63,12 +63,8 @@ class DashboardController extends Controller
         $bookings = $bookings->get();
         // $booking = $bookings->first();
         // dd($invoice);
-        return view('admin.pages.invoice.invoice_details', compact('invoice', 'bookings', 'booking', 'isSplitInvoice'));
+        return view('admin.pages.invoice.invoice_details', compact('invoice', 'bookings', 'bookingData', 'isSplitInvoice'));
     }
-
-
-
-
 
 
     public function getInvoiceItems(Request $request)
@@ -86,29 +82,85 @@ class DashboardController extends Controller
     public function getSplitInvoiceItems(Request $request)
     {
         $id = $request->invoice_id;
-        // dd($id);
-        $items = BookingRequest::with('booking', 'invoice_items')
-            ->where('BookingRequestID', $id)
+
+        // Fetch booking data with parent invoice ID (only if it's a split invoice)
+        $bookingData = Booking::with('loads', 'bookingRequest')
+            ->where('BookingID', $id)
+            ->first();
+
+        // Check if booking data exists
+        if (!$bookingData) {
+            return response()->json(['error' => 'No split invoice found for this booking'], 404);
+        }
+
+        $bookingRequestId = $bookingData->BookingRequestID;
+
+        // Fetch invoice items linked to the same BookingRequestID
+        $items = Booking::with('bookingRequest')
+            ->where('BookingRequestID', $bookingRequestId)
+            ->whereNull('parent_invoice_id')
             ->get();
+
+        // Check if items exist
+        if ($items->isEmpty()) {
+            return response()->json(['error' => 'No invoice items found'], 404);
+        }
 
         return response()->json(['invoice_items' => $items]);
     }
 
 
+
     public function splitInvoice(Request $request)
     {
         // dd($request->all());
+
+        // Find the original invoice
         $originalInvoice = BookingInvoice::where('BookingRequestID', $request->booking_request_id)
             ->where('is_split', 0)
             ->first();
 
+        // If no original invoice exists, create a new one
         if (!$originalInvoice) {
-            return response()->json(['error' => 'Original invoice not found'], 404);
+            $bookingRequest = BookingRequest::where('BookingRequestID', $request->booking_request_id)->first();
+
+            if (!$bookingRequest) {
+                return response()->json(['error' => 'Booking request not found'], 404);
+            }
+
+            $lastInvoice = BookingInvoice::orderBy('CreateDateTime', 'DESC')->first();
+            $newInvoiceNumber = $lastInvoice ? str_pad((int) $lastInvoice->InvoiceNumber + 1, 7, '0', STR_PAD_LEFT) : '0000001';
+
+            // Create a new original invoice
+            $originalInvoice = new BookingInvoice();
+            $originalInvoice->BookingRequestID = $bookingRequest->BookingRequestID;
+            $originalInvoice->InvoiceDate = today();
+            $originalInvoice->InvoiceType = 0;
+            $originalInvoice->InvoiceNumber = $newInvoiceNumber;
+            $originalInvoice->CompanyID = $bookingRequest->CompanyID;
+            $originalInvoice->CompanyName = $bookingRequest->CompanyName;
+            $originalInvoice->OpportunityID = $bookingRequest->OpportunityID;
+            $originalInvoice->OpportunityName = $bookingRequest->OpportunityName;
+            $originalInvoice->ContactID = $bookingRequest->ContactID;
+            $originalInvoice->ContactName = $bookingRequest->ContactName;
+            $originalInvoice->ContactMobile = $bookingRequest->ContactMobile;
+            $originalInvoice->SubTotalAmount = $bookingRequest->TotalAmount;
+            $originalInvoice->VatAmount = $bookingRequest->TotalAmount * 0.2; // Assuming VAT is 20%
+            $originalInvoice->FinalAmount = $bookingRequest->TotalAmount + $originalInvoice->VatAmount;
+            $originalInvoice->TaxRate = 20.00;
+            $originalInvoice->Status = 0; // Assuming "0" means ready
+            $originalInvoice->CreatedUserID = auth()->id();
+            $originalInvoice->CreateDateTime = now();
+            $originalInvoice->UpdateDateTime = now();
+            $originalInvoice->is_split = 1; // Mark it as original
+
+            $originalInvoice->save();
         }
 
+        // Now proceed to split loads into new invoices
         foreach ($request->loads as $load) {
             $loads = Booking::where('BookingID', $load['LoadID'])->first();
-            // dd($loads);
+
             if (!$loads) {
                 return response()->json(['error' => 'Load not found'], 404);
             }
@@ -124,6 +176,7 @@ class DashboardController extends Controller
             // Create Split Invoice
             $invoice = new BookingInvoice();
             $invoice->BookingRequestID = $loads->BookingRequestID;
+            $invoice->BookingId = $loads->BookingID;
             $invoice->InvoiceDate = today();
             $invoice->InvoiceType = 0;
             $invoice->InvoiceNumber = $newInvoiceNumber;
@@ -145,9 +198,9 @@ class DashboardController extends Controller
 
             // Set the parent_invoice_id to link to the original invoice
             $invoice->parent_invoice_id = $originalInvoice->InvoiceID;
-
+            $invoice->is_split = 1; // Mark it as split
             $invoice->save();
-            // dd($originalInvoice);
+
             // Update the load to reference the split invoice
             $loads->parent_invoice_id = $originalInvoice->InvoiceID;
             $loads->save();
@@ -155,6 +208,7 @@ class DashboardController extends Controller
 
         return response()->json(['success' => 'Split invoice created successfully', 'invoice' => $invoice]);
     }
+
 
 
 
