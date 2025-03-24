@@ -1,5 +1,44 @@
 @extends('layouts.main')
 
+<style>
+    .timeline {
+        position: relative;
+        padding: 20px;
+        border-left: 3px solid #007bff;
+        margin-left: 10px;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding: 10px 0;
+        margin-bottom: 10px;
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: -8px;
+        top: 10px;
+        width: 16px;
+        height: 16px;
+        background-color: #007bff;
+        border-radius: 50%;
+    }
+
+    .timeline-content {
+        margin-left: 20px;
+    }
+
+    .timeline-date {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .timeline-text {
+        font-size: 14px;
+        margin-top: 5px;
+    }
+</style>
+
 @section('content')
     <div class="container">
         <div class="booking-section p-4 bg-light rounded shadow-sm">
@@ -130,6 +169,7 @@
                                             class="text-primary fw-bold">£{{ $booking->Price }}</span>
                                     </td>
                                     <td class="text-end fw-bold">£{{ $booking->TotalAmount }}</td>
+
                                 </tr>
                                 <tr class="invoice-items-container d-none" data-booking-id="{{ $booking->BookingID }}">
                                     <td colspan="9" class="p-0">
@@ -144,19 +184,22 @@
                             <tr>
                                 <td colspan="7"></td>
                                 <td class="text-end"><strong>SubTotal</strong></td>
-                                <td class="text-end">£{{ $invoice->SubTotalAmount }}</td>
+                                <td class="text-end invoice-subtotal">£{{ number_format($invoice->SubTotalAmount, 2) }}
+                                </td>
                             </tr>
                             <tr>
                                 <td colspan="7"></td>
                                 <td class="text-end"><strong>VAT ({{ $invoice->TaxRate }}%)</strong></td>
-                                <td class="text-end">£{{ $invoice->VatAmount }}</td>
+                                <td class="text-end invoice-vat">£{{ number_format($invoice->VatAmount, 2) }}</td>
                             </tr>
                             <tr>
                                 <td colspan="7"></td>
                                 <td class="text-end"><strong>Total</strong></td>
-                                <td class="text-end fw-bold fs-5">£{{ $invoice->TotalAmount }}</td>
+                                <td class="text-end fw-bold fs-5 invoice-total">
+                                    £{{ number_format($invoice->TotalAmount, 2) }}</td>
                             </tr>
                         </tfoot>
+
                     </table>
                 </div>
             </div>
@@ -223,40 +266,56 @@
         </div>
     </div>
 
+    <div class="modal fade" id="priceHistoryModal" tabindex="-1" aria-labelledby="priceHistoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="priceHistoryModalLabel">Price Change History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Price history will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
 
     <!-- jQuery (Ensure it's included in your layout) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
         $(document).ready(function() {
-            $('.toggle-invoice').on('click', function() {
-                let bookingId = $(this).data('booking-id');
-                let container = $('.invoice-items-container[data-booking-id="' + bookingId + '"]');
-                let content = container.find('.invoice-items-content');
+                    $('.toggle-invoice').on('click', function() {
+                        let bookingId = $(this).data('booking-id');
+                        let container = $('.invoice-items-container[data-booking-id="' + bookingId + '"]');
+                        let content = container.find('.invoice-items-content');
 
-                if (container.hasClass('d-none')) {
-                    // Show loader
-                    content.html(
-                        '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading booking details...</p></div>'
-                    );
-                    container.removeClass('d-none').slideDown(300);
+                        if (container.hasClass('d-none')) {
+                            // Show loader
+                            content.html(
+                                '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading booking details...</p></div>'
+                            );
+                            container.removeClass('d-none').slideDown(300);
 
-                    $.ajax({
-                        url: "{{ route('get.invoice.items') }}",
-                        type: "GET",
-                        data: {
-                            booking_id: bookingId
-                        },
-                        success: function(response) {
-                            if (!response.invoice_items || response.invoice_items.length ===
-                                0) {
-                                content.html(
-                                    '<div class="text-center py-4 text-danger fw-bold">No details found for this booking.</div>'
-                                );
-                                return;
-                            }
+                            $.ajax({
+                                url: "{{ route('get.invoice.items') }}",
+                                type: "GET",
+                                data: {
+                                    booking_id: bookingId
+                                },
+                                success: function(response) {
+                                    if (!response.invoice_items || response.invoice_items.length ===
+                                        0) {
+                                        content.html(
+                                            '<div class="text-center py-4 text-danger fw-bold">No details found for this booking.</div>'
+                                        );
+                                        return;
+                                    }
 
-                            let html = `<div class="table-responsive">
+                                    let html = `<div class="table-responsive">
                                                             <table class="table table-bordered table-striped table-hover">
                                                                 <thead class="table-primary">
                                                                     <tr>
@@ -276,157 +335,292 @@
                                                                 </thead>
                                                                 <tbody>`;
 
-                            response.invoice_items.forEach(item => {
-                                if (!item.loads || item.loads.length === 0) {
-                                    // If loads is empty, show "No data found"
-                                    html += `<tr>
-                                                                <td colspan="12" class="text-center text-warning fw-bold">No details available for this material.</td>
-                                                             </tr>`;
-                                } else {
-                                    // Loop through loads if available
-                                    item.loads.forEach(load => {
-                                        let waitTime = calculateWaitTime(load
-                                            .SiteInDateTime, load
-                                            .SiteOutDateTime);
-                                        let statusText = getStatusText(load
-                                            .Status);
-                                        let statusClass = getStatusClass(load
-                                            .Status);
+                                    response.invoice_items.forEach(item => {
+                                        if (!item.loads || item.loads.length === 0) {
+                                            html += `<tr>
+                                    <td colspan="12" class="text-center text-warning fw-bold">No details available for this material.</td>
+                                </tr>`;
+                                        } else {
+                                            item.loads.forEach(load => {
+                                                let waitTime = calculateWaitTime(load
+                                                    .SiteInDateTime, load
+                                                    .SiteOutDateTime);
+                                                let statusText = getStatusText(load
+                                                    .Status);
+                                                let statusClass = getStatusClass(load
+                                                    .Status);
 
-                                        html += `<tr>
-                                                                    <td>${load.ConveyanceNo}</td>
-                                                                    <td><span class="badge bg-dark">${load.TicketID}</span></td>
-                                                                    <td>${formatDateTime(load.JobStartDateTime)}</td>
-                                                                    <td>${load.DriverName}</td>
-                                                                    <td>${load.VehicleRegNo}</td>
-                                                                    <td class="text-end">${formatWeight(load.GrossWeight)}</td>
-                                                                    <td class="text-end">${formatWeight(load.Tare)}</td>
-                                                                    <td class="text-end fw-bold">${formatWeight(load.Net)}</td>
-                                                                    <td>${item.MaterialName}</td>
-                                                                    <td>${waitTime}</td>
-                                                                    <td><span class="badge ${statusClass}">${statusText}</span></td>
-                                                                    <td class="text-end fw-bold">£${load.LoadPrice}</td>
-                                                                </tr>`;
+                                                html += `<tr>
+                                        <td>${load.ConveyanceNo}</td>
+                                        <td><span class="badge bg-dark">${load.TicketID}</span></td>
+                                        <td>${formatDateTime(load.JobStartDateTime)}</td>
+                                        <td>${load.DriverName}</td>
+                                        <td>${load.VehicleRegNo}</td>
+                                        <td class="text-end">${formatWeight(load.GrossWeight)}</td>
+                                        <td class="text-end">${formatWeight(load.Tare)}</td>
+                                        <td class="text-end fw-bold">${formatWeight(load.Net)}</td>
+                                        <td>${item.MaterialName}</td>
+                                        <td>${waitTime}</td>
+                                        <td><span class="badge ${statusClass}">${statusText}</span></td>
+                                        <td class="text-end fw-bold">
+                                            <div class="d-flex align-items-center">
+                                                <input type="text" class="form-control editable-price me-2"
+                                                    style="width: 100px;"
+                                                    data-ticket-id="${load.TicketID}"
+                                                    value="${load.LoadPrice}">
+                                                <button class="btn btn-sm btn-outline-primary price-history-btn"
+                                                        data-ticket-id="${load.TicketID}"
+                                                        title="View Price History">
+                                                    <i class="fas fa-history"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>`;
+                                            });
+                                        }
                                     });
+
+
+
+                                    html += '</tbody></table></div>';
+
+                                    // Animate content replacement
+                                    setTimeout(() => {
+                                        content.fadeOut(200, function() {
+                                            $(this).html(html).fadeIn(300);
+                                        });
+                                    }, 500);
+                                },
+                                error: function() {
+                                    content.html(
+                                        '<div class="text-center py-4 text-danger fw-bold">Error loading details. Please try again.</div>'
+                                    );
                                 }
                             });
+                        } else {
+                            // Hide content
+                            container.slideUp(300, function() {
+                                $(this).addClass('d-none').css('display', '');
+                            });
+                        }
 
-                            html += '</tbody></table></div>';
+                        // Toggle expand icon
+                        $(this).find('i').toggleClass('fa-chevron-down fa-chevron-up');
+                    });
 
-                            // Animate content replacement
-                            setTimeout(() => {
-                                content.fadeOut(200, function() {
-                                    $(this).html(html).fadeIn(300);
+                    $(document).on('keydown', '.editable-price', function(event) {
+                        if (event.key === "Enter" || event.key === "Tab") {
+                            event.preventDefault(); // Prevent default tab/enter behavior
+
+                            let input = $(this);
+                            let newPrice = parseFloat(input.val()) || 0;
+                            let ticketId = input.data('ticket-id');
+
+                            if (confirm(`Are you sure you want to update the price to £${newPrice.toFixed(2)}?`)) {
+                                // Update the price field and recalculate totals
+                                input.val(newPrice.toFixed(2));
+
+                                // Send AJAX request to save price
+                                $.ajax({
+                                    url: "{{ route('update.invoice.price') }}",
+                                    type: "POST",
+                                    data: {
+                                        ticket_id: ticketId,
+                                        new_price: newPrice,
+                                        _token: "{{ csrf_token() }}"
+                                    },
+                                    success: function(response) {
+                                        console.log("Price updated successfully.");
+                                        updateInvoiceTotals
+                                            (); // Ensure totals update only on successful response
+                                    },
+                                    error: function() {
+                                        alert("Failed to update price. Try again.");
+                                        input.val(input.data(
+                                            'original-price')); // Reset to original if failed
+                                    }
                                 });
-                            }, 500);
-                        },
-                        error: function() {
-                            content.html(
-                                '<div class="text-center py-4 text-danger fw-bold">Error loading details. Please try again.</div>'
-                            );
+                            } else {
+                                input.val(input.data('original-price')); // Reset to original if canceled
+                            }
                         }
                     });
-                } else {
-                    // Hide content
-                    container.slideUp(300, function() {
-                        $(this).addClass('d-none').css('display', '');
+
+
+
+                    function updateInvoiceTotals() {
+                        let subtotal = 0;
+                        let bookingTotals = {}; // Store totals per booking
+
+                        // Sum all price input values and group by booking ID
+                        $('.editable-price').each(function() {
+                            let price = parseFloat($(this).val()) || 0;
+                            let bookingId = $(this).data('booking-id'); // Fetch BookingID from the input field
+
+                            subtotal += price;
+
+                            if (!bookingTotals[bookingId]) {
+                                bookingTotals[bookingId] = 0;
+                            }
+                            bookingTotals[bookingId] += price;
+                        });
+
+                        // VAT Calculation (Assuming 20%)
+                        let vatRate = parseFloat("{{ $invoice->TaxRate }}") || 20; // Get VAT rate
+                        let vatAmount = (subtotal * vatRate) / 100;
+                        let total = subtotal + vatAmount;
+
+                        // Update the invoice totals dynamically
+                        $('.invoice-subtotal').text(`£${subtotal.toFixed(2)}`);
+                        $('.invoice-vat').text(`£${vatAmount.toFixed(2)}`);
+                        $('.invoice-total').text(`£${total.toFixed(2)}`);
+
+                        // Update each booking's total amount dynamically
+                        for (let bookingId in bookingTotals) {
+                            $(`.booking-total[data-booking-id="${bookingId}"]`).text(
+                                `£${bookingTotals[bookingId].toFixed(2)}`);
+                        }
+                    }
+
+                    $(document).on('click', '.price-history-btn', function() {
+                        let ticketId = $(this).data('ticket-id');
+
+                        $.ajax({
+                            url: "{{ route('get.price.history') }}",
+                            type: "GET",
+                            data: {
+                                ticket_id: ticketId
+                            },
+                            success: function(response) {
+                                if (!response.history || response.history.length === 0) {
+                                    $('#priceHistoryModal .modal-body').html(
+                                        '<div class="text-center text-danger">No price history found.</div>'
+                                        );
+                                    $('#priceHistoryModal').modal('show');
+                                    return;
+                                }
+
+                                let historyHtml = `<div class="timeline">`;
+
+                                response.history.forEach(record => {
+                                    historyHtml += `
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-date">${formatDateTime(record.ChangedAt)}</span>
+                    <div class="timeline-text">
+                        <strong>Changed By:</strong> <span class="text-primary">${record.ChangedByName}</span><br>
+                        <strong>Price Changed:</strong>
+                        <span class="text-danger">£${record.OldPrice}</span> →
+                        <span class="text-success">£${record.NewPrice}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+                                });
+
+                                historyHtml += `</div>`;
+
+                                $('#priceHistoryModal .modal-body').html(historyHtml);
+                                $('#priceHistoryModal').modal('show');
+                            }
+
+                        });
+
                     });
-                }
 
-                // Toggle expand icon
-                $(this).find('i').toggleClass('fa-chevron-down fa-chevron-up');
-            });
 
-            function calculateWaitTime(siteIn, siteOut) {
-                if (!siteIn || !siteOut) return "N/A";
-                let inTime = new Date(siteIn);
-                let outTime = new Date(siteOut);
-                let diffMinutes = Math.round((outTime - inTime) / 60000);
-                return diffMinutes > 60 ? `${Math.floor(diffMinutes / 60)}h ${diffMinutes % 60}m` :
-                    `${diffMinutes} min`;
-            }
+                        function calculateWaitTime(siteIn, siteOut) {
+                            if (!siteIn || !siteOut) return "N/A";
+                            let inTime = new Date(siteIn);
+                            let outTime = new Date(siteOut);
+                            let diffMinutes = Math.round((outTime - inTime) / 60000);
+                            return diffMinutes > 60 ? `${Math.floor(diffMinutes / 60)}h ${diffMinutes % 60}m` :
+                                `${diffMinutes} min`;
+                        }
 
-            function getStatusText(status) {
-                const statusMap = {
-                    0: "Allocated",
-                    1: "Accepted",
-                    2: "Arrive Site",
-                    3: "Receipt Generated",
-                    4: "Finish Load",
-                    5: "Cancel Load"
-                };
-                return statusMap[status] || "Unknown";
-            }
+                        function getStatusText(status) {
+                            const statusMap = {
+                                0: "Allocated",
+                                1: "Accepted",
+                                2: "Arrive Site",
+                                3: "Receipt Generated",
+                                4: "Finish Load",
+                                5: "Cancel Load"
+                            };
+                            return statusMap[status] || "Unknown";
+                        }
 
-            function getStatusClass(status) {
-                const classMap = {
-                    0: "bg-secondary",
-                    1: "bg-info",
-                    2: "bg-warning",
-                    3: "bg-primary",
-                    4: "bg-success",
-                    5: "bg-danger"
-                };
-                return classMap[status] || "bg-secondary";
-            }
+                        function getStatusClass(status) {
+                            const classMap = {
+                                0: "bg-secondary",
+                                1: "bg-info",
+                                2: "bg-warning",
+                                3: "bg-primary",
+                                4: "bg-success",
+                                5: "bg-danger"
+                            };
+                            return classMap[status] || "bg-secondary";
+                        }
 
-            function formatDateTime(dateTime) {
-                if (!dateTime) return "N/A";
+                        function formatDateTime(dateTime) {
+                            if (!dateTime) return "N/A";
 
-                const date = new Date(dateTime);
+                            const date = new Date(dateTime);
 
-                // Extract date components
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-                const day = String(date.getDate()).padStart(2, '0');
+                            // Extract date components
+                            const year = date.getFullYear();
+                            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+                            const day = String(date.getDate()).padStart(2, '0');
 
-                // Extract time components
-                const hours = String(date.getHours()).padStart(2, '0');
-                const minutes = String(date.getMinutes()).padStart(2, '0');
-                const seconds = String(date.getSeconds()).padStart(2, '0');
+                            // Extract time components
+                            const hours = String(date.getHours()).padStart(2, '0');
+                            const minutes = String(date.getMinutes()).padStart(2, '0');
+                            const seconds = String(date.getSeconds()).padStart(2, '0');
 
-                // Construct the formatted string
-                return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-            }
+                            // Construct the formatted string
+                            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                        }
 
-            function formatWeight(weight) {
-                return weight ? parseFloat(weight).toLocaleString('en-GB') : "0";
-            }
-        });
+                        function formatWeight(weight) {
+                            return weight ? parseFloat(weight).toLocaleString('en-GB') : "0";
+                        }
+                    });
 
-        $(document).ready(function() {
-            $('#splitInvoiceModal').on('show.bs.modal', function(e) {
-                var button = $(e.relatedTarget);
-                var invoiceId = button.data('invoice-id');
-                var modal = $(this);
-                var modalBody = modal.find('.modal-body');
+                    $(document).ready(function() {
+                        $('#splitInvoiceModal').on('show.bs.modal', function(e) {
+                            var button = $(e.relatedTarget);
+                            var invoiceId = button.data('invoice-id');
+                            var modal = $(this);
+                            var modalBody = modal.find('.modal-body');
 
-                // Show loader
-                modalBody.html(
-                    '<div class="text-center py-4">' +
-                    '<div class="spinner-border text-primary" role="status">' +
-                    '<span class="visually-hidden">Loading...</span></div>' +
-                    '<p class="mt-2 text-primary">Loading invoice items...</p></div>'
-                );
-
-                // Fetch invoice items via AJAX
-                $.ajax({
-                    url: "{{ route('get.splitinvoice.items') }}",
-                    type: "GET",
-                    data: {
-                        invoice_id: invoiceId
-                    },
-                    success: function(response) {
-                        if (!response.invoice_items || response.invoice_items.length === 0) {
+                            // Show loader
                             modalBody.html(
-                                '<div class="text-center py-4 text-danger fw-bold">No details found for this invoice.</div>'
+                                '<div class="text-center py-4">' +
+                                '<div class="spinner-border text-primary" role="status">' +
+                                '<span class="visually-hidden">Loading...</span></div>' +
+                                '<p class="mt-2 text-primary">Loading invoice items...</p></div>'
                             );
-                            return;
-                        }
 
-                        console.log(response); // Debugging the response
+                            // Fetch invoice items via AJAX
+                            $.ajax({
+                                url: "{{ route('get.splitinvoice.items') }}",
+                                type: "GET",
+                                data: {
+                                    invoice_id: invoiceId
+                                },
+                                success: function(response) {
+                                    if (!response.invoice_items || response.invoice_items
+                                        .length === 0) {
+                                        modalBody.html(
+                                            '<div class="text-center py-4 text-danger fw-bold">No details found for this invoice.</div>'
+                                        );
+                                        return;
+                                    }
 
-                        var html = `<div class="table-responsive">
+                                    console.log(response); // Debugging the response
+
+                                    var html = `<div class="table-responsive">
                     <table class="table table-bordered table-striped table-hover">
                         <thead class="table-primary">
                             <tr>
@@ -442,12 +636,12 @@
                         </thead>
                         <tbody>`;
 
-                        // Loop through each invoice item (Booking)
-                        response.invoice_items.forEach(booking => {
-                            let bookingRequest = booking
-                            .booking_request; // Related booking request
+                                    // Loop through each invoice item (Booking)
+                                    response.invoice_items.forEach(booking => {
+                                        let bookingRequest = booking
+                                            .booking_request; // Related booking request
 
-                            html += `<tr>
+                                        html += `<tr>
                         <td class="text-center">
                             <input type="checkbox" class="form-check-input split-checkbox" value="${booking.BookingID}">
                         </td>
@@ -459,121 +653,123 @@
                         <td class="text-center">£${parseFloat(booking.Price).toFixed(2) || '0.00'}</td>
                         <td class="text-end fw-bold">£${parseFloat(booking.TotalAmount).toFixed(2) || '0.00'}</td>
                     </tr>`;
+                                    });
+
+                                    html += '</tbody></table></div>';
+
+                                    // Fade out loader and show table
+                                    setTimeout(() => {
+                                        modalBody.fadeOut(200, function() {
+                                            $(this).html(html).fadeIn(300);
+                                        });
+                                    }, 500);
+                                },
+                                error: function() {
+                                    modalBody.html(
+                                        '<p class="text-danger text-center">Error loading data. Please try again.</p>'
+                                    );
+                                }
+                            });
                         });
 
-                        html += '</tbody></table></div>';
-
-                        // Fade out loader and show table
-                        setTimeout(() => {
-                            modalBody.fadeOut(200, function() {
-                                $(this).html(html).fadeIn(300);
-                            });
-                        }, 500);
-                    },
-                    error: function() {
-                        modalBody.html(
-                            '<p class="text-danger text-center">Error loading data. Please try again.</p>'
-                        );
-                    }
-                });
-            });
 
 
+                        function calculateWaitTime(siteIn, siteOut) {
+                            if (!siteIn || !siteOut) return "N/A";
+                            let inTime = new Date(siteIn);
+                            let outTime = new Date(siteOut);
+                            let diffMinutes = Math.round((outTime - inTime) / 60000);
 
-            function calculateWaitTime(siteIn, siteOut) {
-                if (!siteIn || !siteOut) return "N/A";
-                let inTime = new Date(siteIn);
-                let outTime = new Date(siteOut);
-                let diffMinutes = Math.round((outTime - inTime) / 60000);
-
-                if (diffMinutes > 60) {
-                    let hours = Math.floor(diffMinutes / 60);
-                    let mins = diffMinutes % 60;
-                    return `${hours}h ${mins}m`;
-                }
-                return diffMinutes + " min";
-            }
-
-            function getStatusText(status) {
-                const statusMap = {
-                    0: "Allocated",
-                    1: "Accepted",
-                    2: "Arrive Site",
-                    3: "Receipt Generated",
-                    4: "Finish Load",
-                    5: "Cancel Load"
-                };
-                return statusMap[status] || "Unknown";
-            }
-
-            function getStatusClass(status) {
-                const classMap = {
-                    0: "bg-secondary",
-                    1: "bg-info",
-                    2: "bg-warning",
-                    3: "bg-primary",
-                    4: "bg-success",
-                    5: "bg-danger"
-                };
-                return classMap[status] || "bg-secondary";
-            }
-
-            function formatDateTime(dateTime) {
-                if (!dateTime) return "N/A";
-                let date = new Date(dateTime);
-                return date.toLocaleString('en-GB', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-            }
-
-            function formatWeight(weight) {
-                return weight ? parseFloat(weight).toLocaleString('en-GB') : "0";
-            }
-        });
-
-        $(document).ready(function() {
-            $('#submitSelectedLoads').on('click', function() {
-                var selectedLoads = [];
-                var bookingRequestID = $(this).data('booking-request-id'); // Fetch BookingRequestID
-                console.log(bookingRequestID);
-
-                $('.split-checkbox:checked').each(function() {
-                    selectedLoads.push({
-                        LoadID: $(this).val()
-                    });
-                });
-
-                if (selectedLoads.length === 0) {
-                    alert('Please select at least one load to split.');
-                    return;
-                }
-
-                $.ajax({
-                    url: "{{ route('split.invoice') }}", // Ensure this route is defined
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        booking_request_id: bookingRequestID,
-                        loads: selectedLoads
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            alert('Invoice split successfully!');
-                            $('#splitInvoiceModal').modal('hide'); // Close modal on success
-                            location.reload(); // Reload the page to update the UI
-                        } else {
-                            alert(response.error || 'An error occurred.');
+                            if (diffMinutes > 60) {
+                                let hours = Math.floor(diffMinutes / 60);
+                                let mins = diffMinutes % 60;
+                                return `${hours}h ${mins}m`;
+                            }
+                            return diffMinutes + " min";
                         }
-                    },
-                    error: function(xhr) {
-                        alert('Something went wrong. Please try again.');
-                    }
-                });
-            });
-        });
+
+                        function getStatusText(status) {
+                            const statusMap = {
+                                0: "Allocated",
+                                1: "Accepted",
+                                2: "Arrive Site",
+                                3: "Receipt Generated",
+                                4: "Finish Load",
+                                5: "Cancel Load"
+                            };
+                            return statusMap[status] || "Unknown";
+                        }
+
+                        function getStatusClass(status) {
+                            const classMap = {
+                                0: "bg-secondary",
+                                1: "bg-info",
+                                2: "bg-warning",
+                                3: "bg-primary",
+                                4: "bg-success",
+                                5: "bg-danger"
+                            };
+                            return classMap[status] || "bg-secondary";
+                        }
+
+                        function formatDateTime(dateTime) {
+                            if (!dateTime) return "N/A";
+                            let date = new Date(dateTime);
+                            return date.toLocaleString('en-GB', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+                        }
+
+                        function formatWeight(weight) {
+                            return weight ? parseFloat(weight).toLocaleString('en-GB') : "0";
+                        }
+                    });
+
+                    $(document).ready(function() {
+                        $('#submitSelectedLoads').on('click', function() {
+                            var selectedLoads = [];
+                            var bookingRequestID = $(this).data(
+                            'booking-request-id'); // Fetch BookingRequestID
+                            console.log(bookingRequestID);
+
+                            $('.split-checkbox:checked').each(function() {
+                                selectedLoads.push({
+                                    LoadID: $(this).val()
+                                });
+                            });
+
+                            if (selectedLoads.length === 0) {
+                                alert('Please select at least one load to split.');
+                                return;
+                            }
+
+                            $.ajax({
+                                url: "{{ route('split.invoice') }}", // Ensure this route is defined
+                                type: "POST",
+                                data: {
+                                    _token: "{{ csrf_token() }}",
+                                    booking_request_id: bookingRequestID,
+                                    loads: selectedLoads
+                                },
+                                success: function(response) {
+                                    if (response.success) {
+                                        alert('Invoice split successfully!');
+                                        $('#splitInvoiceModal').modal(
+                                        'hide'); // Close modal on success
+                                        location.reload(); // Reload the page to update the UI
+                                    } else {
+                                        alert(response.error || 'An error occurred.');
+                                    }
+                                },
+                                error: function(xhr) {
+                                    alert('Something went wrong. Please try again.');
+                                }
+                            });
+                        });
+                    });
     </script>
 @endsection

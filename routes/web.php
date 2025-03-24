@@ -46,6 +46,11 @@ Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->g
     Route::post('/split-invoice', [DashboardController::class, 'splitInvoice'])->name('split.invoice');
     Route::post('/merge-booking', [DashboardController::class, 'mergeBooking'])->name('merge.booking');
 
+    // Price Routes
+
+    Route::post('/update-load-price', [InvoiceController::class, 'updateLoadPrice'])->name('update.invoice.price');
+    Route::get('/invoice/price-history', [InvoiceController::class, 'getPriceHistory'])->name('get.price.history');
+
     // User List Route
 
     Route::get('user-list', [UsersController::class, 'index'])->name('users.list');
@@ -76,7 +81,7 @@ Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->g
      Route::get('systemlogs-details/{user_id}', [SystemLogsController::class, 'details'])->name('systemlogs.details');
 });
 
-Route::group(['middleware' => ['web', 'auth', 'customer' , 'log_activity', 'network_error'], 'prefix' => 'customer', 'as' => 'customer.'], function () 
+Route::group(['middleware' => ['web', 'auth', 'customer' , 'log_activity', 'network_error'], 'prefix' => 'customer', 'as' => 'customer.'], function ()
 {
     Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
 

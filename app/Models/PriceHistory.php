@@ -5,13 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class BookingLoad extends Model
+class PriceHistory extends Model
 {
     use HasFactory;
 
-    protected $table = "tbl_booking_loads1";
-
-    protected $primaryKey = "LoadID";
-
-    public $timestamps = false;
+    protected $fillable = ["TicketID", "OldPrice", "NewPrice", "ChangedBy","ChangedAt"];
 }
