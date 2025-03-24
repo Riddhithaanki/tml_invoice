@@ -37,7 +37,18 @@ class InvoiceController extends Controller
                 return '<a href="' . route('invoice.show', Crypt::encrypt($invoice->InvoiceID)) . '"
                         class="btn btn-sm btn-primary">View</a>';
             })
-            ->rawColumns(['action']) // Ensures HTML is rendered
+            ->addColumn('ticket_list', function ($invoice) {
+                return '<a href="https://go.microsoft.com/fwlink/?LinkID=521962" target="_blank" class="btn btn-success btn-sm">
+                            <i class="fas fa-file-excel"></i> Download Excel
+                        </a>';
+            })
+            ->addColumn('tickets', function () {
+                return rand(1, 100); // Generates a random number for demo
+            })
+            ->addColumn('select_all', function ($invoice) {
+                return '<input type="checkbox" name="select_invoice[]" value="' . $invoice->InvoiceID . '">';
+            })
+            ->rawColumns(['ticket_list', 'select_all', 'tickets','action']) // Ensures HTML is rendered
             ->make(true);
     }
 }

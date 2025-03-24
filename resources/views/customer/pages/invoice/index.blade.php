@@ -29,7 +29,9 @@
                         <th>Booking Date</th>
                         <th>Company Name</th>
                         <th>Site Name</th>
-                        <th>Action</th>
+                        <th>Ticket List</th>
+                        <th>Tickets</th>
+                        <th>Select All</th>
                     </tr>
                     <tr class="search-row">
                         <th></th>
@@ -42,6 +44,8 @@
                         <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Site">
                         </th>
                         <th></th>
+                        <th></th>
+                        <th><input type="checkbox" id="select_all_checkbox"></th>
                     </tr>
                 </thead>
             </table>
@@ -67,7 +71,9 @@
                     { data: 'CreateDateTime', name: 'CreateDateTime' },
                     { data: 'CompanyName', name: 'CompanyName' },
                     { data: 'OpportunityName', name: 'OpportunityName' },
-                    { data: 'action', name: 'action', orderable: false, searchable: false } // Action buttons
+                    { data: 'ticket_list', name: 'ticket_list', orderable: false, searchable: false }, // Ticket List button
+                    { data: 'tickets', name: 'tickets', orderable: false, searchable: false }, // Tickets count
+                    { data: 'select_all', name: 'select_all', orderable: false, searchable: false } // Select All checkbox
                 ],
                 order: [[2, 'desc']], // Sort by Booking Date by default
                 pageLength: 10,
