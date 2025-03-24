@@ -223,6 +223,12 @@
                             placeholder="Please Enter Your Any Comment Here."></textarea>
                     </div>
                     <div class="text-end">
+
+                        <button class="btn btn-secondary btn-lg px-4 me-2" data-bs-toggle="modal"
+                            data-bs-target="#mergeBookingModal" data-invoice-id="{{ $booking['BookingRequestID'] }}">
+                            <i class="fas fa-random me-2"></i>Merge Booking
+                        </button>
+
                         <button class="btn btn-secondary btn-lg px-4 me-2" data-bs-toggle="modal"
                             data-bs-target="#splitInvoiceModal" data-invoice-id="{{ $bookingData->BookingID }}">
                             <i class="fas fa-random me-2"></i>Split Invoice
@@ -260,6 +266,34 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button id="submitSelectedLoads" class="btn btn-primary mt-3"
                         data-booking-request-id="{{ $bookingData->BookingRequestID }}">Confirm Split</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Merge Booking Modal -->
+    <div class="modal fade" id="mergeBookingModal" tabindex="-1" aria-labelledby="splitInvoiceModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="splitInvoiceModalLabel">Merge Bookings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Content will be loaded via AJAX -->
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-primary">Loading booking...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button id="submitSelectedbooking" class="btn btn-primary mt-3"
+                        data-booking-request-id="{{$booking['BookingRequestID']}}">Confirm Merge</button>
 
                 </div>
             </div>
@@ -672,7 +706,76 @@
                             });
                         });
 
+                        $('#mergeBookingModal').on('show.bs.modal', function (e) {
+                            var button = $(e.relatedTarget);
+                            var invoiceId = button.data('invoice-id');
+                            var modal = $(this);
+                            var modalBody = modal.find('.modal-body');
 
+                            // Show loader
+                            modalBody.html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading booking...</p></div>');
+
+                            // Fetch invoice items via AJAX
+                            $.ajax({
+                                url: "{{ route('get.mergebookings.items') }}",
+                                type: "GET",
+                                data: { invoice_id: invoiceId },
+                                success: function (response) {
+                                    if (!response.invoice_items || response.invoice_items.length === 0) {
+                                        modalBody.html('<div class="text-center py-4 text-danger fw-bold">No details found for this invoice.</div>');
+                                        return;
+                                    }
+                                    console.log(response);
+
+                                    var html = `<div class="table-responsive">
+                                                                <table class="table table-bordered table-striped table-hover">
+                                                                    <thead class="table-primary">
+                                                                        <tr>
+                                                                            <th>Select</th>
+                                                                            <th>Booking ID</th>
+                                                                            <th>Booking Date</th>
+                                                                            <th>Company Name</th>
+                                                                            <th>Site Name</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>`;
+
+                                    // Iterate through invoice_items
+                                    response.invoice_items.forEach(invoice => {
+                                        if (!invoice || (Array.isArray(invoice) && invoice.length === 0)) {
+                                            html += `<tr>
+                                    <td colspan="5" class="text-center text-warning fw-bold">No bookings found.</td>
+                                </tr>`;
+                                        } else {
+                                        
+                                                html += `<tr>
+                                        <td class="text-center">
+                                            <input type="checkbox" class="form-check-input merge-checkbox" value="${invoice.BookingRequestID}">
+                                        </td>
+                                        <td>${invoice.BookingRequestID}</td>
+                                        <td>${invoice.CreateDateTime}</td>
+                                        <td>${invoice.CompanyName}</td>
+                                        <td>${invoice.OpportunityName}</td>
+                                    </tr>`;
+                                            
+                                        }
+                                    });
+
+
+                                    html += '</tbody></table></div>';
+
+                                    // Fade out loader and show content
+                                    setTimeout(() => {
+                                        modalBody.fadeOut(200, function () {
+                                            $(this).html(html).fadeIn(300);
+                                        });
+                                    }, 500);
+                                },
+                                error: function () {
+                                    modalBody.html('<p class="text-danger text-center">Error loading data. Please try again.</p>');
+                                }
+                            });
+                        });
 
                         function calculateWaitTime(siteIn, siteOut) {
                             if (!siteIn || !siteOut) return "N/A";
@@ -766,6 +869,43 @@
                                     }
                                 },
                                 error: function(xhr) {
+                                    alert('Something went wrong. Please try again.');
+                                }
+                            });
+                        });
+
+                        $('#submitSelectedbooking').on('click', function () {
+                            var selectedBookings = [];
+                            var bookingRequestID = $(this).data('booking-request-id'); // Fetch BookingRequestID
+                            console.log(bookingRequestID);
+
+                            $('.merge-checkbox:checked').each(function () {
+                                selectedBookings.push({ BookingID: $(this).val() });
+                            });
+
+                            if (selectedBookings.length === 0) {
+                                alert('Please select at booking to merge.');
+                                return;
+                            }
+
+                            $.ajax({
+                                url: "{{ route('merge.booking') }}", // Ensure this route is defined
+                                type: "POST",
+                                data: {
+                                    _token: "{{ csrf_token() }}",
+                                    booking_request_id: bookingRequestID,
+                                    bookings: selectedBookings
+                                },
+                                success: function (response) {
+                                    if (response.success) {
+                                        alert('Booking Merge successfully!');
+                                        $('#mergeBookingModal').modal('hide'); // Close modal on success
+                                        location.reload(); // Reload the page to update the UI
+                                    } else {
+                                        alert(response.error || 'An error occurred.');
+                                    }
+                                },
+                                error: function (xhr) {
                                     alert('Something went wrong. Please try again.');
                                 }
                             });

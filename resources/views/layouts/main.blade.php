@@ -74,7 +74,7 @@
             <div class="layout-page">
                 {{-- Header --}}
                 @include('layouts.header')
-                <div class="container">
+                <div class="container-fluid">
                     <div class="content-wrapper">
                         {{-- Main Content --}}
                         @yield('content')
