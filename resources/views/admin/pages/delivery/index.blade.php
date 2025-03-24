@@ -49,7 +49,7 @@
         <div class="date-filter-container p-2 bg-light border-bottom">
             <div class="d-flex align-items-center justify-content-end">
                 <div class="date-range-compact d-flex align-items-center">
-                    <span class="mr-2">Date Range:</span>
+                    <span class="mr-2">Date: &nbsp;</span>
                     <input type="date" id="startDate" class="form-control form-control-sm mr-1" placeholder="Start">
                     <span class="mx-1">to</span>
                     <input type="date" id="endDate" class="form-control form-control-sm mr-2" placeholder="End">
