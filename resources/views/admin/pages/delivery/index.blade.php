@@ -2,43 +2,63 @@
 @section('content')
     <div class="table-container container-fluid mt-4">
         <div class="tab-container mb-3">
-        <ul class="nav nav-tabs d-flex justify-content-between" id="invoiceTabs" style="
+            <ul class="nav nav-tabs d-flex justify-content-between" id="invoiceTabs"
+                style="
             overflow-y: unset;
             overflow-x: unset !important;!i;!;
         ">
-            <div class="d-flex">
-                <!-- Left side tabs -->
-                <li class="nav-item">
-                    <a class="nav-link {{ $type === 'withtipticket' ? 'active' : '' }}" id="with-tip-tab" data-toggle="tab"
-                        href="{{ route('delivery.index', ['type' => 'withtipticket', 'invoice_type' => $invoice_type]) }}"
-                        role="tab">With Tip Ticket</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ $type === 'withouttipticket' ? 'active' : '' }}" id="without-tip-tab" data-toggle="tab"
-                        href="{{ route('delivery.index', ['type' => 'withouttipticket', 'invoice_type' => $invoice_type]) }}"
-                        role="tab">Without Tip Ticket</a>
-                </li>
-            </div>
+                <div class="d-flex">
+                    <!-- Left side tabs -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ $type === 'withtipticket' ? 'active' : '' }}" id="with-tip-tab" data-toggle="tab"
+                            href="{{ route('delivery.index', ['type' => 'withtipticket', 'invoice_type' => $invoice_type]) }}"
+                            role="tab">With Tip Ticket</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ $type === 'withouttipticket' ? 'active' : '' }}" id="without-tip-tab"
+                            data-toggle="tab"
+                            href="{{ route('delivery.index', ['type' => 'withouttipticket', 'invoice_type' => $invoice_type]) }}"
+                            role="tab">Without Tip Ticket</a>
+                    </li>
+                </div>
 
-            <div class="d-flex">
-                <!-- Right side tabs -->
-                <li class="nav-item">
-                    <a class="nav-link {{ $invoice_type === 'preinvoice' ? 'active' : '' }}" id="pre-invoice-tab" data-toggle="tab"
-                        href="{{ route('delivery.index', ['type' => $type, 'invoice_type' => 'preinvoice']) }}"
-                        role="tab">Pre Invoice</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ $invoice_type === 'readyinvoice' ? 'active' : '' }}" id="ready-invoice-tab" data-toggle="tab"
-                        href="{{ route('delivery.index', ['type' => $type, 'invoice_type' => 'readyinvoice']) }}"
-                        role="tab">Ready Invoice</a>
-                </li>
-            </div>
-        </ul>
+                <div class="d-flex">
+                    <!-- Right side tabs -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ $invoice_type === 'preinvoice' ? 'active' : '' }}" id="pre-invoice-tab"
+                            data-toggle="tab"
+                            href="{{ route('delivery.index', ['type' => $type, 'invoice_type' => 'preinvoice']) }}"
+                            role="tab">Pre Invoice</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ $invoice_type === 'readyinvoice' ? 'active' : '' }}" id="ready-invoice-tab"
+                            data-toggle="tab"
+                            href="{{ route('delivery.index', ['type' => $type, 'invoice_type' => 'readyinvoice']) }}"
+                            role="tab">Ready Invoice</a>
+                    </li>
+                </div>
+            </ul>
 
         </div>
+
         <div class="table-header">
             <h3 class="table-title text-center text-white">Delivery Invoices</h3>
         </div>
+
+        <!-- Compact date filter row -->
+        <div class="date-filter-container p-2 bg-light border-bottom">
+            <div class="d-flex align-items-center justify-content-end">
+                <div class="date-range-compact d-flex align-items-center">
+                    <span class="mr-2">Date Range:</span>
+                    <input type="date" id="startDate" class="form-control form-control-sm mr-1" placeholder="Start">
+                    <span class="mx-1">to</span>
+                    <input type="date" id="endDate" class="form-control form-control-sm mr-2" placeholder="End">
+                    <button id="filterBtn" class="btn btn-sm btn-primary">Filter</button>
+                    <button id="clearFilters" class="btn btn-sm btn-outline-secondary ml-1">Clear</button>
+                </div>
+            </div>
+        </div>
+
         <div class="table-responsive">
             <table id="invoiceTable" class="table table-hover">
                 <thead>
@@ -54,11 +74,13 @@
                         <th></th>
                         <th><input type="text" class="form-control form-control-sm column-search"
                                 placeholder="Search Booking ID"></th>
-                        <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Date">
+                        <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Search Date">
                         </th>
                         <th><input type="text" class="form-control form-control-sm column-search"
                                 placeholder="Search Company"></th>
-                        <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Site">
+                        <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Search Site">
                         </th>
                         <th></th>
                     </tr>
@@ -68,64 +90,60 @@
     </div>
 
     <script>
-        $(document).ready(function () {
-
-            var type = '{{ request("type", "withtipticket") }}';
-            var invoice_type = '{{ request("invoice_type", "preinvoice") }}';
-            // Initialize DataTable with individual column searching
+        $(document).ready(function() {
             var table = $('#invoiceTable').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
                     url: "{{ route('delivery.data') }}",
-                    data: function (d) {
-                        d.type = type; // Send the type parameter
-                        d.invoice_type = invoice_type;
+                    data: function(d) {
+                        d.type = '{{ request('type', 'withtipticket') }}';
+                        d.invoice_type = '{{ request('invoice_type', 'preinvoice') }}';
+                        d.start_date = $('#startDate').val(); // Get start date
+                        d.end_date = $('#endDate').val(); // Get end date
                     }
                 },
-                columns: [
-                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false }, // SR. No
-                    { data: 'BookingRequestID', name: 'BookingRequestID' },
-                    { data: 'CreateDateTime', name: 'CreateDateTime' },
-                    { data: 'CompanyName', name: 'CompanyName' },
-                    { data: 'OpportunityName', name: 'OpportunityName' },
-                    { data: 'action', name: 'action', orderable: false, searchable: false } // Action buttons
-                ],
-                order: [[2, 'desc']], // Sort by Booking Date by default
-                pageLength: 10,
-                lengthMenu: [10, 25, 50, 100],
-                responsive: true,
-                orderCellsTop: true,
-                searching: false,    // 🔴 Hide the search box
-                lengthChange: false,
-                language: {
-                    search: "_INPUT_",
-                    searchPlaceholder: "Search invoices...",
-                    paginate: {
-                        previous: "<i class='fas fa-chevron-left'></i>",
-                        next: "<i class='fas fa-chevron-right'></i>"
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'BookingRequestID',
+                        name: 'BookingRequestID'
+                    },
+                    {
+                        data: 'CreateDateTime',
+                        name: 'CreateDateTime'
+                    },
+                    {
+                        data: 'CompanyName',
+                        name: 'CompanyName'
+                    },
+                    {
+                        data: 'OpportunityName',
+                        name: 'OpportunityName'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
                     }
-                }
+                ],
             });
 
-            // Apply search to each column
-            $('.column-search').on('keyup change', function () {
-                var colIndex = $(this).closest('th').index();
-                table
-                    .column(colIndex)
-                    .search(this.value)
-                    .draw();
+            // Filter button click event
+            $('#filterBtn').click(function() {
+                table.ajax.reload(); // Reload table with new date filters
             });
 
-            // Add clear filters button
-            $('.table-header').append(
-                '<button id="clearFilters" class="btn btn-sm btn-outline-light position-absolute" style="right: 15px; top: 50%; transform: translateY(-50%);">' +
-                '<i class="fas fa-times"></i> Clear</button>'
-            );
-
-            $('#clearFilters').on('click', function () {
-                $('.column-search').val('');
-                table.search('').columns().search('').draw();
+            // Clear filters button
+            $('#clearFilters').click(function() {
+                $('#startDate').val('');
+                $('#endDate').val('');
+                table.ajax.reload();
             });
         });
     </script>
@@ -151,6 +169,24 @@
             font-size: 1.2rem;
             margin: 0;
             color: white;
+        }
+
+        /* Compact date filter styling */
+        .date-filter-container {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .date-range-compact input[type="date"] {
+            width: 140px;
+            height: 32px;
+            font-size: 0.85rem;
+        }
+
+        .date-range-compact .btn {
+            height: 32px;
+            font-size: 0.85rem;
+            padding: 0.25rem 0.75rem;
         }
 
         #invoiceTable {
