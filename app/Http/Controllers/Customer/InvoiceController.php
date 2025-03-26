@@ -15,29 +15,31 @@ class InvoiceController extends Controller
 {
     public function index($type = null)
     {
+        $type = $type ?? 1;
         return view('customer.pages.invoice.index', compact('type'));
     }
 
     public function getInvoiceData(Request $request)
     {
-        $type = $request->input('type');
-
-        $query = BookingRequest::select([
-            'InvoiceID',
-            'BookingRequestID',
-            'CreateDateTime',
-            'CompanyName',
-            'OpportunityName',
+        $type = $request->input('type', 1);
+        
+        // Fetch bookings first, as we need BookingID as the main identifier
+        $query = Booking::select([
+            'tbl_booking1.BookingID',
+            'tbl_booking1.BookingRequestID',
+            'tbl_booking1.BookingType',
+            'tbl_booking_request.CreateDateTime',
+            'tbl_booking_request.CompanyName',
+            'tbl_booking_request.OpportunityName',
         ])
-            ->with('booking')
-            ->whereHas('booking', function ($q) {
-                $q->where('BookingType', 2);
-            });
+            ->join('tbl_booking_request', 'tbl_booking1.BookingRequestID', '=', 'tbl_booking_request.BookingRequestID')
+            ->where('tbl_booking1.BookingType', $type)
+            ->orderBy('tbl_booking_request.CreateDateTime', 'desc');
 
         return DataTables::of($query)
             ->addIndexColumn() // Adds SR. No column
             ->addColumn('action', function ($invoice) {
-                return '<a href="' . route('invoice.show', Crypt::encrypt($invoice->InvoiceID)) . '"
+                return '<a href="' . route('customer.pdflist.index') . '"
                         class="btn btn-sm btn-primary">View</a>';
             })
             ->addColumn('ticket_list', function ($invoice) {
@@ -53,6 +55,11 @@ class InvoiceController extends Controller
             })
             ->rawColumns(['ticket_list', 'select_all', 'tickets', 'action']) // Ensures HTML is rendered
             ->make(true);
+    }
+
+    public function pdflist(Request $request)
+    {
+        return view('customer.pages.invoice.pdflist');
     }
 
     public function updateLoadPrice(Request $request)

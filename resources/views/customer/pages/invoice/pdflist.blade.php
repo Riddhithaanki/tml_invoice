@@ -1,53 +1,17 @@
 @extends('customer.layouts.main')
 @section('content')
     <div class="table-container mt-4">
-        <div class="tab-container mb-3">
-        <ul class="nav nav-tabs" id="invoiceTabs">
-            <li class="nav-item">
-                <a class="nav-link {{ ($type == 1) ? 'active' : '' }}" id="loads" data-toggle="tab" href="{{ route('customer.invoice.index', ['type' => 1]) }}" role="tab">Collection</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ ($type == 2) ? 'active' : '' }}" id="tonnage" data-toggle="tab" href="{{ route('customer.invoice.index', ['type' => 2]) }}" role="tab">Delivery</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ ($type == 3) ? 'active' : '' }}" id="tonnage" data-toggle="tab" href="{{ route('customer.invoice.index', ['type' => 3]) }}" role="tab">Daywork</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ ($type == 4) ? 'active' : '' }}" id="tonnage" data-toggle="tab" href="{{ route('customer.invoice.index', ['type' => 4]) }}" role="tab">Haulage</a>
-            </li>
-        </ul>
-        </div>
         <div class="table-header">
-            <h3 class="table-title text-center text-white">Collection Invoices</h3>
+            <h3 class="table-title text-center text-white">Ticket List</h3>
         </div>
         <div class="table-responsive">
-            <table id="invoiceTable" class="table table-hover">
+            <table id="pdfTable" class="table table-hover">
                 <thead>
                     <tr class="filters">
                         <th>SR. No</th>
-                        <th>Booking ID</th>
-                        <th>Booking Date</th>
-                        <th>Company Name</th>
-                        <th>Site Name</th>
+                        <th>Ticket</th>
                         <th>Action</th>
-                        <th>Ticket List</th>
-                        <th>Tickets</th>
-                        <th>Select All</th>
-                    </tr>
-                    <tr class="search-row">
-                        <th></th>
-                        <th><input type="text" class="form-control form-control-sm column-search"
-                                placeholder="Search Booking ID"></th>
-                        <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Date">
-                        </th>
-                        <th><input type="text" class="form-control form-control-sm column-search"
-                                placeholder="Search Company"></th>
-                        <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Site">
-                        </th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th><input type="checkbox" id="select_all_checkbox"></th>
+                        <th>Select</th>
                     </tr>
                 </thead>
             </table>
@@ -56,42 +20,51 @@
 
     <script>
         $(document).ready(function () {
-            var type = "{{ $type }}";
             // Initialize DataTable with individual column searching
-            var table = $('#invoiceTable').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: "{{ route('customer.invoice.data') }}",
-                    data: function (d) {
-                        d.type = type; // Pass the type parameter to the server
-                    }
-                },
-                columns: [
-                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false }, // SR. No
-                    { data: 'BookingRequestID', name: 'BookingRequestID' },
-                    { data: 'CreateDateTime', name: 'CreateDateTime' },
-                    { data: 'CompanyName', name: 'CompanyName' },
-                    { data: 'OpportunityName', name: 'OpportunityName' },
-                    { data: 'action', name: 'Action', orderable: false, searchable: false }, // Ticket List button
-                    { data: 'ticket_list', name: 'ticket_list', orderable: false, searchable: false }, // Ticket List button
-                    { data: 'tickets', name: 'tickets', orderable: false, searchable: false }, // Tickets count
-                    { data: 'select_all', name: 'select_all', orderable: false, searchable: false } // Select All checkbox
-                ],
-                order: [[2, 'desc']], // Sort by Booking Date by default
-                pageLength: 10,
-                lengthMenu: [10, 25, 50, 100],
-                responsive: true,
-                orderCellsTop: true,
-                language: {
-                    search: "_INPUT_",
-                    searchPlaceholder: "Search invoices...",
-                    paginate: {
-                        previous: "<i class='fas fa-chevron-left'></i>",
-                        next: "<i class='fas fa-chevron-right'></i>"
-                    }
-                }
-            });
+            var table = $('#pdfTable').DataTable({
+                    processing: true,
+                    serverSide: false, // Disable server-side for demo
+                    data: [
+                        { id: 1, ticket: "INV001", pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
+                        { id: 2, ticket: "INV002", pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
+                        { id: 3, ticket: "INV003", pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" }
+                    ],
+                    columns: [
+                        { data: 'id', name: 'id' }, // SR. No
+                        { 
+                            data: 'pdfUrl', 
+                            name: 'pdfUrl',
+                            orderable: false,
+                            searchable: false,
+                            render: function (data, type, row) {
+                                return `<iframe src="${data}" width="100" height="100"></iframe>`;
+                            }
+                        }, // PDF Preview in Ticket Column
+                        {
+                            data: 'pdfUrl',
+                            name: 'pdfUrl',
+                            orderable: false,
+                            searchable: false,
+                            render: function (data, type, row) {
+                                return `<a href="${data}" target="_blank" class="btn btn-primary btn-sm">View PDF</a>`;
+                            }
+                        }, // View PDF Button
+                        {
+                            data: 'id',
+                            name: 'id',
+                            orderable: false,
+                            searchable: false,
+                            render: function (data, type, row) {
+                                return `<input type="checkbox" class="select-row" value="${data}">`;
+                            }
+                        } // Select Checkbox
+                    ],
+                    order: [[0, 'asc']], // Order by SR. No
+                    pageLength: 10,
+                    lengthChange: false, // ❌ Hides "Show X entries"
+                    searching: false, // ❌ Hides search box
+                    responsive: true
+                });
 
             // Apply search to each column
             $('.column-search').on('keyup change', function () {
