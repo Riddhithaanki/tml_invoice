@@ -48,6 +48,15 @@ class DeliveryController extends Controller
 
         return DataTables::of($query)
             ->addIndexColumn()
+            ->filterColumn('CreateDateTime', function ($query, $keyword) {
+                $query->where('tbl_booking_request.CreateDateTime', 'like', "%$keyword%");
+            })
+            ->filterColumn('CompanyName', function ($query, $keyword) {
+                $query->where('tbl_booking_request.CompanyName', 'like', "%$keyword%");
+            })
+            ->filterColumn('OpportunityName', function ($query, $keyword) {
+                $query->where('tbl_booking_request.OpportunityName', 'like', "%$keyword%");
+            })
             ->addColumn('CompanyName', function ($booking) {
                 return $booking->CompanyName ?? 'N/A';
             })

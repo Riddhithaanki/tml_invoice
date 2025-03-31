@@ -134,6 +134,12 @@
                 ],
             });
 
+            // 🔹 Enable column search
+            $('#invoiceTable thead .column-search').on('keyup change', function() {
+                let colIndex = $(this).parent().index();  // Get column index
+                table.column(colIndex).search(this.value).draw();
+            });
+
             // Filter button click event
             $('#filterBtn').click(function() {
                 table.ajax.reload(); // Reload table with new date filters

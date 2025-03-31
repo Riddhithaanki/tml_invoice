@@ -57,6 +57,7 @@
         .btn-primary {
             background-color: #3c8dbc;
             border-color: #3c8dbc;
+            color:white;
         }
 
         .btn-primary:hover {

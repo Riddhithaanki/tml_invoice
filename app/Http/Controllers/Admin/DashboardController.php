@@ -130,12 +130,14 @@ class DashboardController extends Controller
         }
 
         $CompanyName = $item->CompanyName;
+        $OpportunityName = $item->OpportunityName;
         $CreateDate = \Carbon\Carbon::parse($item->CreateDateTime)->toDateString(); // Extract only date (YYYY-MM-DD)
 
         // Fetch records where CompanyName matches and CreateDate (date part) matches
         $items = BookingRequest::with('booking', 'invoice_items')
             ->where('CompanyName', $CompanyName)
-            ->whereDate('CreateDateTime', $CreateDate) // Compare only the date part
+            ->where('OpportunityName', $OpportunityName)
+            // ->whereDate('CreateDateTime', $CreateDate) // Compare only the date part
             ->get();
 
         return response()->json(['invoice_items' => $items]);

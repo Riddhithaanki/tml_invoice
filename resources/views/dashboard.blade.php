@@ -124,11 +124,12 @@
 
             <!-- Stat Cards -->
             <div class="row">
-                <!-- Ready Invoice -->
-                <div class="col-md-3 col-sm-6">
+
+                <!-- New Added Invoice -->
+                <div class="col-md-4 col-sm-6">
                     <div class="stat-card d-flex align-items-center justify-content-between border p-3 rounded">
                         <div class="card-body">
-                            <div class="card-title">Ready Invoice</div>
+                            <div class="card-title">New Added Invoice</div>
                             <div class="card-value">{{ $readyHoldInvoiceCount }}</div>
                         </div>
                         <div class="icon-box border rounded-circle p-2">
@@ -139,12 +140,29 @@
                     </div>
                 </div>
 
-                <!-- Completed Invoice -->
-                <div class="col-md-3 col-sm-6">
+                <!-- Invoices on Hold -->
+                <div class="col-md-4 col-sm-6">
                     <div class="stat-card d-flex align-items-center justify-content-between border p-3 rounded">
                         <div class="card-body">
-                            <div class="card-title">Completed Invoice</div>
+                            <div class="card-title">Invoices on Hold</div>
                             <div class="card-value">{{ $completedInvoice }}</div>
+                        </div>
+                        <div class="icon-box border rounded-circle p-2">
+                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10" stroke="black" stroke-width="2" fill="none"/>
+                                <rect x="8" y="7" width="3" height="10" fill="black"/>
+                                <rect x="13" y="7" width="3" height="10" fill="black"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ready Invoice -->
+                <div class="col-md-4 col-sm-6">
+                    <div class="stat-card d-flex align-items-center justify-content-between border p-3 rounded">
+                        <div class="card-body">
+                            <div class="card-title">Ready Invoice</div>
+                            <div class="card-value">{{ $readyHoldInvoiceCount }}</div>
                         </div>
                         <div class="icon-box border rounded-circle p-2">
                             <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
@@ -154,13 +172,14 @@
                         </div>
                     </div>
                 </div>
+
             </div>
 
 
             <!-- Recent Invoices Table -->
             <div class="table-container">
                 <div class="table-header">
-                    <h5 class="table-title text-center text-white">Recent Invoices</h5>
+                    <h5 class="table-title text-center text-white">New Added Invoices</h5>
                 </div>
                 <div class="table-responsive">
                     <table id="invoiceTable" class="table table-hover">
