@@ -14,6 +14,7 @@ use App\Http\Controllers\Customer\DashboardController as CustomerDashboardContro
 use App\Http\Controllers\Customer\InvoiceController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\SageController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -35,6 +36,10 @@ Route::post('admin-register', [LoginController::class, 'registerAdmin'])->name('
 // Route::get('login', [LoginController::class, 'loginAdminView'])->name('admin.loginView');
 Route::post('admin-login', [LoginController::class, 'loginAdmin'])->middleware(['log_activity'])->name('admin.login');
 Route::post('admin-logout', [LoginController::class, 'logout'])->middleware(['log_activity'])->name('admin.logout');
+
+Route::get('fetch-invoice',[SageController::class,'getInvoices']);
+Route::get('/invoice-items/{reference}', [SageController::class, 'getInvoiceItemsByReference']);
+
 
 Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
