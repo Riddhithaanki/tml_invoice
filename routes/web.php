@@ -84,6 +84,9 @@ Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->g
      //System logs
      Route::get('systemlogs-list', [SystemLogsController::class, 'index'])->name('systemlogs.list');
      Route::get('systemlogs-details/{user_id}', [SystemLogsController::class, 'details'])->name('systemlogs.details');
+
+     Route::post('/invoice/confirm', [DashboardController::class, 'confirm'])->name('invoice.confirm');
+     Route::get('/invoice/{invoice}', [DashboardController::class, 'show'])->name('invoice.showData');
 });
 
 Route::group(['middleware' => ['web', 'auth', 'customer' , 'log_activity', 'network_error'], 'prefix' => 'customer', 'as' => 'customer.'], function ()
@@ -99,3 +102,4 @@ Route::group(['middleware' => ['web', 'auth', 'customer' , 'log_activity', 'netw
 Route::get('working-progress', function () {
     return view('workinprogress');
 })->name('work');
+

@@ -223,6 +223,23 @@
                             placeholder="Please Enter Your Any Comment Here."></textarea>
                     </div>
                     <div class="text-end">
+                        <form id="confirmInvoiceForm" action="{{ route('invoice.confirm') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="BookingRequestID" value="{{ $bookingData->BookingRequestID }}">
+                            <input type="hidden" name="CompanyID" value="{{ $bookingData->bookingRequest->CompanyID }}">
+                            <input type="hidden" name="CompanyName" value="{{ $bookingData->bookingRequest->CompanyName }}">
+                            <input type="hidden" name="OpportunityID" value="{{ $bookingData->bookingRequest->OpportunityID }}">
+                            <input type="hidden" name="OpportunityName" value="{{ $bookingData->bookingRequest->OpportunityName }}">
+                            <input type="hidden" name="ContactID" value="{{ $bookingData->bookingRequest->ContactID }}">
+                            <input type="hidden" name="ContactName" value="{{ $bookingData->bookingRequest->ContactName }}">
+                            <input type="hidden" name="ContactMobile" value="{{ $bookingData->bookingRequest->ContactMobile }}">
+                            <input type="hidden" name="SubTotalAmount" value="{{ $invoice->SubTotalAmount }}">
+                            <input type="hidden" name="VatAmount" value="{{ $invoice->VatAmount }}">
+                            <input type="hidden" name="FinalAmount" value="{{ $invoice->TotalAmount }}">
+                            <input type="hidden" name="TaxRate" value="{{ $invoice->TaxRate }}">
+                            <input type="hidden" name="CreatedUserID" value="{{ auth()->id() }}">
+                            <input type="hidden" name="hold_invoice" id="hold_invoice" value="0">
+                            <input type="hidden" name="comment" id="comment_value">
 
                         <button class="btn btn-secondary btn-lg px-4 me-2" data-bs-toggle="modal"
                             data-bs-target="#mergeBookingModal" data-invoice-id="{{ $booking['BookingRequestID'] }}">
@@ -234,11 +251,11 @@
                             <i class="fas fa-random me-2"></i>Split Invoice
                         </button>
 
-                        <button class="btn btn-primary btn-lg px-4">
+                        <button type="submit" class="btn btn-primary btn-lg px-4">
                             <i class="fas fa-check-circle me-2"></i> Proceed To Confirm
                         </button>
+                        </form>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -618,7 +635,42 @@
 window.formatWeight = function(weight) {
     return weight ? parseFloat(weight).toLocaleString('en-GB') : "0";
 };
+
+                    // Handle hold invoice checkbox
+                    $('#holdInvoice').on('change', function() {
+                        $('#hold_invoice').val(this.checked ? '1' : '0');
                     });
+
+                    // Handle comment textarea
+                    $('#comment').on('change', function() {
+                        $('#comment_value').val($(this).val());
+                    });
+
+                    // Handle form submission
+                    $('#confirmInvoiceForm').on('submit', function(e) {
+                        e.preventDefault();
+
+                        // Get all form data
+                        var formData = $(this).serialize();
+
+                        // Submit form via AJAX
+                        $.ajax({
+                            url: $(this).attr('action'),
+                            type: 'POST',
+                            data: formData,
+                            success: function(response) {
+                                if (response.success) {
+                                    window.location.href = response.redirect_url;
+                                } else {
+                                    alert('Error: ' + response.message);
+                                }
+                            },
+                            error: function(xhr) {
+                                alert('An error occurred while processing your request.');
+                            }
+                        });
+                    });
+                });
 
                     $(document).ready(function() {
                         $('#splitInvoiceModal').on('show.bs.modal', function(e) {
@@ -747,7 +799,7 @@ window.formatWeight = function(weight) {
                                                     <td colspan="5" class="text-center text-warning fw-bold">No bookings found.</td>
                                                 </tr>`;
                                                         } else {
-                                                        
+
                                                                 html += `<tr>
                                                         <td class="text-center">
                                                             <input type="checkbox" class="form-check-input merge-checkbox" value="${invoice.BookingRequestID}">
@@ -770,7 +822,7 @@ window.formatWeight = function(weight) {
                                                             </div>
                                                         </td>
                                                     </tr>`;
-                                                            
+
                                                         }
                                                     });
 
@@ -925,7 +977,7 @@ window.formatWeight = function(weight) {
                         });
 
                         $(document).on('click', '.toggle-loads', function() {
-                            
+
                             let bookingId = $(this).data('booking-id');
                             let container = $('.invoice-loads-container[data-booking-id="' + bookingId + '"]');
                             let content = container.find('.invoice-loads-content');
@@ -1049,6 +1101,6 @@ window.formatWeight = function(weight) {
                         });
                     });
 
-                    
+
     </script>
 @endsection

@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\BookingLoad;
 use App\Models\BookingRequest;
+use App\Models\ReadyInvoice;
 use Illuminate\Http\Request;
 use App\Models\BookingInvoice;
 use App\Models\BookingInvoiceItem;
 use App\Models\Booking;
+use Illuminate\Support\Facades\Auth;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 
@@ -17,7 +20,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $recentInvoice = BookingInvoice::with('booking')->orderBy('CreateDateTime',"DESC")->limit(10)->get();
+        $recentInvoice = BookingInvoice::with('booking')->orderBy('CreateDateTime', "DESC")->limit(10)->get();
         // dd($recentInvoice);
         $readyHoldInvoiceCount = BookingInvoice::where('Status', '0')->count();
         $completedInvoice = BookingInvoice::where('Status', '1')->count();
@@ -30,13 +33,21 @@ class DashboardController extends Controller
 
         // Find the booking entry using BookingID
         $bookingData = Booking::with('loads', 'bookingRequest')->where('BookingID', $id)->first();
-        // dd($booking);
+
         if (!$bookingData) {
             return abort(404, 'Booking not found');
         }
 
         // Fetch the BookingRequestID from the booking
         $bookingRequestId = $bookingData->BookingRequestID;
+
+        // ✅ Check if this BookingRequestID exists in the ready_invoice table
+        $readyInvoice = ReadyInvoice::where('BookingRequestID', $bookingRequestId)->first();
+        if ($readyInvoice) {
+            $invoice = $readyInvoice;
+            return view('admin.pages.invoice.viewinvoice', compact('invoice'));
+
+        }
 
         // Fetch Invoice (Original or Split)
         $invoice = BookingRequest::with('booking', 'invoice_items', 'invoice')
@@ -54,16 +65,13 @@ class DashboardController extends Controller
         $bookings = Booking::where('BookingRequestID', $invoice->BookingRequestID);
 
         if ($isSplitInvoice) {
-            // If it's a split invoice, fetch only this split invoice
             $bookings->where('parent_invoice_id', $invoice->InvoiceID);
         } else {
-            // If it's an original invoice, fetch only unsplit invoices
             $bookings->whereNull('parent_invoice_id');
         }
 
         $bookings = $bookings->get();
-        // $booking = $bookings->first();
-        // dd($invoice);
+
         return view('admin.pages.invoice.invoice_details', compact('invoice', 'bookings', 'bookingData', 'isSplitInvoice'));
     }
 
@@ -229,4 +237,80 @@ class DashboardController extends Controller
     }
 
 
+    public function confirm(Request $request)
+    {
+        try {
+            // Validate the request data
+            $validated = $request->validate([
+                'BookingRequestID' => 'required|integer',
+                'CompanyID' => 'required|string',
+                'CompanyName' => 'required|string',
+                'OpportunityID' => 'required|string',
+                'OpportunityName' => 'required|string',
+                'ContactID' => 'required|string',
+                'ContactName' => 'required|string',
+                'ContactMobile' => 'required|string',
+                'SubTotalAmount' => 'required|numeric',
+                'VatAmount' => 'required|numeric',
+                'FinalAmount' => 'required|numeric',
+                'hold_invoice' => 'nullable|boolean',
+                'comment' => 'nullable|string'
+            ]);
+
+
+            // Create a new invoice record
+            $invoice = new ReadyInvoice();
+
+            // Get the last invoice number and increment it
+            $lastInvoice = ReadyInvoice::orderBy('InvoiceNumber', 'desc')->first();
+            $nextInvoiceNumber = $lastInvoice ? intval($lastInvoice->InvoiceNumber) + 1 : 1;
+
+            $invoice->fill([
+                'BookingRequestID' => $validated['BookingRequestID'],
+                'CompanyID' => $validated['CompanyID'],
+                'InvoiceType' => 0,
+                'CompanyName' => $validated['CompanyName'],
+                'OpportunityID' => $validated['OpportunityID'],
+                'OpportunityName' => $validated['OpportunityName'],
+                'ContactID' => $validated['ContactID'],
+                'ContactName' => $validated['ContactName'],
+                'ContactMobile' => $validated['ContactMobile'],
+                'SubTotalAmount' => $validated['SubTotalAmount'],
+                'VatAmount' => $validated['VatAmount'],
+                'FinalAmount' => $validated['FinalAmount'],
+                'TaxRate' => $validated['TaxRate'] ?? "0",
+                'CreatedUserID' => Auth::user()->userId,
+                'Status' => $validated['hold_invoice'] ? 0 : 1, // 0 for hold, 1 for ready
+                'Comment' => $validated['comment'],
+                'InvoiceDate' => now(),
+                'InvoiceNumber' => $nextInvoiceNumber
+            ]);
+
+            $invoice->save();
+
+            // Update the booking request status
+            $bookingRequest = BookingRequest::where('BookingRequestID', $validated['BookingRequestID'])->first();
+            if ($bookingRequest) {
+                $bookingRequest->Status = $validated['hold_invoice'] ? 0 : 1;
+                $bookingRequest->save();
+            }
+            return response()->json([
+                'success' => true,
+                'message' => 'Invoice has been confirmed successfully',
+                'redirect_url' => route('invoice.showData', ['invoice' => $invoice->id])
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function show($id)
+    {
+        $invoice = ReadyInvoice::where('InvoiceID', '=', $id)->first();
+        return view('admin.pages.invoice.viewinvoice', compact('invoice'));
+    }
 }
