@@ -25,6 +25,13 @@
             </a>
         </li>
 
+        <li class="menu-item {{ Request::routeIs('invoice.differences') ? 'active' : '' }}">
+            <a href="{{ route('invoice.differences') }}" class="menu-link">
+                <i class="menu-icon tf-icons mdi mdi-file-document-outline"></i>
+                <div>Invoice Differences</div>
+            </a>
+        </li>
+
         <!-- Delivery Invoice -->
         <li class="menu-item {{ Request::routeIs('delivery.*') ? 'active' : '' }}">
             <a href="{{ route('delivery.index') }}" class="menu-link">

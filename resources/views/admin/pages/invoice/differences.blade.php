@@ -61,6 +61,29 @@
         color: #155724;
         border: 1px solid #c3e6cb;
     }
+    /* Date range filter styles */
+    .date-range-filter {
+        margin-bottom: 15px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    .date-range-filter input {
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .date-range-filter button {
+        padding: 5px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .date-range-filter button:hover {
+        background-color: #0056b3;
+    }
 </style>
 <div class="container py-4">
     <div class="row">
@@ -91,6 +114,13 @@
                         <!-- Differences Tab -->
                         <div class="tab-pane fade show active" id="differences" role="tabpanel">
                             <div class="table-responsive">
+                                <div class="date-range-filter">
+                                    <input type="date" id="startDate" class="form-control">
+                                    <span>to</span>
+                                    <input type="date" id="endDate" class="form-control">
+                                    <button id="filterDate" class="btn btn-primary">Filter</button>
+                                    <button id="clearFilter" class="btn btn-secondary">Clear</button>
+                                </div>
                                 <table class="table table-bordered table-hover" id="differencesTable">
                                     <thead class="thead-light">
                                         <tr>
@@ -168,6 +198,13 @@
                         <!-- Perfect Invoices Tab -->
                         <div class="tab-pane fade" id="perfect" role="tabpanel">
                             <div class="table-responsive">
+                                <div class="date-range-filter">
+                                    <input type="date" id="startDatePerfect" class="form-control">
+                                    <span>to</span>
+                                    <input type="date" id="endDatePerfect" class="form-control">
+                                    <button id="filterDatePerfect" class="btn btn-primary">Filter</button>
+                                    <button id="clearFilterPerfect" class="btn btn-secondary">Clear</button>
+                                </div>
                                 <table class="table table-bordered table-hover" id="perfectTable">
                                     <thead class="thead-light">
                                         <tr>
@@ -241,12 +278,8 @@
 
 <script>
 $(document).ready(function() {
-    // Initialize DataTables
+    // Initialize DataTables without export buttons
     $('#differencesTable').DataTable({
-        dom: 'Bfrtip',
-        buttons: [
-            'copy', 'csv', 'excel', 'pdf', 'print'
-        ],
         order: [[5, 'desc']], // Sort by Created At by default
         pageLength: 10,
         responsive: true,
@@ -256,16 +289,48 @@ $(document).ready(function() {
     });
 
     $('#perfectTable').DataTable({
-        dom: 'Bfrtip',
-        buttons: [
-            'copy', 'csv', 'excel', 'pdf', 'print'
-        ],
         order: [[3, 'desc']], // Sort by Date by default
         pageLength: 10,
         responsive: true,
         language: {
             search: "Search in all columns:"
         }
+    });
+
+    // Date range filter for differences table
+    $('#filterDate').click(function() {
+        var startDate = $('#startDate').val();
+        var endDate = $('#endDate').val();
+
+        if (startDate && endDate) {
+            var table = $('#differencesTable').DataTable();
+            table.column(5).search(startDate + '|' + endDate, true, false).draw();
+        }
+    });
+
+    $('#clearFilter').click(function() {
+        $('#startDate').val('');
+        $('#endDate').val('');
+        var table = $('#differencesTable').DataTable();
+        table.column(5).search('').draw();
+    });
+
+    // Date range filter for perfect invoices table
+    $('#filterDatePerfect').click(function() {
+        var startDate = $('#startDatePerfect').val();
+        var endDate = $('#endDatePerfect').val();
+
+        if (startDate && endDate) {
+            var table = $('#perfectTable').DataTable();
+            table.column(3).search(startDate + '|' + endDate, true, false).draw();
+        }
+    });
+
+    $('#clearFilterPerfect').click(function() {
+        $('#startDatePerfect').val('');
+        $('#endDatePerfect').val('');
+        var table = $('#perfectTable').DataTable();
+        table.column(3).search('').draw();
     });
 
     // Status update modal
