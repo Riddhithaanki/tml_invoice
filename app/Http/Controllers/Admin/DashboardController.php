@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BookingLoad;
 use App\Models\BookingRequest;
 use App\Models\ReadyInvoice;
+use App\Models\ReadyInvoiceItem;
 use Illuminate\Http\Request;
 use App\Models\BookingInvoice;
 use App\Models\BookingInvoiceItem;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use App\Models\InvoiceDifference;
 
 class DashboardController extends Controller
 {
@@ -254,9 +256,14 @@ class DashboardController extends Controller
                 'VatAmount' => 'required|numeric',
                 'FinalAmount' => 'required|numeric',
                 'hold_invoice' => 'nullable|boolean',
-                'comment' => 'nullable|string'
+                'comment' => 'nullable|string',
+                'booking_loads' => 'required|string',
+                'invoice_items' => 'required|string'
             ]);
 
+            // Decode the JSON strings
+            $bookingLoads = json_decode($request->booking_loads, true);
+            $invoiceItems = json_decode($request->invoice_items, true);
 
             // Create a new invoice record
             $invoice = new ReadyInvoice();
@@ -264,6 +271,9 @@ class DashboardController extends Controller
             // Get the last invoice number and increment it
             $lastInvoice = ReadyInvoice::orderBy('InvoiceNumber', 'desc')->first();
             $nextInvoiceNumber = $lastInvoice ? intval($lastInvoice->InvoiceNumber) + 1 : 1;
+
+            // Format invoice number with leading zeros (6 digits)
+            $formattedInvoiceNumber = str_pad($nextInvoiceNumber, 6, '0', STR_PAD_LEFT);
 
             $invoice->fill([
                 'BookingRequestID' => $validated['BookingRequestID'],
@@ -283,10 +293,39 @@ class DashboardController extends Controller
                 'Status' => $validated['hold_invoice'] ? 0 : 1, // 0 for hold, 1 for ready
                 'Comment' => $validated['comment'],
                 'InvoiceDate' => now(),
-                'InvoiceNumber' => $nextInvoiceNumber
+                'InvoiceNumber' => $formattedInvoiceNumber
             ]);
 
             $invoice->save();
+
+            // Store invoice items
+            if (!empty($bookingLoads)) {
+                $itemNumber = 1;
+                foreach ($bookingLoads as $load) {
+                    // Get MaterialCode from tbl_materials
+                    $material = DB::table('tbl_materials')
+                        ->where('MaterialName', $load['MaterialName'])
+                        ->first();
+                    $invoiceItem = new ReadyInvoiceItem();
+                    $invoiceItem->fill([
+                        'InvoiceID' => $invoice->id,
+                        'InvoiceNumber' => $formattedInvoiceNumber,
+                        'ItemNumber' => $itemNumber++,
+                        'Qty' => $load['Loads'],
+                        'UnitPrice' => $load['Price'],
+                        'GrossAmount' => $load['TotalAmount'],
+                        'TaxAmount' => $load['TotalAmount'] * ($validated['TaxRate'] ?? 0) / 100,
+                        'TaxRate' => $validated['TaxRate'] ?? 0,
+                        'NetAmount' => $load['TotalAmount'],
+                        'NominalCode' => $material ? $material->MaterialCode : null,
+                        'Description' => $load['MaterialName'],
+                        'Comment1' => $load['LoadType'],
+                        'CreateDateTime' => now(),
+                        'UpdateDateTime' => now()
+                    ]);
+                    $invoiceItem->save();
+                }
+            }
 
             // Update the booking request status
             $bookingRequest = BookingRequest::where('BookingRequestID', $validated['BookingRequestID'])->first();
@@ -294,6 +333,7 @@ class DashboardController extends Controller
                 $bookingRequest->Status = $validated['hold_invoice'] ? 0 : 1;
                 $bookingRequest->save();
             }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Invoice has been confirmed successfully',
@@ -312,5 +352,214 @@ class DashboardController extends Controller
     {
         $invoice = ReadyInvoice::where('InvoiceID', '=', $id)->first();
         return view('admin.pages.invoice.viewinvoice', compact('invoice'));
+    }
+
+    public function compareWithSage(Request $request)
+    {
+        try {
+            // Get the invoice number from request
+            $invoiceNumber = $request->invoiceNumber;
+
+            if (!$invoiceNumber) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invoice number is required'
+                ], 400);
+            }
+
+            // Convert Sage format (1) to our format (000001)
+            $formattedInvoiceNumber = str_pad($invoiceNumber, 6, '0', STR_PAD_LEFT);
+
+            // Get invoice from our system
+            $ourInvoice = ReadyInvoice::where('InvoiceNumber', $formattedInvoiceNumber)
+                ->with('items')
+                ->first();
+
+            if (!$ourInvoice) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invoice not found in our system',
+                    'invoice_number' => $formattedInvoiceNumber
+                ], 404);
+            }
+
+            // Get invoice from Sage using the getInvoiceItemsByReference method
+            $sageResponse = app(SageController::class)->getInvoiceItemsByReference($invoiceNumber);
+            $sageData = $sageResponse->getData();
+
+            if (!$sageData->success) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invoice not found in Sage: ' . ($sageData->error ?? 'Unknown error'),
+                    'invoice_number' => $invoiceNumber
+                ], 404);
+            }
+
+            // Compare the data
+            $differences = [];
+
+            // Compare basic invoice details
+            $basicFields = [
+                'SubTotalAmount' => 'netTotal',
+                'VatAmount' => 'taxTotal',
+                'FinalAmount' => 'grossTotal'
+            ];
+
+            foreach ($basicFields as $ourField => $sageField) {
+                $ourValue = $ourInvoice->$ourField;
+                $sageValue = $sageData->invoice->$sageField ?? 0;
+
+                if (abs($ourValue - $sageValue) > 0.01) { // Using small tolerance for floating point comparison
+                    $differences['basic_details'][$ourField] = [
+                        'our_system' => $ourValue,
+                        'sage' => $sageValue
+                    ];
+                }
+            }
+
+            // Compare invoice items
+            $ourItems = $ourInvoice->items->pluck('Qty', 'Description')->toArray();
+            $sageItemsMap = collect($sageData->items)->pluck('quantity', 'description')->toArray();
+
+            // Find items that exist in one system but not the other
+            $allDescriptions = array_unique(array_merge(array_keys($ourItems), array_keys($sageItemsMap)));
+
+            foreach ($allDescriptions as $description) {
+                $ourQty = $ourItems[$description] ?? 0;
+                $sageQty = $sageItemsMap[$description] ?? 0;
+
+                if (abs($ourQty - $sageQty) > 0.01) { // Using small tolerance for floating point comparison
+                    $differences['items'][$description] = [
+                        'our_system' => $ourQty,
+                        'sage' => $sageQty
+                    ];
+                }
+            }
+
+            // Store differences in database if any found
+            if (!empty($differences['basic_details']) || !empty($differences['items'])) {
+                InvoiceDifference::updateOrCreate(
+                    ['invoice_number' => $formattedInvoiceNumber],
+                    [
+                        'basic_details_differences' => $differences['basic_details'] ?? null,
+                        'items_differences' => $differences['items'] ?? null,
+                        'status' => 'pending'
+                    ]
+                );
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Comparison completed',
+                'invoice_number' => $formattedInvoiceNumber,
+                'differences' => $differences
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error comparing invoices: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function showDifferences()
+    {
+        // Get invoices with differences
+        $differences = InvoiceDifference::orderBy('created_at', 'desc')->get();
+
+        // Get perfect invoices (those not in the differences table)
+        $perfectInvoices = ReadyInvoice::whereNotIn('InvoiceNumber', function($query) {
+            $query->select('invoice_number')->from('invoice_differences');
+        })->orderBy('InvoiceDate', 'desc')->get();
+
+        return view('admin.pages.invoice.differences', compact('differences', 'perfectInvoices'));
+    }
+
+    public function updateDifferenceStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,reviewed,resolved',
+            'resolution_notes' => 'nullable|string'
+        ]);
+
+        $difference = InvoiceDifference::findOrFail($id);
+        $difference->update([
+            'status' => $request->status,
+            'resolution_notes' => $request->resolution_notes
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Difference status updated successfully'
+        ]);
+    }
+
+    public function getInvoiceByNumber(Request $request)
+    {
+        try {
+            $invoiceNumber = $request->input('invoice_number');
+
+            if (!$invoiceNumber) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invoice number is required'
+                ], 400);
+            }
+
+            // Format the invoice number to match our system's format (000001)
+            $formattedInvoiceNumber = str_pad($invoiceNumber, 6, '0', STR_PAD_LEFT);
+
+            // Get the invoice with its items
+            $invoice = ReadyInvoice::where('InvoiceNumber', $formattedInvoiceNumber)
+                ->with('items')
+                ->first();
+
+            if (!$invoice) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invoice not found',
+                    'invoice_number' => $formattedInvoiceNumber
+                ], 404);
+            }
+
+            // Format the response
+            $response = [
+                'success' => true,
+                'invoice' => [
+                    'InvoiceID' => $invoice->id,
+                    'InvoiceNumber' => $invoice->InvoiceNumber,
+                    'InvoiceDate' => $invoice->InvoiceDate,
+                    'CompanyName' => $invoice->CompanyName,
+                    'SubTotalAmount' => $invoice->SubTotalAmount,
+                    'VatAmount' => $invoice->VatAmount,
+                    'FinalAmount' => $invoice->FinalAmount,
+                    'TaxRate' => $invoice->TaxRate,
+                    'Status' => $invoice->Status,
+                    'Comment' => $invoice->Comment,
+                    'items' => $invoice->items->map(function ($item) {
+                        return [
+                            'ItemNumber' => $item->ItemNumber,
+                            'Description' => $item->Description,
+                            'Qty' => $item->Qty,
+                            'UnitPrice' => $item->UnitPrice,
+                            'GrossAmount' => $item->GrossAmount,
+                            'TaxAmount' => $item->TaxAmount,
+                            'NetAmount' => $item->NetAmount,
+                            'NominalCode' => $item->NominalCode,
+                            'Comment1' => $item->Comment1
+                        ];
+                    })
+                ]
+            ];
+
+            return response()->json($response);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching invoice: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
