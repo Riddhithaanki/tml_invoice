@@ -226,13 +226,20 @@
                         <form id="confirmInvoiceForm" action="{{ route('invoice.confirm') }}" method="POST">
                             @csrf
                             <input type="hidden" name="BookingRequestID" value="{{ $bookingData->BookingRequestID }}">
-                            <input type="hidden" name="CompanyID" value="{{ $bookingData->bookingRequest->CompanyID }}">
-                            <input type="hidden" name="CompanyName" value="{{ $bookingData->bookingRequest->CompanyName }}">
-                            <input type="hidden" name="OpportunityID" value="{{ $bookingData->bookingRequest->OpportunityID }}">
-                            <input type="hidden" name="OpportunityName" value="{{ $bookingData->bookingRequest->OpportunityName }}">
-                            <input type="hidden" name="ContactID" value="{{ $bookingData->bookingRequest->ContactID }}">
-                            <input type="hidden" name="ContactName" value="{{ $bookingData->bookingRequest->ContactName }}">
-                            <input type="hidden" name="ContactMobile" value="{{ $bookingData->bookingRequest->ContactMobile }}">
+                            <input type="hidden" name="CompanyID"
+                                value="{{ $bookingData->bookingRequest->CompanyID }}">
+                            <input type="hidden" name="CompanyName"
+                                value="{{ $bookingData->bookingRequest->CompanyName }}">
+                            <input type="hidden" name="OpportunityID"
+                                value="{{ $bookingData->bookingRequest->OpportunityID }}">
+                            <input type="hidden" name="OpportunityName"
+                                value="{{ $bookingData->bookingRequest->OpportunityName }}">
+                            <input type="hidden" name="ContactID"
+                                value="{{ $bookingData->bookingRequest->ContactID }}">
+                            <input type="hidden" name="ContactName"
+                                value="{{ $bookingData->bookingRequest->ContactName }}">
+                            <input type="hidden" name="ContactMobile"
+                                value="{{ $bookingData->bookingRequest->ContactMobile }}">
                             <input type="hidden" name="SubTotalAmount" value="{{ $invoice->SubTotalAmount }}">
                             <input type="hidden" name="VatAmount" value="{{ $invoice->VatAmount }}">
                             <input type="hidden" name="FinalAmount" value="{{ $invoice->TotalAmount }}">
@@ -241,19 +248,19 @@
                             <input type="hidden" name="hold_invoice" id="hold_invoice" value="0">
                             <input type="hidden" name="comment" id="comment_value">
 
-                        <button class="btn btn-secondary btn-lg px-4 me-2" data-bs-toggle="modal"
-                            data-bs-target="#mergeBookingModal" data-invoice-id="{{ $booking['BookingRequestID'] }}">
-                            <i class="fas fa-random me-2"></i>Merge Booking
-                        </button>
+                            <button class="btn btn-secondary btn-lg px-4 me-2" data-bs-toggle="modal"
+                                data-bs-target="#mergeBookingModal" data-invoice-id="{{ $booking['BookingRequestID'] }}">
+                                <i class="fas fa-random me-2"></i>Merge Booking
+                            </button>
 
-                        <button class="btn btn-secondary btn-lg px-4 me-2" data-bs-toggle="modal"
-                            data-bs-target="#splitInvoiceModal" data-invoice-id="{{ $bookingData->BookingID }}">
-                            <i class="fas fa-random me-2"></i>Split Invoice
-                        </button>
+                            <button class="btn btn-secondary btn-lg px-4 me-2" data-bs-toggle="modal"
+                                data-bs-target="#splitInvoiceModal" data-invoice-id="{{ $bookingData->BookingID }}">
+                                <i class="fas fa-random me-2"></i>Split Invoice
+                            </button>
 
-                        <button type="submit" class="btn btn-primary btn-lg px-4">
-                            <i class="fas fa-check-circle me-2"></i> Proceed To Confirm
-                        </button>
+                            <button type="submit" class="btn btn-primary btn-lg px-4">
+                                <i class="fas fa-check-circle me-2"></i> Proceed To Confirm
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -310,14 +317,15 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button id="submitSelectedbooking" class="btn btn-primary mt-3"
-                        data-booking-request-id="{{$booking['BookingRequestID']}}">Confirm Merge</button>
+                        data-booking-request-id="{{ $booking['BookingRequestID'] }}">Confirm Merge</button>
 
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="priceHistoryModal" tabindex="-1" aria-labelledby="priceHistoryModalLabel" aria-hidden="true">
+    <div class="modal fade" id="priceHistoryModal" tabindex="-1" aria-labelledby="priceHistoryModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -339,34 +347,34 @@
 
     <script>
         $(document).ready(function() {
-                    $('.toggle-invoice').on('click', function() {
-                        let bookingId = $(this).data('booking-id');
-                        let container = $('.invoice-items-container[data-booking-id="' + bookingId + '"]');
-                        let content = container.find('.invoice-items-content');
+            $('.toggle-invoice').on('click', function() {
+                let bookingId = $(this).data('booking-id');
+                let container = $('.invoice-items-container[data-booking-id="' + bookingId + '"]');
+                let content = container.find('.invoice-items-content');
 
-                        if (container.hasClass('d-none')) {
-                            // Show loader
-                            content.html(
-                                '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading booking details...</p></div>'
-                            );
-                            container.removeClass('d-none').slideDown(300);
+                if (container.hasClass('d-none')) {
+                    // Show loader
+                    content.html(
+                        '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading booking details...</p></div>'
+                    );
+                    container.removeClass('d-none').slideDown(300);
 
-                            $.ajax({
-                                url: "{{ route('get.invoice.items') }}",
-                                type: "GET",
-                                data: {
-                                    booking_id: bookingId
-                                },
-                                success: function(response) {
-                                    if (!response.invoice_items || response.invoice_items.length ===
-                                        0) {
-                                        content.html(
-                                            '<div class="text-center py-4 text-danger fw-bold">No details found for this booking.</div>'
-                                        );
-                                        return;
-                                    }
+                    $.ajax({
+                        url: "{{ route('get.invoice.items') }}",
+                        type: "GET",
+                        data: {
+                            booking_id: bookingId
+                        },
+                        success: function(response) {
+                            if (!response.invoice_items || response.invoice_items.length ===
+                                0) {
+                                content.html(
+                                    '<div class="text-center py-4 text-danger fw-bold">No details found for this booking.</div>'
+                                );
+                                return;
+                            }
 
-                                    let html = `<div class="table-responsive">
+                            let html = `<div class="table-responsive">
                                                             <table class="table table-bordered table-striped table-hover">
                                                                 <thead class="table-primary">
                                                                     <tr>
@@ -386,22 +394,22 @@
                                                                 </thead>
                                                                 <tbody>`;
 
-                                    response.invoice_items.forEach(item => {
-                                        if (!item.loads || item.loads.length === 0) {
-                                            html += `<tr>
+                            response.invoice_items.forEach(item => {
+                                if (!item.loads || item.loads.length === 0) {
+                                    html += `<tr>
                                     <td colspan="12" class="text-center text-warning fw-bold">No details available for this material.</td>
                                 </tr>`;
-                                        } else {
-                                            item.loads.forEach(load => {
-                                                let waitTime = calculateWaitTime(load
-                                                    .SiteInDateTime, load
-                                                    .SiteOutDateTime);
-                                                let statusText = getStatusText(load
-                                                    .Status);
-                                                let statusClass = getStatusClass(load
-                                                    .Status);
+                                } else {
+                                    item.loads.forEach(load => {
+                                        let waitTime = calculateWaitTime(load
+                                            .SiteInDateTime, load
+                                            .SiteOutDateTime);
+                                        let statusText = getStatusText(load
+                                            .Status);
+                                        let statusClass = getStatusClass(load
+                                            .Status);
 
-                                                html += `<tr>
+                                        html += `<tr>
                                         <td>${load.ConveyanceNo}</td>
                                         <td><span class="badge bg-dark">${load.TicketID}</span></td>
                                         <td>${formatDateTime(load.JobStartDateTime)}</td>
@@ -427,134 +435,134 @@
                                             </div>
                                         </td>
                                     </tr>`;
-                                            });
-                                        }
                                     });
-
-
-
-                                    html += '</tbody></table></div>';
-
-                                    // Animate content replacement
-                                    setTimeout(() => {
-                                        content.fadeOut(200, function() {
-                                            $(this).html(html).fadeIn(300);
-                                        });
-                                    }, 500);
-                                },
-                                error: function() {
-                                    content.html(
-                                        '<div class="text-center py-4 text-danger fw-bold">Error loading details. Please try again.</div>'
-                                    );
                                 }
                             });
-                        } else {
-                            // Hide content
-                            container.slideUp(300, function() {
-                                $(this).addClass('d-none').css('display', '');
-                            });
-                        }
 
-                        // Toggle expand icon
-                        $(this).find('i').toggleClass('fa-chevron-down fa-chevron-up');
-                    });
 
-                    $(document).on('keydown', '.editable-price', function(event) {
-                        if (event.key === "Enter" || event.key === "Tab") {
-                            event.preventDefault(); // Prevent default tab/enter behavior
 
-                            let input = $(this);
-                            let newPrice = parseFloat(input.val()) || 0;
-                            let ticketId = input.data('ticket-id');
+                            html += '</tbody></table></div>';
 
-                            if (confirm(`Are you sure you want to update the price to £${newPrice.toFixed(2)}?`)) {
-                                // Update the price field and recalculate totals
-                                input.val(newPrice.toFixed(2));
-
-                                // Send AJAX request to save price
-                                $.ajax({
-                                    url: "{{ route('update.invoice.price') }}",
-                                    type: "POST",
-                                    data: {
-                                        ticket_id: ticketId,
-                                        new_price: newPrice,
-                                        _token: "{{ csrf_token() }}"
-                                    },
-                                    success: function(response) {
-                                        console.log("Price updated successfully.");
-                                        updateInvoiceTotals
-                                            (); // Ensure totals update only on successful response
-                                    },
-                                    error: function() {
-                                        alert("Failed to update price. Try again.");
-                                        input.val(input.data(
-                                            'original-price')); // Reset to original if failed
-                                    }
+                            // Animate content replacement
+                            setTimeout(() => {
+                                content.fadeOut(200, function() {
+                                    $(this).html(html).fadeIn(300);
                                 });
-                            } else {
-                                input.val(input.data('original-price')); // Reset to original if canceled
-                            }
+                            }, 500);
+                        },
+                        error: function() {
+                            content.html(
+                                '<div class="text-center py-4 text-danger fw-bold">Error loading details. Please try again.</div>'
+                            );
                         }
                     });
+                } else {
+                    // Hide content
+                    container.slideUp(300, function() {
+                        $(this).addClass('d-none').css('display', '');
+                    });
+                }
 
+                // Toggle expand icon
+                $(this).find('i').toggleClass('fa-chevron-down fa-chevron-up');
+            });
 
+            $(document).on('keydown', '.editable-price', function(event) {
+                if (event.key === "Enter" || event.key === "Tab") {
+                    event.preventDefault(); // Prevent default tab/enter behavior
 
-                    function updateInvoiceTotals() {
-                        let subtotal = 0;
-                        let bookingTotals = {}; // Store totals per booking
+                    let input = $(this);
+                    let newPrice = parseFloat(input.val()) || 0;
+                    let ticketId = input.data('ticket-id');
 
-                        // Sum all price input values and group by booking ID
-                        $('.editable-price').each(function() {
-                            let price = parseFloat($(this).val()) || 0;
-                            let bookingId = $(this).data('booking-id'); // Fetch BookingID from the input field
+                    if (confirm(`Are you sure you want to update the price to £${newPrice.toFixed(2)}?`)) {
+                        // Update the price field and recalculate totals
+                        input.val(newPrice.toFixed(2));
 
-                            subtotal += price;
-
-                            if (!bookingTotals[bookingId]) {
-                                bookingTotals[bookingId] = 0;
-                            }
-                            bookingTotals[bookingId] += price;
-                        });
-
-                        // VAT Calculation (Assuming 20%)
-                        let vatRate = parseFloat("{{ $invoice->TaxRate }}") || 20; // Get VAT rate
-                        let vatAmount = (subtotal * vatRate) / 100;
-                        let total = subtotal + vatAmount;
-
-                        // Update the invoice totals dynamically
-                        $('.invoice-subtotal').text(`£${subtotal.toFixed(2)}`);
-                        $('.invoice-vat').text(`£${vatAmount.toFixed(2)}`);
-                        $('.invoice-total').text(`£${total.toFixed(2)}`);
-
-                        // Update each booking's total amount dynamically
-                        for (let bookingId in bookingTotals) {
-                            $(`.booking-total[data-booking-id="${bookingId}"]`).text(
-                                `£${bookingTotals[bookingId].toFixed(2)}`);
-                        }
-                    }
-
-                    $(document).on('click', '.price-history-btn', function() {
-                        let ticketId = $(this).data('ticket-id');
-
+                        // Send AJAX request to save price
                         $.ajax({
-                            url: "{{ route('get.price.history') }}",
-                            type: "GET",
+                            url: "{{ route('update.invoice.price') }}",
+                            type: "POST",
                             data: {
-                                ticket_id: ticketId
+                                ticket_id: ticketId,
+                                new_price: newPrice,
+                                _token: "{{ csrf_token() }}"
                             },
                             success: function(response) {
-                                if (!response.history || response.history.length === 0) {
-                                    $('#priceHistoryModal .modal-body').html(
-                                        '<div class="text-center text-danger">No price history found.</div>'
-                                        );
-                                    $('#priceHistoryModal').modal('show');
-                                    return;
-                                }
+                                console.log("Price updated successfully.");
+                                updateInvoiceTotals
+                                    (); // Ensure totals update only on successful response
+                            },
+                            error: function() {
+                                alert("Failed to update price. Try again.");
+                                input.val(input.data(
+                                    'original-price')); // Reset to original if failed
+                            }
+                        });
+                    } else {
+                        input.val(input.data('original-price')); // Reset to original if canceled
+                    }
+                }
+            });
 
-                                let historyHtml = `<div class="timeline">`;
 
-                                response.history.forEach(record => {
-                                    historyHtml += `
+
+            function updateInvoiceTotals() {
+                let subtotal = 0;
+                let bookingTotals = {}; // Store totals per booking
+
+                // Sum all price input values and group by booking ID
+                $('.editable-price').each(function() {
+                    let price = parseFloat($(this).val()) || 0;
+                    let bookingId = $(this).data('booking-id'); // Fetch BookingID from the input field
+
+                    subtotal += price;
+
+                    if (!bookingTotals[bookingId]) {
+                        bookingTotals[bookingId] = 0;
+                    }
+                    bookingTotals[bookingId] += price;
+                });
+
+                // VAT Calculation (Assuming 20%)
+                let vatRate = parseFloat("{{ $invoice->TaxRate }}") || 20; // Get VAT rate
+                let vatAmount = (subtotal * vatRate) / 100;
+                let total = subtotal + vatAmount;
+
+                // Update the invoice totals dynamically
+                $('.invoice-subtotal').text(`£${subtotal.toFixed(2)}`);
+                $('.invoice-vat').text(`£${vatAmount.toFixed(2)}`);
+                $('.invoice-total').text(`£${total.toFixed(2)}`);
+
+                // Update each booking's total amount dynamically
+                for (let bookingId in bookingTotals) {
+                    $(`.booking-total[data-booking-id="${bookingId}"]`).text(
+                        `£${bookingTotals[bookingId].toFixed(2)}`);
+                }
+            }
+
+            $(document).on('click', '.price-history-btn', function() {
+                let ticketId = $(this).data('ticket-id');
+
+                $.ajax({
+                    url: "{{ route('get.price.history') }}",
+                    type: "GET",
+                    data: {
+                        ticket_id: ticketId
+                    },
+                    success: function(response) {
+                        if (!response.history || response.history.length === 0) {
+                            $('#priceHistoryModal .modal-body').html(
+                                '<div class="text-center text-danger">No price history found.</div>'
+                            );
+                            $('#priceHistoryModal').modal('show');
+                            return;
+                        }
+
+                        let historyHtml = `<div class="timeline">`;
+
+                        response.history.forEach(record => {
+                            historyHtml += `
             <div class="timeline-item">
                 <div class="timeline-dot"></div>
                 <div class="timeline-content">
@@ -568,144 +576,180 @@
                 </div>
             </div>
         `;
-                                });
-
-                                historyHtml += `</div>`;
-
-                                $('#priceHistoryModal .modal-body').html(historyHtml);
-                                $('#priceHistoryModal').modal('show');
-                            }
-
                         });
 
-                    });
+                        historyHtml += `</div>`;
+
+                        $('#priceHistoryModal .modal-body').html(historyHtml);
+                        $('#priceHistoryModal').modal('show');
+                    }
+
+                });
+
+            });
 
 
-                        window.calculateWaitTime = function(siteIn, siteOut) {
-                            if (!siteIn || !siteOut) return "N/A";
-                            let inTime = new Date(siteIn);
-                            let outTime = new Date(siteOut);
-                            let diffMinutes = Math.round((outTime - inTime) / 60000);
-                            return diffMinutes > 60 ? `${Math.floor(diffMinutes / 60)}h ${diffMinutes % 60}m` : `${diffMinutes} min`;
+            window.calculateWaitTime = function(siteIn, siteOut) {
+                if (!siteIn || !siteOut) return "N/A";
+                let inTime = new Date(siteIn);
+                let outTime = new Date(siteOut);
+                let diffMinutes = Math.round((outTime - inTime) / 60000);
+                return diffMinutes > 60 ? `${Math.floor(diffMinutes / 60)}h ${diffMinutes % 60}m` :
+                    `${diffMinutes} min`;
+            };
+
+            window.getStatusText = function(status) {
+                const statusMap = {
+                    0: "Allocated",
+                    1: "Accepted",
+                    2: "Arrive Site",
+                    3: "Receipt Generated",
+                    4: "Finish Load",
+                    5: "Cancel Load"
+                };
+                return statusMap[status] || "Unknown";
+            };
+
+            window.getStatusClass = function(status) {
+                const classMap = {
+                    0: "bg-secondary",
+                    1: "bg-info",
+                    2: "bg-warning",
+                    3: "bg-primary",
+                    4: "bg-success",
+                    5: "bg-danger"
+                };
+                return classMap[status] || "bg-secondary";
+            };
+
+            window.formatDateTime = function(dateTime) {
+                if (!dateTime) return "N/A";
+
+                const date = new Date(dateTime);
+
+                // Extract date components
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+                const day = String(date.getDate()).padStart(2, '0');
+
+                // Extract time components
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                const seconds = String(date.getSeconds()).padStart(2, '0');
+
+                // Construct the formatted string
+                return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            };
+
+            window.formatWeight = function(weight) {
+                return weight ? parseFloat(weight).toLocaleString('en-GB') : "0";
+            };
+
+            // Handle hold invoice checkbox
+            $('#holdInvoice').on('change', function() {
+                $('#hold_invoice').val(this.checked ? '1' : '0');
+            });
+
+            // Handle comment textarea
+            $('#comment').on('change', function() {
+                $('#comment_value').val($(this).val());
+            });
+
+            // Handle form submission
+            $('#confirmInvoiceForm').on('submit', function(e) {
+                e.preventDefault();
+
+                // Get all form data
+                var formData = $(this).serialize();
+
+                // Collect all booking loads data
+                var bookingLoads = [];
+                $('.table-striped tbody tr').each(function() {
+                    var bookingId = $(this).find('button[data-booking-id]').data('booking-id');
+                    if (bookingId) {
+                        var bookingData = {
+                            BookingID: bookingId,
+                            MaterialName: $(this).find('td:eq(3)').text(),
+                            LoadType: $(this).find('td:eq(4)').text(),
+                            Loads: $(this).find('td:eq(6)').text(),
+                            Price: $(this).find('td:eq(7)').text().replace('£', ''),
+                            TotalAmount: $(this).find('td:eq(8)').text().replace('£', '')
                         };
+                        bookingLoads.push(bookingData);
+                    }
+                });
 
-                        window.getStatusText = function(status) {
-                            const statusMap = {
-                                0: "Allocated",
-                                1: "Accepted",
-                                2: "Arrive Site",
-                                3: "Receipt Generated",
-                                4: "Finish Load",
-                                5: "Cancel Load"
-                            };
-                            return statusMap[status] || "Unknown";
-                        };
+                // Add booking loads to form data as JSON string
+                formData += '&booking_loads=' + encodeURIComponent(JSON.stringify(bookingLoads));
 
-                        window.getStatusClass = function(status) {
-                            const classMap = {
-                                0: "bg-secondary",
-                                1: "bg-info",
-                                2: "bg-warning",
-                                3: "bg-primary",
-                                4: "bg-success",
-                                5: "bg-danger"
-                            };
-                            return classMap[status] || "bg-secondary";
-                        };
+                // Collect all invoice items data
+                var invoiceItems = [];
+                $('.editable-price').each(function() {
+                    var ticketId = $(this).data('ticket-id');
+                    var price = $(this).val();
 
-                        window.formatDateTime = function(dateTime) {
-    if (!dateTime) return "N/A";
-
-    const date = new Date(dateTime);
-
-    // Extract date components
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-    const day = String(date.getDate()).padStart(2, '0');
-
-    // Extract time components
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-
-    // Construct the formatted string
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-};
-
-window.formatWeight = function(weight) {
-    return weight ? parseFloat(weight).toLocaleString('en-GB') : "0";
-};
-
-                    // Handle hold invoice checkbox
-                    $('#holdInvoice').on('change', function() {
-                        $('#hold_invoice').val(this.checked ? '1' : '0');
-                    });
-
-                    // Handle comment textarea
-                    $('#comment').on('change', function() {
-                        $('#comment_value').val($(this).val());
-                    });
-
-                    // Handle form submission
-                    $('#confirmInvoiceForm').on('submit', function(e) {
-                        e.preventDefault();
-
-                        // Get all form data
-                        var formData = $(this).serialize();
-
-                        // Submit form via AJAX
-                        $.ajax({
-                            url: $(this).attr('action'),
-                            type: 'POST',
-                            data: formData,
-                            success: function(response) {
-                                if (response.success) {
-                                    window.location.href = response.redirect_url;
-                                } else {
-                                    alert('Error: ' + response.message);
-                                }
-                            },
-                            error: function(xhr) {
-                                alert('An error occurred while processing your request.');
-                            }
-                        });
+                    invoiceItems.push({
+                        ticket_id: ticketId,
+                        price: price
                     });
                 });
 
-                    $(document).ready(function() {
-                        $('#splitInvoiceModal').on('show.bs.modal', function(e) {
-                            var button = $(e.relatedTarget);
-                            var invoiceId = button.data('invoice-id');
-                            var modal = $(this);
-                            var modalBody = modal.find('.modal-body');
+                // Add invoice items to form data as JSON string
+                formData += '&invoice_items=' + encodeURIComponent(JSON.stringify(invoiceItems));
 
-                            // Show loader
+                // Submit form via AJAX
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            window.location.href = response.redirect_url;
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('An error occurred while processing your request.');
+                    }
+                });
+            });
+        });
+
+        $(document).ready(function() {
+            $('#splitInvoiceModal').on('show.bs.modal', function(e) {
+                var button = $(e.relatedTarget);
+                var invoiceId = button.data('invoice-id');
+                var modal = $(this);
+                var modalBody = modal.find('.modal-body');
+
+                // Show loader
+                modalBody.html(
+                    '<div class="text-center py-4">' +
+                    '<div class="spinner-border text-primary" role="status">' +
+                    '<span class="visually-hidden">Loading...</span></div>' +
+                    '<p class="mt-2 text-primary">Loading invoice items...</p></div>'
+                );
+
+                // Fetch invoice items via AJAX
+                $.ajax({
+                    url: "{{ route('get.splitinvoice.items') }}",
+                    type: "GET",
+                    data: {
+                        invoice_id: invoiceId
+                    },
+                    success: function(response) {
+                        if (!response.invoice_items || response.invoice_items
+                            .length === 0) {
                             modalBody.html(
-                                '<div class="text-center py-4">' +
-                                '<div class="spinner-border text-primary" role="status">' +
-                                '<span class="visually-hidden">Loading...</span></div>' +
-                                '<p class="mt-2 text-primary">Loading invoice items...</p></div>'
+                                '<div class="text-center py-4 text-danger fw-bold">No details found for this invoice.</div>'
                             );
+                            return;
+                        }
 
-                            // Fetch invoice items via AJAX
-                            $.ajax({
-                                url: "{{ route('get.splitinvoice.items') }}",
-                                type: "GET",
-                                data: {
-                                    invoice_id: invoiceId
-                                },
-                                success: function(response) {
-                                    if (!response.invoice_items || response.invoice_items
-                                        .length === 0) {
-                                        modalBody.html(
-                                            '<div class="text-center py-4 text-danger fw-bold">No details found for this invoice.</div>'
-                                        );
-                                        return;
-                                    }
+                        console.log(response); // Debugging the response
 
-                                    console.log(response); // Debugging the response
-
-                                    var html = `<div class="table-responsive">
+                        var html = `<div class="table-responsive">
                                     <table class="table table-bordered table-striped table-hover">
                                         <thead class="table-primary">
                                             <tr>
@@ -721,12 +765,12 @@ window.formatWeight = function(weight) {
                                         </thead>
                                         <tbody>`;
 
-                                                    // Loop through each invoice item (Booking)
-                                                    response.invoice_items.forEach(booking => {
-                                                        let bookingRequest = booking
-                                                            .booking_request; // Related booking request
+                        // Loop through each invoice item (Booking)
+                        response.invoice_items.forEach(booking => {
+                            let bookingRequest = booking
+                                .booking_request; // Related booking request
 
-                                                        html += `<tr>
+                            html += `<tr>
                                         <td class="text-center">
                                             <input type="checkbox" class="form-check-input split-checkbox" value="${booking.BookingID}">
                                         </td>
@@ -738,47 +782,53 @@ window.formatWeight = function(weight) {
                                         <td class="text-center">£${parseFloat(booking.Price).toFixed(2) || '0.00'}</td>
                                         <td class="text-end fw-bold">£${parseFloat(booking.TotalAmount).toFixed(2) || '0.00'}</td>
                                     </tr>`;
-                                                    });
+                        });
 
-                                                    html += '</tbody></table></div>';
+                        html += '</tbody></table></div>';
 
-                                                    // Fade out loader and show table
-                                                    setTimeout(() => {
-                                                        modalBody.fadeOut(200, function() {
-                                                            $(this).html(html).fadeIn(300);
-                                                        });
-                                                    }, 500);
-                                                },
-                                                error: function() {
-                                                    modalBody.html(
-                                                        '<p class="text-danger text-center">Error loading data. Please try again.</p>'
-                                                    );
-                                                }
-                                            });
-                                        });
+                        // Fade out loader and show table
+                        setTimeout(() => {
+                            modalBody.fadeOut(200, function() {
+                                $(this).html(html).fadeIn(300);
+                            });
+                        }, 500);
+                    },
+                    error: function() {
+                        modalBody.html(
+                            '<p class="text-danger text-center">Error loading data. Please try again.</p>'
+                        );
+                    }
+                });
+            });
 
-                                        $('#mergeBookingModal').on('show.bs.modal', function (e) {
-                                            var button = $(e.relatedTarget);
-                                            var invoiceId = button.data('invoice-id');
-                                            var modal = $(this);
-                                            var modalBody = modal.find('.modal-body');
+            $('#mergeBookingModal').on('show.bs.modal', function(e) {
+                var button = $(e.relatedTarget);
+                var invoiceId = button.data('invoice-id');
+                var modal = $(this);
+                var modalBody = modal.find('.modal-body');
 
-                                            // Show loader
-                                            modalBody.html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading booking...</p></div>');
+                // Show loader
+                modalBody.html(
+                    '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading booking...</p></div>'
+                    );
 
-                                            // Fetch invoice items via AJAX
-                                            $.ajax({
-                                                url: "{{ route('get.mergebookings.items') }}",
-                                                type: "GET",
-                                                data: { invoice_id: invoiceId },
-                                                success: function (response) {
-                                                    if (!response.invoice_items || response.invoice_items.length === 0) {
-                                                        modalBody.html('<div class="text-center py-4 text-danger fw-bold">No details found for this invoice.</div>');
-                                                        return;
-                                                    }
-                                                    console.log(response);
+                // Fetch invoice items via AJAX
+                $.ajax({
+                    url: "{{ route('get.mergebookings.items') }}",
+                    type: "GET",
+                    data: {
+                        invoice_id: invoiceId
+                    },
+                    success: function(response) {
+                        if (!response.invoice_items || response.invoice_items.length === 0) {
+                            modalBody.html(
+                                '<div class="text-center py-4 text-danger fw-bold">No details found for this invoice.</div>'
+                                );
+                            return;
+                        }
+                        console.log(response);
 
-                                                    var html = `<div class="table-responsive">
+                        var html = `<div class="table-responsive">
                                                                                 <table class="table table-bordered table-striped table-hover">
                                                                                     <thead class="table-primary">
                                                                                         <tr>
@@ -792,15 +842,16 @@ window.formatWeight = function(weight) {
                                                                                     </thead>
                                                                                     <tbody>`;
 
-                                                    // Iterate through invoice_items
-                                                    response.invoice_items.forEach(invoice => {
-                                                        if (!invoice || (Array.isArray(invoice) && invoice.length === 0)) {
-                                                            html += `<tr>
+                        // Iterate through invoice_items
+                        response.invoice_items.forEach(invoice => {
+                            if (!invoice || (Array.isArray(invoice) && invoice
+                                    .length === 0)) {
+                                html += `<tr>
                                                     <td colspan="5" class="text-center text-warning fw-bold">No bookings found.</td>
                                                 </tr>`;
-                                                        } else {
+                            } else {
 
-                                                                html += `<tr>
+                                html += `<tr>
                                                         <td class="text-center">
                                                             <input type="checkbox" class="form-check-input merge-checkbox" value="${invoice.BookingRequestID}">
                                                         </td>
@@ -823,190 +874,194 @@ window.formatWeight = function(weight) {
                                                         </td>
                                                     </tr>`;
 
-                                                        }
-                                                    });
-
-
-                                                    html += '</tbody></table></div>';
-
-                                                    // Fade out loader and show content
-                                                    setTimeout(() => {
-                                                        modalBody.fadeOut(200, function () {
-                                                            $(this).html(html).fadeIn(300);
-                                                        });
-                                                    }, 500);
-                                                },
-                                                error: function () {
-                                                    modalBody.html('<p class="text-danger text-center">Error loading data. Please try again.</p>');
-                                                }
-                                            });
-                                        });
-
-                                        function calculateWaitTime(siteIn, siteOut) {
-                                            if (!siteIn || !siteOut) return "N/A";
-                                            let inTime = new Date(siteIn);
-                                            let outTime = new Date(siteOut);
-                                            let diffMinutes = Math.round((outTime - inTime) / 60000);
-
-                                            if (diffMinutes > 60) {
-                                                let hours = Math.floor(diffMinutes / 60);
-                                                let mins = diffMinutes % 60;
-                                                return `${hours}h ${mins}m`;
-                                            }
-                                            return diffMinutes + " min";
-                                        }
-
-                                        function getStatusText(status) {
-                                            const statusMap = {
-                                                0: "Allocated",
-                                                1: "Accepted",
-                                                2: "Arrive Site",
-                                                3: "Receipt Generated",
-                                                4: "Finish Load",
-                                                5: "Cancel Load"
-                                            };
-                                            return statusMap[status] || "Unknown";
-                                        }
-
-                                        function getStatusClass(status) {
-                                            const classMap = {
-                                                0: "bg-secondary",
-                                                1: "bg-info",
-                                                2: "bg-warning",
-                                                3: "bg-primary",
-                                                4: "bg-success",
-                                                5: "bg-danger"
-                                            };
-                                            return classMap[status] || "bg-secondary";
-                                        }
-
-                                        function formatDateTime(dateTime) {
-                                            if (!dateTime) return "N/A";
-                                            let date = new Date(dateTime);
-                                            return date.toLocaleString('en-GB', {
-                                                day: '2-digit',
-                                                month: 'short',
-                                                year: 'numeric',
-                                                hour: '2-digit',
-                                                minute: '2-digit'
-                                            });
-                                        }
-
-                                        function formatWeight(weight) {
-                                            return weight ? parseFloat(weight).toLocaleString('en-GB') : "0";
-                                        }
-                                });
-
-                    $(document).ready(function() {
-                        $('#submitSelectedLoads').on('click', function() {
-                            var selectedLoads = [];
-                            var bookingRequestID = $(this).data(
-                            'booking-request-id'); // Fetch BookingRequestID
-                            console.log(bookingRequestID);
-
-                            $('.split-checkbox:checked').each(function() {
-                                selectedLoads.push({
-                                    LoadID: $(this).val()
-                                });
-                            });
-
-                            if (selectedLoads.length === 0) {
-                                alert('Please select at least one load to split.');
-                                return;
                             }
-
-                            $.ajax({
-                                url: "{{ route('split.invoice') }}", // Ensure this route is defined
-                                type: "POST",
-                                data: {
-                                    _token: "{{ csrf_token() }}",
-                                    booking_request_id: bookingRequestID,
-                                    loads: selectedLoads
-                                },
-                                success: function(response) {
-                                    if (response.success) {
-                                        alert('Invoice split successfully!');
-                                        $('#splitInvoiceModal').modal(
-                                        'hide'); // Close modal on success
-                                        location.reload(); // Reload the page to update the UI
-                                    } else {
-                                        alert(response.error || 'An error occurred.');
-                                    }
-                                },
-                                error: function(xhr) {
-                                    alert('Something went wrong. Please try again.');
-                                }
-                            });
                         });
 
-                        $('#submitSelectedbooking').on('click', function () {
-                            var selectedBookings = [];
-                            var bookingRequestID = $(this).data('booking-request-id'); // Fetch BookingRequestID
-                            console.log(bookingRequestID);
 
-                            $('.merge-checkbox:checked').each(function () {
-                                selectedBookings.push({ BookingID: $(this).val() });
+                        html += '</tbody></table></div>';
+
+                        // Fade out loader and show content
+                        setTimeout(() => {
+                            modalBody.fadeOut(200, function() {
+                                $(this).html(html).fadeIn(300);
                             });
+                        }, 500);
+                    },
+                    error: function() {
+                        modalBody.html(
+                            '<p class="text-danger text-center">Error loading data. Please try again.</p>'
+                            );
+                    }
+                });
+            });
 
-                            if (selectedBookings.length === 0) {
-                                alert('Please select at booking to merge.');
-                                return;
-                            }
+            function calculateWaitTime(siteIn, siteOut) {
+                if (!siteIn || !siteOut) return "N/A";
+                let inTime = new Date(siteIn);
+                let outTime = new Date(siteOut);
+                let diffMinutes = Math.round((outTime - inTime) / 60000);
 
-                            $.ajax({
-                                url: "{{ route('merge.booking') }}", // Ensure this route is defined
-                                type: "POST",
-                                data: {
-                                    _token: "{{ csrf_token() }}",
-                                    booking_request_id: bookingRequestID,
-                                    bookings: selectedBookings
-                                },
-                                success: function (response) {
-                                    if (response.success) {
-                                        alert('Booking Merge successfully!');
-                                        $('#mergeBookingModal').modal('hide'); // Close modal on success
-                                        location.reload(); // Reload the page to update the UI
-                                    } else {
-                                        alert(response.error || 'An error occurred.');
-                                    }
-                                },
-                                error: function (xhr) {
-                                    alert('Something went wrong. Please try again.');
-                                }
-                            });
-                        });
+                if (diffMinutes > 60) {
+                    let hours = Math.floor(diffMinutes / 60);
+                    let mins = diffMinutes % 60;
+                    return `${hours}h ${mins}m`;
+                }
+                return diffMinutes + " min";
+            }
 
-                        $(document).on('click', '.toggle-loads', function() {
+            function getStatusText(status) {
+                const statusMap = {
+                    0: "Allocated",
+                    1: "Accepted",
+                    2: "Arrive Site",
+                    3: "Receipt Generated",
+                    4: "Finish Load",
+                    5: "Cancel Load"
+                };
+                return statusMap[status] || "Unknown";
+            }
 
-                            let bookingId = $(this).data('booking-id');
-                            let container = $('.invoice-loads-container[data-booking-id="' + bookingId + '"]');
-                            let content = container.find('.invoice-loads-content');
+            function getStatusClass(status) {
+                const classMap = {
+                    0: "bg-secondary",
+                    1: "bg-info",
+                    2: "bg-warning",
+                    3: "bg-primary",
+                    4: "bg-success",
+                    5: "bg-danger"
+                };
+                return classMap[status] || "bg-secondary";
+            }
 
-                            if (container.hasClass('d-none')) {
-                                // Show loader
+            function formatDateTime(dateTime) {
+                if (!dateTime) return "N/A";
+                let date = new Date(dateTime);
+                return date.toLocaleString('en-GB', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            function formatWeight(weight) {
+                return weight ? parseFloat(weight).toLocaleString('en-GB') : "0";
+            }
+        });
+
+        $(document).ready(function() {
+            $('#submitSelectedLoads').on('click', function() {
+                var selectedLoads = [];
+                var bookingRequestID = $(this).data(
+                    'booking-request-id'); // Fetch BookingRequestID
+                console.log(bookingRequestID);
+
+                $('.split-checkbox:checked').each(function() {
+                    selectedLoads.push({
+                        LoadID: $(this).val()
+                    });
+                });
+
+                if (selectedLoads.length === 0) {
+                    alert('Please select at least one load to split.');
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('split.invoice') }}", // Ensure this route is defined
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        booking_request_id: bookingRequestID,
+                        loads: selectedLoads
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Invoice split successfully!');
+                            $('#splitInvoiceModal').modal(
+                                'hide'); // Close modal on success
+                            location.reload(); // Reload the page to update the UI
+                        } else {
+                            alert(response.error || 'An error occurred.');
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('Something went wrong. Please try again.');
+                    }
+                });
+            });
+
+            $('#submitSelectedbooking').on('click', function() {
+                var selectedBookings = [];
+                var bookingRequestID = $(this).data('booking-request-id'); // Fetch BookingRequestID
+                console.log(bookingRequestID);
+
+                $('.merge-checkbox:checked').each(function() {
+                    selectedBookings.push({
+                        BookingID: $(this).val()
+                    });
+                });
+
+                if (selectedBookings.length === 0) {
+                    alert('Please select at booking to merge.');
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('merge.booking') }}", // Ensure this route is defined
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        booking_request_id: bookingRequestID,
+                        bookings: selectedBookings
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Booking Merge successfully!');
+                            $('#mergeBookingModal').modal('hide'); // Close modal on success
+                            location.reload(); // Reload the page to update the UI
+                        } else {
+                            alert(response.error || 'An error occurred.');
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('Something went wrong. Please try again.');
+                    }
+                });
+            });
+
+            $(document).on('click', '.toggle-loads', function() {
+
+                let bookingId = $(this).data('booking-id');
+                let container = $('.invoice-loads-container[data-booking-id="' + bookingId + '"]');
+                let content = container.find('.invoice-loads-content');
+
+                if (container.hasClass('d-none')) {
+                    // Show loader
+                    content.html(
+                        '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading booking details...</p></div>'
+                    );
+                    container.removeClass('d-none').slideDown(300);
+
+                    $.ajax({
+                        url: "{{ route('get.invoice.items') }}",
+                        type: "GET",
+                        data: {
+                            booking_id: bookingId
+                        },
+                        success: function(response) {
+                            console.log("AJAX Response:", response);
+                            if (!response.invoice_items || response.invoice_items.length ===
+                                0) {
+                                console.log("No invoice items found:", response);
                                 content.html(
-                                    '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading booking details...</p></div>'
+                                    '<div class="text-center py-4 text-danger fw-bold">No details found for this booking.</div>'
                                 );
-                                container.removeClass('d-none').slideDown(300);
+                                return;
+                            }
 
-                                $.ajax({
-                                    url: "{{ route('get.invoice.items') }}",
-                                    type: "GET",
-                                    data: {
-                                        booking_id: bookingId
-                                    },
-                                    success: function(response) {
-                                        console.log("AJAX Response:", response);
-                                        if (!response.invoice_items || response.invoice_items.length ===
-                                            0) {
-                                            console.log("No invoice items found:", response);
-                                            content.html(
-                                                '<div class="text-center py-4 text-danger fw-bold">No details found for this booking.</div>'
-                                            );
-                                            return;
-                                        }
-
-                                        let html = `<div class="table-responsive">
+                            let html = `<div class="table-responsive">
                                                                 <table class="table table-bordered table-striped table-hover">
                                                                     <thead class="table-primary">
                                                                         <tr>
@@ -1026,22 +1081,22 @@ window.formatWeight = function(weight) {
                                                                     </thead>
                                                                     <tbody>`;
 
-                                        response.invoice_items.forEach(item => {
-                                            if (!item.loads || item.loads.length === 0) {
-                                                html += `<tr>
+                            response.invoice_items.forEach(item => {
+                                if (!item.loads || item.loads.length === 0) {
+                                    html += `<tr>
                                         <td colspan="12" class="text-center text-warning fw-bold">No details available for this material.</td>
                                     </tr>`;
-                                            } else {
-                                                item.loads.forEach(load => {
-                                                    let waitTime = calculateWaitTime(load
-                                                        .SiteInDateTime, load
-                                                        .SiteOutDateTime);
-                                                    let statusText = getStatusText(load
-                                                        .Status);
-                                                    let statusClass = getStatusClass(load
-                                                        .Status);
+                                } else {
+                                    item.loads.forEach(load => {
+                                        let waitTime = calculateWaitTime(load
+                                            .SiteInDateTime, load
+                                            .SiteOutDateTime);
+                                        let statusText = getStatusText(load
+                                            .Status);
+                                        let statusClass = getStatusClass(load
+                                            .Status);
 
-                                                    html += `<tr>
+                                        html += `<tr>
                                             <td>${load.ConveyanceNo}</td>
                                             <td><span class="badge bg-dark">${load.TicketID}</span></td>
                                             <td>${formatDateTime(load.JobStartDateTime)}</td>
@@ -1067,40 +1122,38 @@ window.formatWeight = function(weight) {
                                                 </div>
                                             </td>
                                         </tr>`;
-                                                });
-                                            }
-                                        });
+                                    });
+                                }
+                            });
 
 
 
-                                        html += '</tbody></table></div>';
+                            html += '</tbody></table></div>';
 
-                                        // Animate content replacement
-                                        setTimeout(() => {
-                                            content.fadeOut(200, function() {
-                                                console.log("Updating content...");
-                                                $(this).html(html).fadeIn(300);
-                                            });
-                                        }, 500);
-                                    },
-                                    error: function() {
-                                        content.html(
-                                            '<div class="text-center py-4 text-danger fw-bold">Error loading details. Please try again.</div>'
-                                        );
-                                    }
+                            // Animate content replacement
+                            setTimeout(() => {
+                                content.fadeOut(200, function() {
+                                    console.log("Updating content...");
+                                    $(this).html(html).fadeIn(300);
                                 });
-                            } else {
-                                // Hide content
-                                container.slideUp(300, function() {
-                                    $(this).addClass('d-none').css('display', '');
-                                });
-                            }
-
-                            // Toggle expand icon
-                            $(this).find('i').toggleClass('fa-chevron-down fa-chevron-up');
-                        });
+                            }, 500);
+                        },
+                        error: function() {
+                            content.html(
+                                '<div class="text-center py-4 text-danger fw-bold">Error loading details. Please try again.</div>'
+                            );
+                        }
                     });
+                } else {
+                    // Hide content
+                    container.slideUp(300, function() {
+                        $(this).addClass('d-none').css('display', '');
+                    });
+                }
 
-
+                // Toggle expand icon
+                $(this).find('i').toggleClass('fa-chevron-down fa-chevron-up');
+            });
+        });
     </script>
 @endsection

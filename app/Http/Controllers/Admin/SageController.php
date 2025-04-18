@@ -187,11 +187,13 @@ class SageController extends Controller
         $password = 'act';
 
         try {
-            // Step 1: Get invoice by reference
-            $invoiceUrl = $baseUrl . "/salesInvoices?\$filter=reference eq '$reference'&format=json";
+            // Step 1: Get invoice by reference - Properly encode the filter and limit to 1 record
+            $filter = urlencode("reference eq '$reference'");
+            $invoiceUrl = $baseUrl . "/salesInvoices?\$filter=" . $filter . "&count=1&format=json";
 
             $invoiceResponse = Http::withBasicAuth($username, $password)
                 ->accept('application/json')
+                ->timeout(90) // Increase timeout to 90 seconds
                 ->get($invoiceUrl);
 
             if (!$invoiceResponse->successful()) {
@@ -206,12 +208,12 @@ class SageController extends Controller
 
             $uuid = $invoiceData['$resources'][0]['$uuid'];
 
-            // Step 2: Fetch invoice items using UUID
-            $itemsUrl = $baseUrl . "/salesInvoices($uuid)/salesInvoiceLines?format=json";
+            // Step 2: Fetch invoice items using UUID - Limit to 1 record
+            $itemsUrl = $baseUrl . "/salesInvoices($uuid)/salesInvoiceLines?count=1&format=json";
 
             $itemsResponse = Http::withBasicAuth($username, $password)
                 ->accept('application/json')
-                ->timeout(90)
+                ->timeout(90) // Increase timeout to 90 seconds
                 ->get($itemsUrl);
 
             if (!$itemsResponse->successful()) {
@@ -233,10 +235,12 @@ class SageController extends Controller
             });
 
             return response()->json([
+                'success' => true,
                 'message' => 'Invoice items fetched successfully.',
                 'reference' => $reference,
                 'uuid' => $uuid,
-                'items' => $items
+                'items' => $items,
+                'invoice' => $invoiceData['$resources'][0] // Include the invoice details
             ]);
         } catch (\Exception $e) {
             \Log::error('Fetch Invoice Items by Reference Error:', [
@@ -245,6 +249,7 @@ class SageController extends Controller
             ]);
 
             return response()->json([
+                'success' => false,
                 'message' => 'Something went wrong.',
                 'error' => $e->getMessage()
             ], 500);
