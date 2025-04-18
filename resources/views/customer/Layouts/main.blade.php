@@ -25,7 +25,8 @@
 
     <!-- Core CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    {{-- <link rel="stylesheet" href="{{ url('vendor/css/rtl/core.css') }}" class="template-customizer-core-css" /> --}}
+    {{--
+    <link rel="stylesheet" href="{{ url('vendor/css/rtl/core.css') }}" class="template-customizer-core-css" /> --}}
     <link rel="stylesheet" href="{{ url('css/demo.css') }}" class="template-customizer-theme-css" />
     <link rel="stylesheet" href="{{ url('vendor/css/rtl/theme-default.css') }}" class="template-customizer-theme-css" />
     <link rel="stylesheet" href="{{ request()->root() }}/vendor/css/rtl/core.css" />
@@ -37,8 +38,9 @@
     <link rel="stylesheet" href="{{ url('vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css') }}" />
     <link rel="stylesheet" href="{{ url('vendor/libs/apex-charts/apex-charts.css') }}" />
     <link rel="stylesheet" href="{{ url('vendor/libs/swiper/swiper.css') }}" />
-    <link rel="stylesheet" href="{{ url('vendor/libs/sweetalert2/sweetalert2.scss') }}" />
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.16.1/sweetalert2.css"
+        integrity="sha512-fjO3Vy3QodX9c6G9AUmr6WuIaEPdGRxBjD7gjatG5gGylzYyrEq3U0q+smkG6CwIY0L8XALRFHh4KPHig0Q1ug=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ url('vendor/css/pages/cards-statistics.css') }}" />
     <link rel="stylesheet" href="{{ url('vendor/css/pages/cards-analytics.css') }}" />
@@ -57,7 +59,7 @@
         .btn-primary {
             background-color: #3c8dbc;
             border-color: #3c8dbc;
-            color:white;
+            color: white;
         }
 
         .btn-primary:hover {
@@ -101,7 +103,9 @@
     <script src="{{ url('vendor/libs/datatables-bs5/datatables-bootstrap5.js') }}"></script>
     <script src="{{ url('vendor/libs/apex-charts/apexcharts.js') }}"></script>
     <script src="{{ url('vendor/libs/swiper/swiper.js') }}"></script>
-    <script src="{{ url('vendor/libs/sweetalert2/sweetalert2.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.16.1/sweetalert2.min.js"
+        integrity="sha512-LGHBR+kJ5jZSIzhhdfytPoEHzgaYuTRifq9g5l6ja6/k9NAOsAi5dQh4zQF6JIRB8cAYxTRedERUF+97/KuivQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <!-- Main JS -->
@@ -126,4 +130,5 @@
         });
     </script>
 </body>
+
 </html>

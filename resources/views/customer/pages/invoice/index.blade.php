@@ -1,53 +1,41 @@
 @extends('customer.layouts.main')
+
 @section('content')
     <div class="table-container mt-4">
-        <div class="tab-container mb-3">
-        <ul class="nav nav-tabs" id="invoiceTabs">
-            <li class="nav-item">
-                <a class="nav-link {{ ($type == 1) ? 'active' : '' }}" id="loads" data-toggle="tab" href="{{ route('customer.invoice.index', ['type' => 1]) }}" role="tab">Collection</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ ($type == 2) ? 'active' : '' }}" id="tonnage" data-toggle="tab" href="{{ route('customer.invoice.index', ['type' => 2]) }}" role="tab">Delivery</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ ($type == 3) ? 'active' : '' }}" id="tonnage" data-toggle="tab" href="{{ route('customer.invoice.index', ['type' => 3]) }}" role="tab">Daywork</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ ($type == 4) ? 'active' : '' }}" id="tonnage" data-toggle="tab" href="{{ route('customer.invoice.index', ['type' => 4]) }}" role="tab">Haulage</a>
-            </li>
-        </ul>
-        </div>
         <div class="table-header">
-            <h3 class="table-title text-center text-white">Collection Invoices</h3>
+            <h3 class="table-title text-center text-white">All Invoices</h3>
         </div>
+
+        {{-- Date Filter --}}
+        <div class="row justify-content-center mt-3 mb-3">
+            <div class="col-md-3">
+                <input type="date" id="start_date" class="form-control" placeholder="Start Date">
+            </div>
+            <div class="col-md-3">
+                <input type="date" id="end_date" class="form-control" placeholder="End Date">
+            </div>
+            <div class="col-md-2">
+                <button id="filter" class="btn btn-primary w-100">Filter</button>
+            </div>
+            <div class="col-md-2">
+                <button id="reset" class="btn btn-secondary w-100">Clear</button>
+            </div>
+        </div>
+
+        {{-- Invoice Table --}}
         <div class="table-responsive">
             <table id="invoiceTable" class="table table-hover">
                 <thead>
                     <tr class="filters">
                         <th>SR. No</th>
-                        <th>Booking ID</th>
-                        <th>Booking Date</th>
+                        <th>Invoice No.</th>
+                        <th>Ref No</th>
+                        <th>Invoice Date</th>
                         <th>Company Name</th>
                         <th>Site Name</th>
-                        <th>Action</th>
                         <th>Ticket List</th>
                         <th>Tickets</th>
                         <th>Select All</th>
-                    </tr>
-                    <tr class="search-row">
-                        <th></th>
-                        <th><input type="text" class="form-control form-control-sm column-search"
-                                placeholder="Search Booking ID"></th>
-                        <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Date">
-                        </th>
-                        <th><input type="text" class="form-control form-control-sm column-search"
-                                placeholder="Search Company"></th>
-                        <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Site">
-                        </th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th><input type="checkbox" id="select_all_checkbox"></th>
                     </tr>
                 </thead>
             </table>
@@ -56,65 +44,48 @@
 
     <script>
         $(document).ready(function () {
-            var type = "{{ $type }}";
-            // Initialize DataTable with individual column searching
-            var table = $('#invoiceTable').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: "{{ route('customer.invoice.data') }}",
-                    data: function (d) {
-                        d.type = type; // Pass the type parameter to the server
-                    }
-                },
-                columns: [
-                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false }, // SR. No
-                    { data: 'BookingRequestID', name: 'BookingRequestID' },
-                    { data: 'CreateDateTime', name: 'CreateDateTime' },
-                    { data: 'CompanyName', name: 'CompanyName' },
-                    { data: 'OpportunityName', name: 'OpportunityName' },
-                    { data: 'action', name: 'Action', orderable: false, searchable: false }, // Ticket List button
-                    { data: 'ticket_list', name: 'ticket_list', orderable: false, searchable: false }, // Ticket List button
-                    { data: 'tickets', name: 'tickets', orderable: false, searchable: false }, // Tickets count
-                    { data: 'select_all', name: 'select_all', orderable: false, searchable: false } // Select All checkbox
-                ],
-                order: [[2, 'desc']], // Sort by Booking Date by default
-                pageLength: 10,
-                lengthMenu: [10, 25, 50, 100],
-                responsive: true,
-                orderCellsTop: true,
-                language: {
-                    search: "_INPUT_",
-                    searchPlaceholder: "Search invoices...",
-                    paginate: {
-                        previous: "<i class='fas fa-chevron-left'></i>",
-                        next: "<i class='fas fa-chevron-right'></i>"
-                    }
-                }
+            function loadTable(start_date = '', end_date = '') {
+                $('#invoiceTable').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    destroy: true,
+                    ajax: {
+                        url: "{{ route('customer.invoice.data') }}",
+                        data: { start_date: start_date, end_date: end_date }
+                    },
+                    columns: [
+                        { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                        { data: 'id', name: 'id', orderable: false, searchable: false },
+                        { data: 'reference', name: 'reference' },
+                        { data: 'created_at', name: 'created_at' },
+                        { data: 'CompanyName', name: 'CompanyName' },
+                        { data: 'billing_address', name: 'billing_address' },
+                        { data: 'ticket_list', name: 'ticket_list', orderable: false, searchable: false },
+                        { data: 'tickets', name: 'tickets', orderable: false, searchable: false },
+                        { data: 'select_all', name: 'select_all', orderable: false, searchable: false }
+                    ],
+                    order: [[2, 'desc']],
+                    pageLength: 10,
+                    lengthMenu: [10, 25, 50, 100],
+                    responsive: true,
+                });
+            }
+
+            loadTable(); // Initial load
+
+            $('#filter').click(function () {
+                let start = $('#start_date').val();
+                let end = $('#end_date').val();
+                loadTable(start, end);
             });
 
-            // Apply search to each column
-            $('.column-search').on('keyup change', function () {
-                var colIndex = $(this).closest('th').index();
-                table
-                    .column(colIndex)
-                    .search(this.value)
-                    .draw();
-            });
-
-            // Add clear filters button
-            $('.table-header').append(
-                '<button id="clearFilters" class="btn btn-sm btn-outline-light position-absolute" style="right: 15px; top: 50%; transform: translateY(-50%);">' +
-                '<i class="fas fa-times"></i> Clear</button>'
-            );
-
-            $('#clearFilters').on('click', function () {
-                $('.column-search').val('');
-                table.search('').columns().search('').draw();
+            $('#reset').click(function () {
+                $('#start_date').val('');
+                $('#end_date').val('');
+                loadTable();
             });
         });
     </script>
-
     <style>
         .table-container {
             background-color: white;
@@ -150,31 +121,6 @@
             border-bottom: 2px solid #e0e0e0;
         }
 
-        .search-row th {
-            padding: 8px 10px;
-            background-color: white;
-            border-top: none;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .search-row input {
-            width: 100%;
-            padding: 6px 8px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            transition: all 0.2s ease;
-        }
-
-        .search-row input:focus {
-            border-color: #3c8dbc;
-            box-shadow: 0 0 0 0.2rem rgba(60, 141, 188, 0.25);
-            outline: none;
-        }
-
-        #invoiceTable tbody tr {
-            transition: background-color 0.2s ease;
-        }
-
         #invoiceTable tbody tr:hover {
             background-color: rgba(60, 141, 188, 0.05);
         }
@@ -186,31 +132,23 @@
             border-color: #f0f0f0;
         }
 
-        /* DataTables styling */
-        div.dataTables_wrapper div.dataTables_length select {
-            width: auto;
-            padding: 4px 24px 4px 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+        .table-responsive {
+            padding: 0 15px 15px;
         }
 
-        div.dataTables_wrapper div.dataTables_filter input {
-            margin-left: 8px;
+        div.dataTables_wrapper div.dataTables_filter input,
+        #globalSearch {
             padding: 6px 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            width: 200px;
+            width: 100%;
         }
 
         div.dataTables_wrapper div.dataTables_filter input:focus,
-        div.dataTables_wrapper div.dataTables_length select:focus {
+        #globalSearch:focus {
             border-color: #3c8dbc;
             box-shadow: 0 0 0 0.2rem rgba(60, 141, 188, 0.25);
             outline: none;
-        }
-
-        div.dataTables_wrapper div.dataTables_paginate ul.pagination {
-            margin: 15px 0 0;
         }
 
         div.dataTables_wrapper div.dataTables_paginate ul.pagination li.paginate_button a {
@@ -226,43 +164,6 @@
             background-color: #3c8dbc;
             border-color: #3c8dbc;
             color: white;
-        }
-
-        div.dataTables_wrapper div.dataTables_paginate ul.pagination li.paginate_button a:hover {
-            background-color: #f0f0f0;
-            border-color: #ddd;
-        }
-
-        div.dataTables_wrapper div.dataTables_paginate ul.pagination li.paginate_button.active a:hover {
-            background-color: #3c8dbc;
-            border-color: #3c8dbc;
-            color: white;
-        }
-
-        .table-responsive {
-            padding: 0 15px 15px;
-        }
-
-        /* Processing indicator */
-        div.dataTables_processing {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Action buttons styling */
-        .action-btn {
-            padding: 4px 8px;
-            border-radius: 4px;
-            margin: 0 2px;
-            font-size: 0.85rem;
-        }
-
-        /* Clear button hover effect */
-        #clearFilters:hover {
-            background-color: white;
-            color: #3c8dbc;
         }
     </style>
 @endsection

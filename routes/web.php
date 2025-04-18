@@ -12,9 +12,12 @@ use App\Http\Controllers\Admin\HaulageInvoiceController;
 use App\Http\Controllers\Admin\WaitingTimeInvoicesController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\InvoiceController;
+use App\Http\Controllers\Customer\TicketController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\FdController;
 use App\Http\Controllers\Admin\SageController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -41,6 +44,11 @@ Route::get('fetch-invoice',[SageController::class,'getInvoices']);
 Route::get('/invoice-items/{reference}', [SageController::class, 'getInvoiceItemsByReference']);
 
 
+Route::get('/php-check', function () {
+    phpinfo();
+});
+
+Route::get('/check-sql-connection', [FdController::class, 'checkConnection']);
 Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/invoices/data', [DashboardController::class, 'getInvoices'])->name('invoices.data');
@@ -97,6 +105,10 @@ Route::group(['middleware' => ['web', 'auth', 'customer' , 'log_activity', 'netw
     Route::get('invoice-data',[InvoiceController::class,'getInvoiceData'])->name('invoice.data');
     Route::get('pdf-list',[InvoiceController::class,'pdflist'])->name('pdflist.index');
 
+
+    Route::get('/invoice/tickets/{id}', [TicketController::class, 'showTickets'])->name('tickets.show');
+
+    Route::post('/tickets/download', [TicketController::class,'downloadImages'])->name('tickets.download');
 });
 
 Route::get('working-progress', function () {
