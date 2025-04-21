@@ -45,16 +45,12 @@ Route::get('/invoice-items/{reference}', [SageController::class, 'getInvoiceItem
 Route::get('/compare-invoice/{invoiceNumber}', [DashboardController::class, 'compareWithSage'])->name('compare.invoice');
 
 
-<<<<<<< HEAD
 Route::get('/php-check', function () {
     phpinfo();
 });
 
 Route::get('/check-sql-connection', [FdController::class, 'checkConnection']);
 Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->group(function () {
-=======
-Route::middleware(['web', 'auth', 'admin', 'log_activity', 'network_error'])->group(function () {
->>>>>>> 60c9585285d0c0a85d13ccd2f0bc6e870477c796
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/invoices/data', [DashboardController::class, 'getInvoices'])->name('invoices.data');
     Route::get('invoice-data/{id}', [DashboardController::class, 'getInvoiceData'])->name('invoice.show');

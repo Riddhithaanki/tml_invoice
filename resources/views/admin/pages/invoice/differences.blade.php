@@ -221,7 +221,7 @@
                                             <td class="font-weight-bold">{{ $invoice->InvoiceNumber }}</td>
                                             <td>{{ $invoice->CompanyName }}</td>
                                             <td class="text-right">{{ number_format($invoice->FinalAmount, 2) }}</td>
-                                            <td>{{ $invoice->InvoiceDate->format('Y-m-d') }}</td>
+                                            <td>{{ $invoice->InvoiceDate }}</td>
                                             <td>
                                                 <span class="status-badge perfect">
                                                     <i class="fas fa-check-circle"></i> Perfect Match

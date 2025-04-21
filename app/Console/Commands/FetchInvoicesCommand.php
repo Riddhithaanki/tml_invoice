@@ -33,7 +33,8 @@ class FetchInvoicesCommand extends Command
             $this->info('Fetching invoices from Sage...');
 
             // Fetch invoices with postal addresses (adjust $filter as required)
-            $invoiceUrl = $this->baseUrl . "/salesInvoices?\$filter=date ge datetime'2024-04-01'&\$orderby=reference desc&count=20&include=postalAddresses&format=json";
+            $invoiceUrl = $this->baseUrl . "/salesInvoices?\$orderby=date desc\&count=100&include=postalAddresses&format=json";
+
             $invoiceResponse = Http::withBasicAuth($this->username, $this->password)
                 ->accept('application/json')
                 ->withHeaders(['User-Agent' => 'LaravelApp/1.0'])
@@ -87,13 +88,6 @@ class FetchInvoicesCommand extends Command
                 $invoice['date'] = $this->parseSageDate($invoice['date'] ?? '');
                 $invoice['taxDate'] = $this->parseSageDate($invoice['taxDate'] ?? '');
 
-                // Match company: find local company based on customerTradingAccountId
-                $localCompany = null;
-                $uuid = $invoice['customerTradingAccountId']['$uuid'] ?? null;
-                if ($uuid) {
-                    $localCompany = Company::where('SageUUID', $uuid)->first();
-                }
-
                 // Parse addresses (billing and shipping) if available
                 $billingAddress = '';
                 $shippingAddress = '';
@@ -119,7 +113,7 @@ class FetchInvoicesCommand extends Command
                 $stored = Invoice::create([
                     'uuid' => $invoice['$uuid'], // Store the invoice's UUID from Sage
                     'reference' => $invoice['reference'],
-                    'customer_id' => $localCompany ? $localCompany->id : null,
+                    'customer_id' => $invoice['CustomerId'] ?? null,
                     'status' => $invoice['status'],
                     'type' => $invoice['type'],
                     'date' => $invoice['date'],

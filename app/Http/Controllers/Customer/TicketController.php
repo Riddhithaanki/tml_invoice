@@ -19,7 +19,7 @@ class TicketController extends Controller
             ->first();
 
         if (!$invoice) {
-            return redirect()->route('home')->with('error', 'Invoice not found.');
+            return redirect()->route('customer.invoice.index')->with('error', 'Invoice not found.');
         }
 
         // Fetch related images and build proper URLs
