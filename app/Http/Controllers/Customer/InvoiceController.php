@@ -24,7 +24,7 @@ class InvoiceController extends Controller
     public function getInvoiceData(Request $request)
     {
         $query = Invoice::query();
-
+        $query->where('isApproved', 1);
         // Date filtering
         if ($request->start_date && $request->end_date) {
             $query->whereBetween('created_at', [$request->start_date, $request->end_date]);

@@ -35,12 +35,12 @@
 
         <!-- Collection Invoice -->
         <li class="menu-item {{ Request::routeIs('collection.*') ? 'active' : '' }}">
-            <a href="{{ route('collection.index') }}" class="menu-link">
+            <a href="{{ route('customer.invoice.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons mdi mdi-file-document-outline"></i>
                 <div>Archieve</div>
             </a>
         </li>
-        
+
     </ul>
 </aside>
 

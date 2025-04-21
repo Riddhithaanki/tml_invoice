@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use App\Models\InvoiceDifference;
+use App\Models\Invoice;
 
 class DashboardController extends Controller
 {
@@ -478,15 +479,27 @@ class DashboardController extends Controller
 
     public function updateDifferenceStatus(Request $request, $id)
     {
+
         $request->validate([
-            'status' => 'required|in:pending,reviewed,resolved',
+            'status' => 'required|in:0,1',
             'resolution_notes' => 'nullable|string'
         ]);
+        $invoice = Invoice::where('id', $id)->first();
 
+        if (!$invoice) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invoice not found'
+            ], 404);
+        }
         $difference = InvoiceDifference::findOrFail($id);
         $difference->update([
             'status' => $request->status,
             'resolution_notes' => $request->resolution_notes
+        ]);
+
+        $invoice->update([
+            'isApproved' => $request->status
         ]);
 
         return response()->json([

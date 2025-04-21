@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\BookingLoad;
 use App\Models\BookingRequest;
+use App\Models\Invoice;
 use Illuminate\Http\Request;
 use App\Models\BookingInvoice;
 use App\Models\BookingInvoiceItem;
@@ -15,9 +16,9 @@ class DashboardController extends Controller
     public function index()
     {
         //return "test";
-        $recentInvoice = BookingInvoice::with('booking')->where('BookingRequestID', 52634)->get();
+        $recentInvoice = BookingInvoice::with('booking')->get();
         // dd($recentInvoice);
-        $readyHoldInvoiceCount = BookingInvoice::where('Status', '0')->count();
+        $readyHoldInvoiceCount = Invoice::where('isApproved', '1')->count();
         $completedInvoice = BookingInvoice::where('Status', '1')->count();
         return view('customer.dashboard', compact('recentInvoice', 'readyHoldInvoiceCount', 'completedInvoice'));
     }

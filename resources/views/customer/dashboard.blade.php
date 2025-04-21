@@ -134,42 +134,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 col-sm-6">
-                    <div class="stat-card">
-                        <div class="card-body">
-                            <div class="card-title">Delivery Job Invoices</div>
-                            <div class="card-value">{{ $completedInvoice }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-6">
-                    <div class="stat-card">
-                        <div class="card-body">
-                            <div class="card-title">Collection Job Invoices</div>
-                            <div class="card-value">{{ $completedInvoice }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Middle Row (2 Columns Centered) -->
-            <div class="row justify-content-center mt-3">
-                <div class="col-md-4 col-sm-6">
-                    <div class="stat-card">
-                        <div class="card-body">
-                            <div class="card-title">Daywork Job Invoices</div>
-                            <div class="card-value">{{ $completedInvoice }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-6">
-                    <div class="stat-card">
-                        <div class="card-body">
-                            <div class="card-title">Haulage  Job Invoices</div>
-                            <div class="card-value">{{ $completedInvoice }}</div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
 
@@ -187,7 +151,6 @@
                                 <th>Date</th>
                                 <th>Company</th>
                                 <th>Site</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -198,9 +161,7 @@
                                     <td>{{ $invoice->CreateDateTime ??  'N/A' }}</td>
                                     <td>{{ $invoice->CompanyName ?? 'N/A' }}</td>
                                     <td>{{ $invoice->OpportunityName ?? 'N/A' }}</td>
-                                    <td>
-                                        <a href="{{ route('invoice.show',Crypt::encrypt($invoice->BookingRequestID)) }}" class="btn btn-xs btn-primary">View</a>
-                                    </td>
+
                                 </tr>
                             @endforeach
                         </tbody>

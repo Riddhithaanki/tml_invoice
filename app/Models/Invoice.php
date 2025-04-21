@@ -28,7 +28,8 @@ class Invoice extends Model
         'sales_order_reference',
         'notes',
         'billing_address',
-        'shipping_address'
+        'shipping_address',
+        'isApproved',
     ];
 
     // Relationship to Company (optional)

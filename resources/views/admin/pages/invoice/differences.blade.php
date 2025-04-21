@@ -256,9 +256,8 @@
                     <div class="form-group">
                         <label for="status">Status</label>
                         <select class="form-control" id="status" name="status">
-                            <option value="pending">Pending</option>
-                            <option value="reviewed">Reviewed</option>
-                            <option value="resolved">Resolved</option>
+                            <option value="0">Pending</option>
+                            <option value="1">Approved</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -352,7 +351,7 @@ $(document).ready(function() {
         var notes = $('#resolution_notes').val();
 
         $.ajax({
-            url: '/admin/invoice-differences/' + id + '/update-status',
+            url: 'invoice-differences/' + id + '/update-status',
             method: 'POST',
             data: {
                 _token: '{{ csrf_token() }}',
