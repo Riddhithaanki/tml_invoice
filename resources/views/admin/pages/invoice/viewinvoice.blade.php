@@ -76,15 +76,15 @@
                     <div class="col-lg-8">
                         <div class="row mb-2">
                             <div class="col-sm-4 text-muted">Sub Total:</div>
-                            <div class="col-sm-8">{{ number_format($invoice->SubTotalAmount, 2) }}</div>
+                            <div class="col-sm-8 text-end">{{ number_format($invoice->SubTotalAmount, 2) }}</div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-sm-4 text-muted">VAT Amount:</div>
-                            <div class="col-sm-8">{{ number_format($invoice->VatAmount, 2) }} (Rate: {{ $invoice->TaxRate }}%)</div>
+                            <div class="col-sm-4 text-muted">VAT Amount (20%):</div>
+                            <div class="col-sm-8 text-end">{{ number_format($invoice->VatAmount, 2) }}</div>
                         </div>
                         <div class="row">
                             <div class="col-sm-4 text-muted fw-bold">Final Amount:</div>
-                            <div class="col-sm-8 fw-bold text-primary fs-5">{{ number_format($invoice->FinalAmount, 2) }}</div>
+                            <div class="col-sm-8 fw-bold text-primary fs-5 text-end">{{ number_format($invoice->FinalAmount, 2) }}</div>
                         </div>
                     </div>
                     <div class="col-lg-4">
@@ -113,15 +113,21 @@
                         </div>
                         <div class="row mb-2">
                             <div class="col-5 text-muted">Created By:</div>
-                            <div class="col-7">User ID: {{ $invoice->CreatedUserID }}</div>
+                            <div class="col-7">{{ $user->name }}</div>
                         </div>
-                        <div class="row mb-2">
+                        <div class="row">
                             <div class="col-5 text-muted">Created At:</div>
-                            <div class="col-7">{{ date('M d, Y H:i', strtotime($invoice->CreateDateTime)) }}</div>
+                            <div class="col-7">{{ date('M d, Y H:i', strtotime($invoice->CreateDateTime)) ?? 'N/A' }}</div>
                         </div>
                         <div class="row">
                             <div class="col-5 text-muted">Last Updated:</div>
-                            <div class="col-7">{{ date('M d, Y H:i', strtotime($invoice->UpdateDateTime)) }}</div>
+                            <div class="col-7">
+                                @if($invoice->UpdateDateTime && $invoice->UpdateDateTime != '0000-00-00 00:00:00')
+                                    {{ date('M d, Y H:i', strtotime($invoice->UpdateDateTime)) }}
+                                @else
+                                    {{ date('M d, Y H:i', strtotime($invoice->CreateDateTime)) }}
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>

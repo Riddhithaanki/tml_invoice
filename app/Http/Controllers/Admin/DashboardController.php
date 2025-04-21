@@ -7,6 +7,7 @@ use App\Models\BookingLoad;
 use App\Models\BookingRequest;
 use App\Models\ReadyInvoice;
 use App\Models\ReadyInvoiceItem;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\BookingInvoice;
 use App\Models\BookingInvoiceItem;
@@ -48,7 +49,8 @@ class DashboardController extends Controller
         $readyInvoice = ReadyInvoice::where('BookingRequestID', $bookingRequestId)->first();
         if ($readyInvoice) {
             $invoice = $readyInvoice;
-            return view('admin.pages.invoice.viewinvoice', compact('invoice'));
+            $user = User::where('userId', '=', $invoice->CreatedUserID)->first();
+            return view('admin.pages.invoice.viewinvoice', compact('invoice', 'user'));
 
         }
 
@@ -303,6 +305,7 @@ class DashboardController extends Controller
             if (!empty($bookingLoads)) {
                 $itemNumber = 1;
                 foreach ($bookingLoads as $load) {
+
                     // Get MaterialCode from tbl_materials
                     $material = DB::table('tbl_materials')
                         ->where('MaterialName', $load['MaterialName'])
@@ -352,7 +355,9 @@ class DashboardController extends Controller
     public function show($id)
     {
         $invoice = ReadyInvoice::where('InvoiceID', '=', $id)->first();
-        return view('admin.pages.invoice.viewinvoice', compact('invoice'));
+        $user = User::where('userId', '=', $invoice->CreatedUserID)->first();
+        dd($user);
+        return view('admin.pages.invoice.viewinvoice', compact('invoice', 'user'));
     }
 
     public function compareWithSage(Request $request)

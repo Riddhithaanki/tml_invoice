@@ -37,6 +37,73 @@
         font-size: 14px;
         margin-top: 5px;
     }
+
+    .table {
+        width: 100%;
+        margin-bottom: 0;
+    }
+    .table th,
+    .table td {
+        padding: 12px;
+        vertical-align: middle;
+    }
+    .table tfoot tr:last-child {
+        border-top: 2px solid #dee2e6;
+    }
+    .table tfoot td {
+        padding: 12px;
+        border: none;
+    }
+    .table tfoot tr:last-child td {
+        padding-top: 16px;
+    }
+    .text-muted {
+        color: #6c757d !important;
+    }
+    .border-top {
+        border-top: 2px solid #dee2e6 !important;
+    }
+    .invoice-subtotal,
+    .invoice-vat,
+    .invoice-total {
+        white-space: nowrap;
+        text-align: right;
+        padding-right: 15px !important;
+        font-size: 1.1em;
+    }
+    .table tfoot tr td:last-child {
+        text-align: right;
+        padding-right: 15px !important;
+    }
+    .table tfoot tr td span {
+        display: inline-block;
+    }
+
+    /* Loading state styles */
+    .loading-state {
+        display: none;
+    }
+
+    .btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .processing {
+        position: relative;
+        pointer-events: none;
+    }
+
+    .processing::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.7);
+        z-index: 1000;
+    }
 </style>
 
 @section('content')
@@ -128,8 +195,8 @@
                                 <th>Load Type</th>
                                 <th>Lorry Type</th>
                                 <th width="8%">Total Loads</th>
-                                <th width="10%">Price/Load</th>
-                                <th width="10%">Total Price</th>
+                                <th width="10%" class="text-end">Price/Load</th>
+                                <th width="10%" class="text-end">Total Price</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -164,12 +231,9 @@
                                             <span class="badge bg-warning">NA</span>
                                         @endif
                                     </td>
-                                    <td class="text-center fw-bold">{{ $booking->Loads }}</td>
-                                    <td class="text-center"><span
-                                            class="text-primary fw-bold">£{{ $booking->Price }}</span>
-                                    </td>
-                                    <td class="text-end fw-bold">£{{ $booking->TotalAmount }}</td>
-
+                                    <td class="text-center">{{ $booking->Loads }}</td>
+                                    <td class="text-end">£{{ number_format($booking->Price, 2) }}</td>
+                                    <td class="text-end">£{{ number_format($booking->TotalAmount, 2) }}</td>
                                 </tr>
                                 <tr class="invoice-items-container d-none" data-booking-id="{{ $booking->BookingID }}">
                                     <td colspan="9" class="p-0">
@@ -180,26 +244,23 @@
                                 </tr>
                             @endforeach
                         </tbody>
-                        <tfoot class="table">
+                        <tfoot>
                             <tr>
                                 <td colspan="7"></td>
-                                <td class="text-end"><strong>SubTotal</strong></td>
-                                <td class="text-end invoice-subtotal">£{{ number_format($invoice->SubTotalAmount, 2) }}
-                                </td>
+                                <td class="text-end text-muted">SubTotal</td>
+                                <td class="text-end">£{{ number_format($invoice->SubTotalAmount, 2) }}</td>
                             </tr>
                             <tr>
                                 <td colspan="7"></td>
-                                <td class="text-end"><strong>VAT ({{ $invoice->TaxRate }}%)</strong></td>
-                                <td class="text-end invoice-vat">£{{ number_format($invoice->VatAmount, 2) }}</td>
+                                <td class="text-end text-muted">VAT ({{ $invoice->TaxRate ?? 20 }}%)</td>
+                                <td class="text-end">£{{ number_format($invoice->VatAmount, 2) }}</td>
                             </tr>
-                            <tr>
+                            <tr class="border-top">
                                 <td colspan="7"></td>
-                                <td class="text-end"><strong>Total</strong></td>
-                                <td class="text-end fw-bold fs-5 invoice-total">
-                                    £{{ number_format($invoice->TotalAmount, 2) }}</td>
+                                <td class="text-end text-muted">Total</td>
+                                <td class="text-end fw-bold">£{{ number_format($invoice->TotalAmount, 2) }}</td>
                             </tr>
                         </tfoot>
-
                     </table>
                 </div>
             </div>
@@ -243,7 +304,7 @@
                             <input type="hidden" name="SubTotalAmount" value="{{ $invoice->SubTotalAmount }}">
                             <input type="hidden" name="VatAmount" value="{{ $invoice->VatAmount }}">
                             <input type="hidden" name="FinalAmount" value="{{ $invoice->TotalAmount }}">
-                            <input type="hidden" name="TaxRate" value="{{ $invoice->TaxRate }}">
+                            <input type="hidden" name="TaxRate" value="20">
                             <input type="hidden" name="CreatedUserID" value="{{ auth()->id() }}">
                             <input type="hidden" name="hold_invoice" id="hold_invoice" value="0">
                             <input type="hidden" name="comment" id="comment_value">
@@ -258,8 +319,14 @@
                                 <i class="fas fa-random me-2"></i>Split Invoice
                             </button>
 
-                            <button type="submit" class="btn btn-primary btn-lg px-4">
-                                <i class="fas fa-check-circle me-2"></i> Proceed To Confirm
+                            <button type="submit" class="btn btn-primary btn-lg px-4" id="proceedButton">
+                                <span class="normal-state">
+                                    <i class="fas fa-check-circle me-2"></i> Proceed To Confirm
+                                </span>
+                                <span class="loading-state d-none">
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    Processing...
+                                </span>
                             </button>
                         </form>
                     </div>
@@ -524,8 +591,8 @@
                     bookingTotals[bookingId] += price;
                 });
 
-                // VAT Calculation (Assuming 20%)
-                let vatRate = parseFloat("{{ $invoice->TaxRate }}") || 20; // Get VAT rate
+                // VAT Calculation (Using the tax rate from the invoice)
+                let vatRate = parseFloat("{{ $invoice->TaxRate ?? 20 }}"); // Get VAT rate from invoice or default to 20%
                 let vatAmount = (subtotal * vatRate) / 100;
                 let total = subtotal + vatAmount;
 
@@ -655,9 +722,21 @@
                 $('#comment_value').val($(this).val());
             });
 
-            // Handle form submission
+            // Handle form submission with loading state
             $('#confirmInvoiceForm').on('submit', function(e) {
                 e.preventDefault();
+
+                // Get the proceed button and form
+                const $form = $(this);
+                const $button = $('#proceedButton');
+                const $normalState = $button.find('.normal-state');
+                const $loadingState = $button.find('.loading-state');
+
+                // Show loading state
+                $button.prop('disabled', true);
+                $normalState.addClass('d-none');
+                $loadingState.removeClass('d-none');
+                $form.addClass('processing');
 
                 // Get all form data
                 var formData = $(this).serialize();
@@ -679,7 +758,7 @@
                     }
                 });
 
-                // Add booking loads to form data as JSON string
+                // Add booking loads to form data
                 formData += '&booking_loads=' + encodeURIComponent(JSON.stringify(bookingLoads));
 
                 // Collect all invoice items data
@@ -687,29 +766,42 @@
                 $('.editable-price').each(function() {
                     var ticketId = $(this).data('ticket-id');
                     var price = $(this).val();
-
                     invoiceItems.push({
                         ticket_id: ticketId,
                         price: price
                     });
                 });
 
-                // Add invoice items to form data as JSON string
+                // Add invoice items to form data
                 formData += '&invoice_items=' + encodeURIComponent(JSON.stringify(invoiceItems));
 
                 // Submit form via AJAX
                 $.ajax({
-                    url: $(this).attr('action'),
+                    url: $form.attr('action'),
                     type: 'POST',
                     data: formData,
                     success: function(response) {
                         if (response.success) {
                             window.location.href = response.redirect_url;
                         } else {
+                            // Reset loading state
+                            $button.prop('disabled', false);
+                            $normalState.removeClass('d-none');
+                            $loadingState.addClass('d-none');
+                            $form.removeClass('processing');
+
+                            // Show error
                             alert('Error: ' + response.message);
                         }
                     },
                     error: function(xhr) {
+                        // Reset loading state
+                        $button.prop('disabled', false);
+                        $normalState.removeClass('d-none');
+                        $loadingState.addClass('d-none');
+                        $form.removeClass('processing');
+
+                        // Show error
                         alert('An error occurred while processing your request.');
                     }
                 });
