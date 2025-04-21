@@ -34,9 +34,14 @@ class DeliveryController extends Controller
             'tbl_booking_request.CreateDateTime',
             'tbl_booking_request.CompanyName',
             'tbl_booking_request.OpportunityName',
+            \DB::raw('CASE
+                WHEN EXISTS (SELECT 1 FROM ready_invoices WHERE BookingRequestID = tbl_booking1.BookingRequestID) THEN "ready"
+                ELSE "power"
+            END as invoice_status')
         ])
             ->join('tbl_booking_request', 'tbl_booking1.BookingRequestID', '=', 'tbl_booking_request.BookingRequestID')
-            ->where('tbl_booking1.BookingType', 2);
+            ->where('tbl_booking1.BookingType', 2)
+            ->orderBy('tbl_booking_request.CreateDateTime', 'desc');
 
         // Apply date filters
         if (!empty($startDate)) {
@@ -44,6 +49,21 @@ class DeliveryController extends Controller
         }
         if (!empty($endDate)) {
             $query->whereDate('tbl_booking_request.CreateDateTime', '<=', $endDate);
+        }
+
+        // Filter by invoice type if specified
+        if ($invoiceType === 'readyinvoice') {
+            $query->whereExists(function ($q) {
+                $q->select(\DB::raw(1))
+                  ->from('ready_invoices')
+                  ->whereRaw('ready_invoices.BookingRequestID = tbl_booking1.BookingRequestID');
+            });
+        } elseif ($invoiceType === 'preinvoice') {
+            $query->whereNotExists(function ($q) {
+                $q->select(\DB::raw(1))
+                  ->from('ready_invoices')
+                  ->whereRaw('ready_invoices.BookingRequestID = tbl_booking1.BookingRequestID');
+            });
         }
 
         return DataTables::of($query)
@@ -66,6 +86,12 @@ class DeliveryController extends Controller
             ->addColumn('CreateDateTime', function ($booking) {
                 return $booking->CreateDateTime ?? 'N/A';
             })
+            ->addColumn('invoice_status', function ($booking) {
+                $status = $booking->invoice_status;
+                $badgeClass = $status === 'ready' ? 'badge-success' : 'badge-warning';
+                $statusText = $status === 'ready' ? 'Ready Invoice' : 'Power Invoice';
+                return '<span class="badge ' . $badgeClass . '">' . $statusText . '</span>';
+            })
             ->addColumn('action', function ($booking) {
                 if ($booking->BookingID) {
                     return '<a href="' . route('invoice.show', Crypt::encrypt($booking->BookingID)) . '"
@@ -73,7 +99,7 @@ class DeliveryController extends Controller
                 }
                 return 'No Booking Found';
             })
-            ->rawColumns(['action'])
+            ->rawColumns(['action', 'invoice_status'])
             ->make(true);
     }
 
