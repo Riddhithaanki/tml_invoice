@@ -353,23 +353,26 @@
                         <p class="mt-2 text-primary">Loading invoice items...</p>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button id="submitSelectedLoads" class="btn btn-primary mt-3"
-                        data-booking-request-id="{{ $bookingData->BookingRequestID }}">Confirm Split</button>
-
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button id="submitSelectedLoads" class="btn btn-primary"
+                        data-booking-request-id="{{ $bookingData->BookingRequestID }}">
+                        <i class="fas fa-check me-2"></i>Confirm Split
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Merge Booking Modal -->
-    <div class="modal fade" id="mergeBookingModal" tabindex="-1" aria-labelledby="splitInvoiceModalLabel"
+    <div class="modal fade" id="mergeBookingModal" tabindex="-1" aria-labelledby="mergeBookingModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="splitInvoiceModalLabel">Merge Bookings</h5>
+                    <h5 class="modal-title" id="mergeBookingModalLabel">Merge Bookings</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -381,11 +384,14 @@
                         <p class="mt-2 text-primary">Loading booking...</p>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button id="submitSelectedbooking" class="btn btn-primary mt-3"
-                        data-booking-request-id="{{ $booking['BookingRequestID'] }}">Confirm Merge</button>
-
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button id="submitSelectedbooking" class="btn btn-primary"
+                        data-booking-request-id="{{ $booking['BookingRequestID'] }}">
+                        <i class="fas fa-check me-2"></i>Confirm Merge
+                    </button>
                 </div>
             </div>
         </div>
