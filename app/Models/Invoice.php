@@ -42,4 +42,8 @@ class Invoice extends Model
         return $this->hasMany(InvoiceItem::class, 'invoice_uuid', 'uuid');
     }
 
+    public function booking()
+    {
+        return $this->hasMany(Booking::class, 'BookingRequestID', 'BookingRequestID');
+    }
 }

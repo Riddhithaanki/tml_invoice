@@ -16,8 +16,8 @@ class DashboardController extends Controller
     public function index()
     {
         //return "test";
-        $recentInvoice = BookingInvoice::with('booking')->get();
-        // dd($recentInvoice);
+        $recentInvoice = Invoice::with('booking','items')->where('isApproved',1)->get();
+
         $readyHoldInvoiceCount = Invoice::where('isApproved', '1')->count();
         $completedInvoice = BookingInvoice::where('Status', '1')->count();
         return view('customer.dashboard', compact('recentInvoice', 'readyHoldInvoiceCount', 'completedInvoice'));

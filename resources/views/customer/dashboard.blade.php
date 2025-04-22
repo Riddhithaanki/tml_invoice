@@ -87,7 +87,7 @@
         .btn-primary {
             background-color: #3c8dbc;
             border-color: #3c8dbc;
-            color:white;
+            color: white;
         }
 
         .btn-primary:hover {
@@ -147,21 +147,20 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Booking ID</th>
+                                <th>Invoice No</th>
                                 <th>Date</th>
                                 <th>Company</th>
                                 <th>Site</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($recentInvoice as $key => $invoice)
+                            @foreach ($recentInvoice as $invoice)
                                 <tr>
-                                    <td><strong>{{ $key + 1 }}</strong></td>
-                                    <td>{{ $invoice->BookingRequestID ?? 'N/A' }}</td>
-                                    <td>{{ $invoice->CreateDateTime ??  'N/A' }}</td>
-                                    <td>{{ $invoice->CompanyName ?? 'N/A' }}</td>
-                                    <td>{{ $invoice->OpportunityName ?? 'N/A' }}</td>
-
+                                    <td><strong>{{ $loop->iteration }}</strong></td>
+                                    <td>{{ $invoice->id ?? 'N/A' }}</td>
+                                    <td>{{ $invoice->date ?? 'N/A' }}</td>
+                                    <td>{{ $invoice->company_id ?? 'N/A' }}</td>
+                                    <td>{{ $invoice->billing_address ?? 'N/A' }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -194,7 +193,9 @@
                 },
                 lengthMenu: [5, 10, 25],
                 pageLength: 5,
-                order: [[0, 'desc']]
+                order: [
+                    [0, 'desc']
+                ]
             });
         });
     </script>
