@@ -142,6 +142,8 @@ class DashboardController extends Controller
             return response()->json(['error' => 'Booking request not found'], 404);
         }
 
+
+        $BookingType = optional($item->booking)->BookingType;  
         $CompanyName = $item->CompanyName;
         $OpportunityName = $item->OpportunityName;
         $CreateDate = \Carbon\Carbon::parse($item->CreateDateTime)->toDateString(); // Extract only date (YYYY-MM-DD)
@@ -150,6 +152,9 @@ class DashboardController extends Controller
         $items = BookingRequest::with('booking', 'invoice_items')
             ->where('CompanyName', $CompanyName)
             ->where('OpportunityName', $OpportunityName)
+            ->whereHas('booking', function ($query) use ($BookingType) {
+                $query->where('BookingType', $BookingType);
+            })
             // ->whereDate('CreateDateTime', $CreateDate) // Compare only the date part
             ->get();
 

@@ -367,12 +367,12 @@
     </div>
 
     <!-- Merge Booking Modal -->
-    <div class="modal fade" id="mergeBookingModal" tabindex="-1" aria-labelledby="mergeBookingModalLabel"
+    <div class="modal fade" id="mergeBookingModal" tabindex="-1" aria-labelledby="splitInvoiceModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="mergeBookingModalLabel">Merge Bookings</h5>
+                    <h5 class="modal-title" id="splitInvoiceModalLabel">Merge Bookings</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -384,14 +384,12 @@
                         <p class="mt-2 text-primary">Loading booking...</p>
                     </div>
                 </div>
-                <div class="modal-footer d-flex justify-content-between">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Cancel
-                    </button>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button id="submitSelectedbooking" class="btn btn-primary"
-                        data-booking-request-id="{{ $booking['BookingRequestID'] }}">
-                        <i class="fas fa-check me-2"></i>Confirm Merge
-                    </button>
+                        data-booking-request-id="{{$booking['BookingRequestID']}}">Confirm Merge</button>
+
                 </div>
             </div>
         </div>
@@ -996,99 +994,90 @@
                     });
                 });
 
-                $('#mergeBookingModal').on('show.bs.modal', function(e) {
-                    var button = $(e.relatedTarget);
-                    var invoiceId = button.data('invoice-id');
-                    var modal = $(this);
-                    var modalBody = modal.find('.modal-body');
+                        $('#mergeBookingModal').on('show.bs.modal', function (e) {
+                                            var button = $(e.relatedTarget);
+                                            var invoiceId = button.data('invoice-id');
+                                            var modal = $(this);
+                                            var modalBody = modal.find('.modal-body');
 
-                    // Show loader
-                    modalBody.html(
-                        '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading booking...</p></div>'
-                        );
+                                            // Show loader
+                                            modalBody.html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading booking...</p></div>');
 
-                    // Fetch invoice items via AJAX
-                    $.ajax({
-                        url: "{{ route('get.mergebookings.items') }}",
-                        type: "GET",
-                        data: {
-                            invoice_id: invoiceId
-                        },
-                        success: function(response) {
-                            if (!response.invoice_items || response.invoice_items.length === 0) {
-                                modalBody.html(
-                                    '<div class="text-center py-4 text-danger fw-bold">No details found for this invoice.</div>'
-                                    );
-                                return;
-                            }
-                            console.log(response);
+                                            // Fetch invoice items via AJAX
+                                            $.ajax({
+                                                url: "{{ route('get.mergebookings.items') }}",
+                                                type: "GET",
+                                                data: { invoice_id: invoiceId },
+                                                success: function (response) {
+                                                    if (!response.invoice_items || response.invoice_items.length === 0) {
+                                                        modalBody.html('<div class="text-center py-4 text-danger fw-bold">No details found for this invoice.</div>');
+                                                        return;
+                                                    }
+                                                    console.log(response);
 
-                            var html = `<div class="table-responsive">
-                                                                                    <table class="table table-bordered table-striped table-hover">
-                                                                                        <thead class="table-primary">
-                                                                                            <tr>
-                                                                                                <th>Select</th>
-                                                                                                <th width="5%">Expand</th>
-                                                                                                <th>Booking ID</th>
-                                                                                                <th>Booking Date</th>
-                                                                                                <th>Company Name</th>
-                                                                                                <th>Site Name</th>
-                                                                                            </tr>
-                                                                                        </thead>
-                                                                                        <tbody>`;
+                                                    var html = `<div class="table-responsive">
+                                                                                <table class="table table-bordered table-striped table-hover">
+                                                                                    <thead class="table-primary">
+                                                                                        <tr>
+                                                                                            <th>Select</th>
+                                                                                            <th width="5%">Expand</th>
+                                                                                            <th>Booking ID</th>
+                                                                                            <th>Booking Date</th>
+                                                                                            <th>Company Name</th>
+                                                                                            <th>Site Name</th>
+                                                                                        </tr>
+                                                                                    </thead>
+                                                                                    <tbody>`;
 
-                            // Iterate through invoice_items
-                            response.invoice_items.forEach(invoice => {
-                                if (!invoice || (Array.isArray(invoice) && invoice
-                                        .length === 0)) {
-                                    html += `<tr>
-                                                        <td colspan="5" class="text-center text-warning fw-bold">No bookings found.</td>
+                                                    // Iterate through invoice_items
+                                                    response.invoice_items.forEach(invoice => {
+                                                        if (!invoice || (Array.isArray(invoice) && invoice.length === 0)) {
+                                                            html += `<tr>
+                                                    <td colspan="5" class="text-center text-warning fw-bold">No bookings found.</td>
+                                                </tr>`;
+                                                        } else {
+                                                        
+                                                                html += `<tr>
+                                                        <td class="text-center">
+                                                            <input type="checkbox" class="form-check-input merge-checkbox" value="${invoice.BookingRequestID}">
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <button class="btn btn-sm btn-outline-primary toggle-loads"
+                                                                data-booking-id="${invoice.BookingRequestID}">
+                                                                <i class="fas fa-chevron-down"></i>
+                                                            </button>
+                                                        </td>
+                                                        <td>${invoice.BookingRequestID}</td>
+                                                        <td>${invoice.CreateDateTime}</td>
+                                                        <td>${invoice.CompanyName}</td>
+                                                        <td>${invoice.OpportunityName}</td>
+                                                    </tr>
+                                                    <tr class="invoice-loads-container d-none" data-booking-id="${invoice.BookingRequestID}">
+                                                        <td colspan="9" class="p-0">
+                                                            <div class="invoice-loads-content p-3 bg-light">
+                                                                <!-- Fetched invoice items will be displayed here -->
+                                                            </div>
+                                                        </td>
                                                     </tr>`;
-                                } else {
-
-                                    html += `<tr>
-                                                            <td class="text-center">
-                                                                <input type="checkbox" class="form-check-input merge-checkbox" value="${invoice.BookingRequestID}">
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <button class="btn btn-sm btn-outline-primary toggle-loads"
-                                                                    data-booking-id="${invoice.BookingRequestID}">
-                                                                    <i class="fas fa-chevron-down"></i>
-                                                                </button>
-                                                            </td>
-                                                            <td>${invoice.BookingRequestID}</td>
-                                                            <td>${invoice.CreateDateTime}</td>
-                                                            <td>${invoice.CompanyName}</td>
-                                                            <td>${invoice.OpportunityName}</td>
-                                                        </tr>
-                                                        <tr class="invoice-loads-container d-none" data-booking-id="${invoice.BookingRequestID}">
-                                                            <td colspan="9" class="p-0">
-                                                                <div class="invoice-loads-content p-3 bg-light">
-                                                                    <!-- Fetched invoice items will be displayed here -->
-                                                                </div>
-                                                            </td>
-                                                        </tr>`;
-
-                                }
-                            });
+                                                            
+                                                        }
+                                                    });
 
 
-                            html += '</tbody></table></div>';
+                                                    html += '</tbody></table></div>';
 
-                            // Fade out loader and show content
-                            setTimeout(() => {
-                                modalBody.fadeOut(200, function() {
-                                    $(this).html(html).fadeIn(300);
-                                });
-                            }, 500);
-                        },
-                        error: function() {
-                            modalBody.html(
-                                '<p class="text-danger text-center">Error loading data. Please try again.</p>'
-                                );
-                        }
-                    });
-                });
+                                                    // Fade out loader and show content
+                                                    setTimeout(() => {
+                                                        modalBody.fadeOut(200, function () {
+                                                            $(this).html(html).fadeIn(300);
+                                                        });
+                                                    }, 500);
+                                                },
+                                                error: function () {
+                                                    modalBody.html('<p class="text-danger text-center">Error loading data. Please try again.</p>');
+                                                }
+                                            });
+                        });
 
                 function calculateWaitTime(siteIn, siteOut) {
                     if (!siteIn || !siteOut) return "N/A";
@@ -1144,6 +1133,130 @@
                     return weight ? parseFloat(weight).toLocaleString('en-GB') : "0";
                 }
             });
+
+            $(document).on('click', '.toggle-loads', function() {
+                            
+                            let bookingId = $(this).data('booking-id');
+                            let container = $('.invoice-loads-container[data-booking-id="' + bookingId + '"]');
+                            let content = container.find('.invoice-loads-content');
+
+                            if (container.hasClass('d-none')) {
+                                // Show loader
+                                content.html(
+                                    '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-primary">Loading booking details...</p></div>'
+                                );
+                                container.removeClass('d-none').slideDown(300);
+
+                                $.ajax({
+                                    url: "{{ route('get.invoice.items') }}",
+                                    type: "GET",
+                                    data: {
+                                        booking_id: bookingId
+                                    },
+                                    success: function(response) {
+                                        console.log("AJAX Response:", response);
+                                        if (!response.invoice_items || response.invoice_items.length ===
+                                            0) {
+                                            console.log("No invoice items found:", response);
+                                            content.html(
+                                                '<div class="text-center py-4 text-danger fw-bold">No details found for this booking.</div>'
+                                            );
+                                            return;
+                                        }
+
+                                        let html = `<div class="table-responsive">
+                                                                <table class="table table-bordered table-striped table-hover">
+                                                                    <thead class="table-primary">
+                                                                        <tr>
+                                                                            <th>Conveyance No</th>
+                                                                            <th>Ticket ID</th>
+                                                                            <th>Date Time</th>
+                                                                            <th>Driver Name</th>
+                                                                            <th>Vehicle Reg</th>
+                                                                            <th>Gross (kg)</th>
+                                                                            <th>Tare (kg)</th>
+                                                                            <th>Net (kg)</th>
+                                                                            <th>Material</th>
+                                                                            <th>Wait Time</th>
+                                                                            <th>Status</th>
+                                                                            <th>Price</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>`;
+
+                                        response.invoice_items.forEach(item => {
+                                            if (!item.loads || item.loads.length === 0) {
+                                                html += `<tr>
+                                        <td colspan="12" class="text-center text-warning fw-bold">No details available for this material.</td>
+                                    </tr>`;
+                                            } else {
+                                                item.loads.forEach(load => {
+                                                    let waitTime = calculateWaitTime(load
+                                                        .SiteInDateTime, load
+                                                        .SiteOutDateTime);
+                                                    let statusText = getStatusText(load
+                                                        .Status);
+                                                    let statusClass = getStatusClass(load
+                                                        .Status);
+
+                                                    html += `<tr>
+                                            <td>${load.ConveyanceNo}</td>
+                                            <td><span class="badge bg-dark">${load.TicketID}</span></td>
+                                            <td>${formatDateTime(load.JobStartDateTime)}</td>
+                                            <td>${load.DriverName}</td>
+                                            <td>${load.VehicleRegNo}</td>
+                                            <td class="text-end">${formatWeight(load.GrossWeight)}</td>
+                                            <td class="text-end">${formatWeight(load.Tare)}</td>
+                                            <td class="text-end fw-bold">${formatWeight(load.Net)}</td>
+                                            <td>${item.MaterialName}</td>
+                                            <td>${waitTime}</td>
+                                            <td><span class="badge ${statusClass}">${statusText}</span></td>
+                                            <td class="text-end fw-bold">
+                                                <div class="d-flex align-items-center">
+                                                    <input type="text" class="form-control editable-price me-2"
+                                                        style="width: 100px;"
+                                                        data-ticket-id="${load.TicketID}"
+                                                        value="${load.LoadPrice}">
+                                                    <button class="btn btn-sm btn-outline-primary price-history-btn"
+                                                            data-ticket-id="${load.TicketID}"
+                                                            title="View Price History">
+                                                        <i class="fas fa-history"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>`;
+                                                });
+                                            }
+                                        });
+
+
+
+                                        html += '</tbody></table></div>';
+
+                                        // Animate content replacement
+                                        setTimeout(() => {
+                                            content.fadeOut(200, function() {
+                                                console.log("Updating content...");
+                                                $(this).html(html).fadeIn(300);
+                                            });
+                                        }, 500);
+                                    },
+                                    error: function() {
+                                        content.html(
+                                            '<div class="text-center py-4 text-danger fw-bold">Error loading details. Please try again.</div>'
+                                        );
+                                    }
+                                });
+                            } else {
+                                // Hide content
+                                container.slideUp(300, function() {
+                                    $(this).addClass('d-none').css('display', '');
+                                });
+                            }
+
+                            // Toggle expand icon
+                            $(this).find('i').toggleClass('fa-chevron-down fa-chevron-up');
+                        });
         });
     </script>
 @endsection
