@@ -35,8 +35,11 @@ class DashboardController extends Controller
     {
         $id = Crypt::decrypt($id);
 
-        // Find the booking entry using BookingID
-        $bookingData = Booking::with('loads', 'bookingRequest')->where('BookingID', $id)->first();
+        // Find the booking entry using BookingID with eager loaded loads count
+        $bookingData = Booking::with(['bookingRequest'])
+            ->withCount('loads')
+            ->where('BookingID', $id)
+            ->first();
 
         if (!$bookingData) {
             return abort(404, 'Booking not found');
@@ -51,11 +54,10 @@ class DashboardController extends Controller
             $invoice = $readyInvoice;
             $user = User::where('userId', '=', $invoice->CreatedUserID)->first();
             return view('admin.pages.invoice.viewinvoice', compact('invoice', 'user'));
-
         }
 
         // Fetch Invoice (Original or Split)
-        $invoice = BookingRequest::with('booking', 'invoice_items', 'invoice')
+        $invoice = BookingRequest::with(['booking', 'invoice_items', 'invoice'])
             ->where('BookingRequestID', $bookingRequestId)
             ->first();
 
@@ -66,16 +68,19 @@ class DashboardController extends Controller
         // Check if this is a split invoice or an original invoice
         $isSplitInvoice = !is_null($invoice->parent_invoice_id);
 
-        // Fetch bookings related to this invoice only
-        $bookings = Booking::where('BookingRequestID', $invoice->BookingRequestID);
-
-        if ($isSplitInvoice) {
-            $bookings->where('parent_invoice_id', $invoice->InvoiceID);
-        } else {
-            $bookings->whereNull('parent_invoice_id');
-        }
-
-        $bookings = $bookings->get();
+        // Fetch bookings related to this invoice with loads count
+        $bookings = Booking::withCount('loads')
+            ->where('BookingRequestID', $invoice->BookingRequestID)
+            ->when($isSplitInvoice, function($query) use ($invoice) {
+                return $query->where('parent_invoice_id', $invoice->InvoiceID);
+            })
+            ->when(!$isSplitInvoice, function($query) {
+                return $query->whereNull('parent_invoice_id');
+            })
+            ->get()
+            ->each(function($booking) {
+                $booking->Loads = $booking->loads_count;
+            });
 
         return view('admin.pages.invoice.invoice_details', compact('invoice', 'bookings', 'bookingData', 'isSplitInvoice'));
     }
@@ -143,7 +148,7 @@ class DashboardController extends Controller
         }
 
 
-        $BookingType = optional($item->booking)->BookingType;  
+        $BookingType = optional($item->booking)->BookingType;
         $CompanyName = $item->CompanyName;
         $OpportunityName = $item->OpportunityName;
         $CreateDate = \Carbon\Carbon::parse($item->CreateDateTime)->toDateString(); // Extract only date (YYYY-MM-DD)
@@ -268,7 +273,6 @@ class DashboardController extends Controller
                 'booking_loads' => 'required|string',
                 'invoice_items' => 'required|string'
             ]);
-
             // Decode the JSON strings
             $bookingLoads = json_decode($request->booking_loads, true);
             $invoiceItems = json_decode($request->invoice_items, true);
@@ -301,7 +305,8 @@ class DashboardController extends Controller
                 'Status' => $validated['hold_invoice'] ? 0 : 1, // 0 for hold, 1 for ready
                 'Comment' => $validated['comment'],
                 'InvoiceDate' => now(),
-                'InvoiceNumber' => $formattedInvoiceNumber
+                'InvoiceNumber' => $formattedInvoiceNumber,
+                'is_hold' => $validated['hold_invoice'] ? 1 : 0
             ]);
 
             $invoice->save();
@@ -339,7 +344,8 @@ class DashboardController extends Controller
             // Update the booking request status
             $bookingRequest = BookingRequest::where('BookingRequestID', $validated['BookingRequestID'])->first();
             if ($bookingRequest) {
-                $bookingRequest->Status = $validated['hold_invoice'] ? 0 : 1;
+                $bookingRequest->InvoiceHold = $validated['hold_invoice'] ? 0 : 1;
+                $bookingRequest->invoiceID = $invoice->id;
                 $bookingRequest->save();
             }
 
@@ -359,9 +365,11 @@ class DashboardController extends Controller
 
     public function show($id)
     {
-        $invoice = ReadyInvoice::where('InvoiceID', '=', $id)->first();
+        $invoice = ReadyInvoice::with(['items', 'booking'])->where('InvoiceID', '=', $id)->first();
+        if (!$invoice) {
+            return abort(404, 'Invoice not found');
+        }
         $user = User::where('userId', '=', $invoice->CreatedUserID)->first();
-        dd($user);
         return view('admin.pages.invoice.viewinvoice', compact('invoice', 'user'));
     }
 

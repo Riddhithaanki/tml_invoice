@@ -10,11 +10,10 @@ class BookingRequest extends Model
     use HasFactory;
 
     protected $table = "tbl_booking_request";
-
+    protected $primaryKey = 'BookingRequestID';
     protected $fillable = [
         'BookingRequestID',
         'is_delete', // Add this field
-        // Add other fillable fields here if necessary
     ];
 
     public $timestamps = false;

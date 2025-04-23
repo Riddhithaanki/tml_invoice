@@ -33,7 +33,7 @@ class FetchInvoicesCommand extends Command
             $this->info('Fetching invoices from Sage...');
 
             // Fetch invoices with postal addresses (adjust $filter as required)
-            $invoiceUrl = $this->baseUrl . "/salesInvoices?\$orderby=date desc\&count=100&include=postalAddresses&format=json";
+            $invoiceUrl = $this->baseUrl . "/salesInvoices?\$orderby=date desc\&count=1&include=postalAddresses&format=json";
 
             $invoiceResponse = Http::withBasicAuth($this->username, $this->password)
                 ->accept('application/json')

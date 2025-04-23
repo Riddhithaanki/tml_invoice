@@ -25,7 +25,8 @@ class ReadyInvoiceItem extends Model
         'Comment1',
         'Comment2',
         'CreateDateTime',
-        'UpdateDateTime'
+        'UpdateDateTime',
+        'is_hold'
     ];
 
     public $timestamps = false;

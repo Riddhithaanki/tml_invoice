@@ -34,7 +34,7 @@ class ReadyInvoice extends Model
 
     public function items()
     {
-        return $this->hasMany(ReadyInvoiceItem::class, 'InvoiceID', 'id');
+        return $this->hasMany(ReadyInvoiceItem::class, 'InvoiceID', 'InvoiceID');
     }
 
 
