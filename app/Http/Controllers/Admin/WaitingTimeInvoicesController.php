@@ -16,8 +16,12 @@ class WaitingTimeInvoicesController extends Controller
         return view('admin.pages.waitingtime_invoice.index');
     }
 
-    public function getDeliveryInvoiceData()
+    public function getDeliveryInvoiceData(Request $request)
     {
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
         $query = BookingRequest::select([
             'BookingRequestID',
             'CreateDateTime',
@@ -29,7 +33,14 @@ class WaitingTimeInvoicesController extends Controller
                 $q->where('BookingType', 1);
             });
 
-
+            // Apply date filters
+        if (!empty($startDate)) {
+            $query->whereDate('tbl_booking_request.CreateDateTime', '>=', $startDate);
+        }
+        if (!empty($endDate)) {
+            $query->whereDate('tbl_booking_request.CreateDateTime', '<=', $endDate);
+        }
+        
         return DataTables::of($query)
             ->addIndexColumn() // Adds SR. No column
             ->addColumn('action', function ($invoice) {

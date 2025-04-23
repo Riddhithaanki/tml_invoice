@@ -55,7 +55,7 @@
                 lengthMenu: [10, 25, 50, 100],
                 responsive: true,
                 orderCellsTop: true,
-                searching: false,    // 🔴 Hide the search box
+                searching: true,
                 lengthChange: false,
                 language: {
                     search: "_INPUT_",
@@ -237,6 +237,10 @@
         #clearFilters:hover {
             background-color: white;
             color: #3c8dbc;
+        }
+
+        div.dataTables_filter {
+            display: none;
         }
     </style>
 @endsection

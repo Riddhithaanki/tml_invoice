@@ -4,6 +4,20 @@
         <div class="table-header">
             <h3 class="table-title text-center text-white">Waiting Time Invoices</h3>
         </div>
+        <!-- Compact date filter row -->
+        <div class="date-filter-container p-2 bg-light border-bottom">
+            <div class="d-flex align-items-center justify-content-end">
+                <div class="date-range-compact d-flex align-items-center">
+                    <span class="mr-2">Date: &nbsp;</span>
+                    <input type="date" id="startDate" class="form-control form-control-sm mr-1" placeholder="Start">
+                    <span class="mx-1">to</span>
+                    <input type="date" id="endDate" class="form-control form-control-sm mr-2" placeholder="End">
+                    <button id="filterBtn" class="btn btn-sm btn-primary">Filter</button>
+                    <button id="clearFilters" class="btn btn-sm btn-outline-secondary ml-1">Clear</button>
+                </div>
+            </div>
+        </div>
+
         <div class="table-responsive">
             <table id="invoiceTable" class="table table-hover">
                 <thead>
@@ -38,7 +52,15 @@
             var table = $('#invoiceTable').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('delivery.data') }}",
+                ajax: {
+                    url: "{{ route('delivery.data') }}",
+                    data: function(d) {
+                        d.type = '{{ request('type', 'withtipticket') }}';
+                        d.invoice_type = '{{ request('invoice_type', 'preinvoice') }}';
+                        d.start_date = $('#startDate').val(); // Get start date
+                        d.end_date = $('#endDate').val(); // Get end date
+                    }
+                },
                 columns: [
                     { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false }, // SR. No
                     { data: 'BookingRequestID', name: 'BookingRequestID' },
@@ -52,7 +74,7 @@
                 lengthMenu: [10, 25, 50, 100],
                 responsive: true,
                 orderCellsTop: true,
-                searching: false,    // Hide the search box
+                searching: true,
                 lengthChange: false, // Hide the "Show entries" dropdown
                 language: {
                     search: "_INPUT_",
@@ -73,16 +95,18 @@
                     .draw();
             });
 
-            // Add clear filters button
-            $('.table-header').append(
-                '<button id="clearFilters" class="btn btn-sm btn-outline-light position-absolute" style="right: 15px; top: 50%; transform: translateY(-50%);">' +
-                '<i class="fas fa-times"></i> Clear</button>'
-            );
-
-            $('#clearFilters').on('click', function () {
-                $('.column-search').val('');
-                table.search('').columns().search('').draw();
+            // Filter button click event
+            $('#filterBtn').click(function() {
+                table.ajax.reload(); // Reload table with new date filters
             });
+
+            // Clear filters button
+            $('#clearFilters').click(function() {
+                $('#startDate').val('');
+                $('#endDate').val('');
+                table.ajax.reload();
+            });
+
         });
     </script>
 
@@ -107,6 +131,24 @@
             font-size: 1.2rem;
             margin: 0;
             color: white;
+        }
+
+        /* Compact date filter styling */
+        .date-filter-container {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .date-range-compact input[type="date"] {
+            width: 140px;
+            height: 32px;
+            font-size: 0.85rem;
+        }
+
+        .date-range-compact .btn {
+            height: 32px;
+            font-size: 0.85rem;
+            padding: 0.25rem 0.75rem;
         }
 
         #invoiceTable {
@@ -234,6 +276,10 @@
         #clearFilters:hover {
             background-color: white;
             color: #3c8dbc;
+        }
+
+        div.dataTables_filter {
+            display: none;
         }
     </style>
 @endsection

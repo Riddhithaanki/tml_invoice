@@ -94,6 +94,8 @@
             var table = $('#invoiceTable').DataTable({
                 processing: true,
                 serverSide: true,
+                lengthChange: false,
+                searching: true,
                 ajax: {
                     url: "{{ route('delivery.data') }}",
                     data: function(d) {
@@ -320,6 +322,10 @@
         #clearFilters:hover {
             background-color: white;
             color: #3c8dbc;
+        }
+
+        div.dataTables_filter {
+            display: none;
         }
     </style>
 @endsection

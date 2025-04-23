@@ -16,8 +16,12 @@ class HaulageInvoiceController extends Controller
         return view('admin.pages.haulage.index');
     }
 
-    public function getHaulageInvoiceData()
+    public function getHaulageInvoiceData(Request $request)
     {
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        
         // Fetch bookings first, as we need BookingID as the main identifier
         $query = Booking::select([
             'tbl_booking1.BookingID',
@@ -30,6 +34,14 @@ class HaulageInvoiceController extends Controller
             ->join('tbl_booking_request', 'tbl_booking1.BookingRequestID', '=', 'tbl_booking_request.BookingRequestID')
             ->where('tbl_booking1.BookingType', 4)
             ->orderBy('tbl_booking_request.CreateDateTime', 'desc');
+        
+        // Apply date filters
+        if (!empty($startDate)) {
+            $query->whereDate('tbl_booking_request.CreateDateTime', '>=', $startDate);
+        }
+        if (!empty($endDate)) {
+            $query->whereDate('tbl_booking_request.CreateDateTime', '<=', $endDate);
+        }
 
         return DataTables::of($query)
             ->addIndexColumn() // Adds SR. No column

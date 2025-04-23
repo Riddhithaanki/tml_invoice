@@ -17,8 +17,11 @@ class DayworkInvoiceController extends Controller
         return view('admin.pages.daywork_invoice.index');
     }
 
-    public function getDayworkInvoiceData()
+    public function getDayworkInvoiceData(Request $request)
     {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
         // Fetch bookings first, as we need BookingID as the main identifier
         $query = Booking::select([
             'tbl_booking1.BookingID',
@@ -32,6 +35,14 @@ class DayworkInvoiceController extends Controller
             ->where('tbl_booking1.BookingType', 3)
             ->orderBy('tbl_booking_request.CreateDateTime', 'desc');
 
+        // Apply date filters
+        if (!empty($startDate)) {
+            $query->whereDate('tbl_booking_request.CreateDateTime', '>=', $startDate);
+        }
+        if (!empty($endDate)) {
+            $query->whereDate('tbl_booking_request.CreateDateTime', '<=', $endDate);
+        }
+        
         return DataTables::of($query)
             ->addIndexColumn() // Adds SR. No column
             ->addColumn('CompanyName', function ($booking) {

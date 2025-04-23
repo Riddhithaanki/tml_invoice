@@ -19,6 +19,8 @@ class CollectionController extends Controller
     public function getCollectionInvoiceData(Request $request)
     {
         $type = $request->input('type');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
 
         // Fetch bookings first, as we need BookingID as the main identifier
         $query = Booking::select([
@@ -33,6 +35,14 @@ class CollectionController extends Controller
             ->where('tbl_booking1.BookingType', 1)
             ->orderBy('tbl_booking_request.CreateDateTime', 'desc');
 
+            // Apply date filters
+        if (!empty($startDate)) {
+            $query->whereDate('tbl_booking_request.CreateDateTime', '>=', $startDate);
+        }
+        if (!empty($endDate)) {
+            $query->whereDate('tbl_booking_request.CreateDateTime', '<=', $endDate);
+        }
+        
         return DataTables::of($query)
             ->addIndexColumn() // Adds SR. No column
             ->addColumn('CompanyName', function ($booking) {
