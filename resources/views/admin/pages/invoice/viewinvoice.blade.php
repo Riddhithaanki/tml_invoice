@@ -72,7 +72,7 @@
         border-top: 2px solid #dee2e6 !important;
     }
     .invoice-header {
-        color: white;
+        color: black;
         padding: 2rem;
         border-radius: 10px;
         margin-bottom: 2rem;
@@ -234,7 +234,7 @@
                         <div class="info-value">£{{ number_format($invoice->SubTotalAmount, 2) }}</div>
                     </div>
                     <div class="mb-4">
-                        <div class="info-label">VAT ({{ $invoice->TaxRate ?? 20 }}%)</div>
+                        <div class="info-label">VAT 20%</div>
                         <div class="info-value">£{{ number_format($invoice->VatAmount, 2) }}</div>
                     </div>
                     <div class="mb-4">
@@ -305,13 +305,13 @@
                         <td></td>
                     </tr>
                     <tr>
-                        <td colspan="6" class="text-end">VAT ({{ $invoice->TaxRate ?? 20 }}%)</td>
-                        <td class="text-end numeric-cell fw-bold">£{{ number_format($subtotal * ($invoice->TaxRate ?? 20) / 100, 2) }}</td>
+                        <td colspan="6" class="text-end">VAT 20%</td>
+                        <td class="text-end numeric-cell fw-bold">£{{ number_format($subtotal * 20 / 100, 2) }}</td>
                         <td></td>
                     </tr>
                     <tr class="border-top">
                         <td colspan="6" class="text-end fw-bold">Total Amount</td>
-                        <td class="text-end numeric-cell fw-bold fs-5 text-primary">£{{ number_format($subtotal * (1 + ($invoice->TaxRate ?? 20) / 100), 2) }}</td>
+                        <td class="text-end numeric-cell fw-bold fs-5 text-primary">£{{ number_format($subtotal * (1 + 20 / 100), 2) }}</td>
                         <td></td>
                     </tr>
                 </tfoot>

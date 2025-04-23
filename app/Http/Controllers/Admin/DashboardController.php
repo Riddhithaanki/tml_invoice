@@ -51,8 +51,12 @@ class DashboardController extends Controller
         // ✅ Check if this BookingRequestID exists in the ready_invoice table
         $readyInvoice = ReadyInvoice::where('BookingRequestID', $bookingRequestId)->first();
         if ($readyInvoice) {
-            $invoice = $readyInvoice;
+            $invoice = ReadyInvoice::with(['items', 'booking'])->where('BookingRequestID', '=', $bookingRequestId)->first();
+            if (!$invoice) {
+                return abort(404, 'Invoice not found');
+            }
             $user = User::where('userId', '=', $invoice->CreatedUserID)->first();
+            $invoice = $readyInvoice;
             return view('admin.pages.invoice.viewinvoice', compact('invoice', 'user'));
         }
 
@@ -71,14 +75,14 @@ class DashboardController extends Controller
         // Fetch bookings related to this invoice with loads count
         $bookings = Booking::withCount('loads')
             ->where('BookingRequestID', $invoice->BookingRequestID)
-            ->when($isSplitInvoice, function($query) use ($invoice) {
+            ->when($isSplitInvoice, function ($query) use ($invoice) {
                 return $query->where('parent_invoice_id', $invoice->InvoiceID);
             })
-            ->when(!$isSplitInvoice, function($query) {
+            ->when(!$isSplitInvoice, function ($query) {
                 return $query->whereNull('parent_invoice_id');
             })
             ->get()
-            ->each(function($booking) {
+            ->each(function ($booking) {
                 $booking->Loads = $booking->loads_count;
             });
 
@@ -488,7 +492,7 @@ class DashboardController extends Controller
         $differences = InvoiceDifference::orderBy('created_at', 'desc')->get();
 
         // Get perfect invoices (those not in the differences table)
-        $perfectInvoices = ReadyInvoice::whereNotIn('InvoiceNumber', function($query) {
+        $perfectInvoices = ReadyInvoice::whereNotIn('InvoiceNumber', function ($query) {
             $query->select('invoice_number')->from('invoice_differences');
         })->orderBy('InvoiceDate', 'desc')->get();
 
