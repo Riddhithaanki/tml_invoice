@@ -1,9 +1,36 @@
 @extends('layouts.main')
 @section('content')
     <div class="table-container mt-4">
+
+        <div class="tab-container mb-3">
+            <ul class="nav nav-tabs d-flex justify-content-end" id="invoiceTabs"
+                style="
+            overflow-y: unset;
+            overflow-x: unset !important;!i;!;
+            ">
+                <div class="d-flex">
+                    <!-- Right side tabs -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ $invoice_type === 'preinvoice' ? 'active' : '' }}" id="pre-invoice-tab"
+                            data-toggle="tab"
+                            href="{{ route('waitingtime.index', ['invoice_type' => 'preinvoice']) }}"
+                            role="tab">Pre Invoice</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ $invoice_type === 'readyinvoice' ? 'active' : '' }}" id="ready-invoice-tab"
+                            data-toggle="tab"
+                            href="{{ route('waitingtime.index', ['invoice_type' => 'readyinvoice']) }}"
+                            role="tab">Ready Invoice</a>
+                    </li>
+                </div>
+            </ul>
+
+        </div>
+
         <div class="table-header">
             <h3 class="table-title text-center text-white">Waiting Time Invoices</h3>
         </div>
+
         <!-- Compact date filter row -->
         <div class="date-filter-container p-2 bg-light border-bottom">
             <div class="d-flex align-items-center justify-content-end">
@@ -53,9 +80,8 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('delivery.data') }}",
+                    url: "{{ route('waitingtime.data') }}",
                     data: function(d) {
-                        d.type = '{{ request('type', 'withtipticket') }}';
                         d.invoice_type = '{{ request('invoice_type', 'preinvoice') }}';
                         d.start_date = $('#startDate').val(); // Get start date
                         d.end_date = $('#endDate').val(); // Get end date
@@ -74,7 +100,7 @@
                 lengthMenu: [10, 25, 50, 100],
                 responsive: true,
                 orderCellsTop: true,
-                searching: true,
+                searching: true,    // Hide the search box
                 lengthChange: false, // Hide the "Show entries" dropdown
                 language: {
                     search: "_INPUT_",

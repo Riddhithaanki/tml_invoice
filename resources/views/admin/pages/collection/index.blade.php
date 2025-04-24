@@ -1,7 +1,42 @@
 @extends('layouts.main')
 @section('content')
     <div class="table-container mt-4">
-        <div class="tab-container mb-3">
+    <div class="tab-container mb-3">
+            <ul class="nav nav-tabs d-flex justify-content-between" id="invoiceTabs"
+                style="
+            overflow-y: unset;
+            overflow-x: unset !important;!i;!;
+        ">
+                <div class="d-flex">
+                    <!-- Left side tabs -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ $type === 'loads' ? 'active' : '' }}" id="loads" data-toggle="tab" href="{{ route('collection.index', ['type' => 'loads']) }}" role="tab">Loads</a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link {{ $type === 'tonnage' ? 'active' : '' }}" id="tonnage" data-toggle="tab" href="{{ route('collection.index', ['type' => 'tonnage']) }}" role="tab">Tonnage</a>
+                    </li>
+                </div>
+
+                <div class="d-flex">
+                    <!-- Right side tabs -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ $invoice_type === 'preinvoice' ? 'active' : '' }}" id="pre-invoice-tab"
+                            data-toggle="tab"
+                            href="{{ route('collection.index', ['type' => $type, 'invoice_type' => 'preinvoice']) }}"
+                            role="tab">Pre Invoice</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ $invoice_type === 'readyinvoice' ? 'active' : '' }}" id="ready-invoice-tab"
+                            data-toggle="tab"
+                            href="{{ route('collection.index', ['type' => $type, 'invoice_type' => 'readyinvoice']) }}"
+                            role="tab">Ready Invoice</a>
+                    </li>
+                </div>
+            </ul>
+
+        </div>
+
+        <!-- <div class="tab-container mb-3">
             <ul class="nav nav-tabs" id="invoiceTabs">
                 <li class="nav-item">
                     <a class="nav-link {{ $type === 'loads' ? 'active' : '' }}" id="loads" data-toggle="tab" href="{{ route('collection.index', ['type' => 'loads']) }}" role="tab">Loads</a>
@@ -10,7 +45,7 @@
                     <a class="nav-link {{ $type === 'tonnage' ? 'active' : '' }}" id="tonnage" data-toggle="tab" href="{{ route('collection.index', ['type' => 'tonnage']) }}" role="tab">Tonnage</a>
                 </li>
             </ul>
-        </div>
+        </div> -->
         <div class="table-header">
             <h3 class="table-title text-center text-white">Collection Invoices</h3>
         </div>
@@ -68,6 +103,7 @@
                     url: "{{ route('collection.data') }}",
                     data: function (d) {
                         d.type = type; // Pass the type parameter to the server
+                        d.invoice_type = '{{ request('invoice_type', 'preinvoice') }}';
                         d.start_date = $('#startDate').val(); // Get start date
                         d.end_date = $('#endDate').val(); // Get end date
                     }

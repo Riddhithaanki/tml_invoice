@@ -11,14 +11,18 @@ use App\Models\Booking;
 
 class CollectionController extends Controller
 {
-    public function index($type = null)
+    public function index(Request $request)
     {
-        return view('admin.pages.collection.index', compact('type'));
+        $type = $request->query('type', 'loads');
+        $invoice_type = $request->query('invoice_type', 'preinvoice'); // Default: 'preinvoice'
+
+        return view('admin.pages.collection.index', compact('type', 'invoice_type'));
     }
 
     public function getCollectionInvoiceData(Request $request)
     {
         $type = $request->input('type');
+        $invoiceType = $request->input('invoice_type', 'preinvoice');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
@@ -43,6 +47,21 @@ class CollectionController extends Controller
             $query->whereDate('tbl_booking_request.CreateDateTime', '<=', $endDate);
         }
         
+        // Filter by invoice type if specified
+        if ($invoiceType === 'readyinvoice') {
+            $query->whereExists(function ($q) {
+                $q->select(\DB::raw(1))
+                  ->from('ready_invoices')
+                  ->whereRaw('ready_invoices.BookingRequestID = tbl_booking1.BookingRequestID');
+            });
+        } elseif ($invoiceType === 'preinvoice') {
+            $query->whereNotExists(function ($q) {
+                $q->select(\DB::raw(1))
+                  ->from('ready_invoices')
+                  ->whereRaw('ready_invoices.BookingRequestID = tbl_booking1.BookingRequestID');
+            });
+        }
+
         return DataTables::of($query)
             ->addIndexColumn() // Adds SR. No column
             ->addColumn('CompanyName', function ($booking) {
