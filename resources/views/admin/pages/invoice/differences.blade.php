@@ -103,7 +103,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="perfect-tab" data-toggle="tab" href="#perfect" role="tab">
-                                Perfect Invoices
+                                Matched Invoices
                                 <span class="badge badge-success badge-count">{{ $perfectInvoices->count() }}</span>
                             </a>
                         </li>
@@ -224,7 +224,7 @@
                                             <td>{{ $invoice->InvoiceDate }}</td>
                                             <td>
                                                 <span class="status-badge perfect">
-                                                    <i class="fas fa-check-circle"></i> Perfect Match
+                                                    <i class="fas fa-check-circle"></i> Approved
                                                 </span>
                                             </td>
                                         </tr>
@@ -294,6 +294,24 @@ $(document).ready(function() {
         language: {
             search: "Search in all columns:"
         }
+    });
+
+    // Handle perfect invoice tab click
+    $('#perfect-tab').click(function(e) {
+        e.preventDefault();
+        $('#invoiceTabs .nav-link').removeClass('active');
+        $(this).addClass('active');
+        $('.tab-pane').removeClass('show active');
+        $('#perfect').addClass('show active');
+    });
+
+    // Handle differences invoice tab click
+    $('#differences-tab').click(function(e) {
+        e.preventDefault();
+        $('#invoiceTabs .nav-link').removeClass('active');
+        $(this).addClass('active');
+        $('.tab-pane').removeClass('show active');
+        $('#differences').addClass('show active');
     });
 
     // Date range filter for differences table
