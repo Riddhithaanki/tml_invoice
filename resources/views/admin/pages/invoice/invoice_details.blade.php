@@ -113,7 +113,7 @@
                 <a href="#" class="text-decoration-none text-primary">
                     <i class="fas fa-arrow-left me-2"></i>
                 </a>
-                <h4 class="m-0 fw-bold">Booking No. : {{ $bookingData->BookingID }}</h4>
+                <h4 class="m-0 fw-bold">Booking No. : {{ $booking->BookingID }}</h4>
             </div>
 
             <div class="row g-4">
@@ -125,10 +125,10 @@
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
-                                <strong>Company Name:</strong> {{ $bookingData->bookingRequest->CompanyName }}
+                                <strong>Company Name:</strong> {{ $booking->bookingRequest->CompanyName }}
                             </div>
                             <div class="mb-3">
-                                <strong>Opportunity Name:</strong> {{ $bookingData->bookingRequest->OpportunityName }}
+                                <strong>Opportunity Name:</strong> {{ $booking->bookingRequest->OpportunityName }}
                             </div>
                         </div>
                     </div>
@@ -143,15 +143,15 @@
                         <div class="card-body">
                             <div class="mb-3">
                                 <strong>Waiting Time:</strong> <span
-                                    class="badge bg-light text-dark">{{ $bookingData->bookingRequest->WaitingTime }}</span>
+                                    class="badge bg-light text-dark">{{ $booking->bookingRequest->WaitingTime }}</span>
                             </div>
                             <div class="mb-3">
                                 <strong>Wait Charges:</strong> <span class="badge bg-light text-dark">
-                                    {{ $bookingData->bookingRequest->WaitingCharge }} </span>
+                                    {{ $booking->bookingRequest->WaitingCharge }} </span>
                             </div>
                             <div class="mb-3">
                                 <strong>Purchase Order:</strong> <span class="badge bg-light text-dark">
-                                    {{ $bookingData->PurchaseOrderNo }} </span>
+                                    {{ $booking->PurchaseOrderNo }} </span>
                             </div>
                             <div class="mb-3">
                                 <strong>Notes:</strong> <span class="text-muted fst-italic">Req: 8 AM Start - 8 AM Onwards -
@@ -294,21 +294,21 @@
                     <div class="text-end">
                         <form id="confirmInvoiceForm" action="{{ route('invoice.confirm') }}" method="POST">
                             @csrf
-                            <input type="hidden" name="BookingRequestID" value="{{ $bookingData->BookingRequestID }}">
+                            <input type="hidden" name="BookingRequestID" value="{{ $booking->BookingRequestID }}">
                             <input type="hidden" name="CompanyID"
-                                value="{{ $bookingData->bookingRequest->CompanyID }}">
+                                value="{{ $booking->bookingRequest->CompanyID }}">
                             <input type="hidden" name="CompanyName"
-                                value="{{ $bookingData->bookingRequest->CompanyName }}">
+                                value="{{ $booking->bookingRequest->CompanyName }}">
                             <input type="hidden" name="OpportunityID"
-                                value="{{ $bookingData->bookingRequest->OpportunityID }}">
+                                value="{{ $booking->bookingRequest->OpportunityID }}">
                             <input type="hidden" name="OpportunityName"
-                                value="{{ $bookingData->bookingRequest->OpportunityName }}">
+                                value="{{ $booking->bookingRequest->OpportunityName }}">
                             <input type="hidden" name="ContactID"
-                                value="{{ $bookingData->bookingRequest->ContactID }}">
+                                value="{{ $booking->bookingRequest->ContactID }}">
                             <input type="hidden" name="ContactName"
-                                value="{{ $bookingData->bookingRequest->ContactName }}">
+                                value="{{ $booking->bookingRequest->ContactName }}">
                             <input type="hidden" name="ContactMobile"
-                                value="{{ $bookingData->bookingRequest->ContactMobile }}">
+                                value="{{ $booking->bookingRequest->ContactMobile }}">
                             <input type="hidden" name="SubTotalAmount" value="{{ $invoice->SubTotalAmount }}">
                             <input type="hidden" name="VatAmount" value="{{ $invoice->VatAmount }}">
                             <input type="hidden" name="FinalAmount" value="{{ $invoice->TotalAmount }}">
@@ -323,7 +323,7 @@
                             </button>
 
                             <button type="button" class="btn btn-secondary btn-lg px-4 me-2" data-bs-toggle="modal"
-                                data-bs-target="#splitInvoiceModal" data-invoice-id="{{ $bookingData->BookingID }}">
+                                data-bs-target="#splitInvoiceModal" data-invoice-id="{{ $booking->BookingID }}">
                                 <i class="fas fa-random me-2"></i>Split Invoice
                             </button>
 
@@ -366,7 +366,7 @@
                         <i class="fas fa-times me-2"></i>Cancel
                     </button>
                     <button id="submitSelectedLoads" class="btn btn-primary"
-                        data-booking-request-id="{{ $bookingData->BookingRequestID }}">
+                        data-booking-request-id="{{ $booking->BookingRequestID }}">
                         <i class="fas fa-check me-2"></i>Confirm Split
                     </button>
                 </div>
@@ -389,7 +389,7 @@
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
-                        <p class="mt-2 text-primary">Loading booking...</p>
+                        <p class="mt-2 text-primary">Loading bookings...</p>
                     </div>
                 </div>
 
@@ -418,11 +418,6 @@
         </div>
     </div>
 
-
-
-
-    <!-- jQuery (Ensure it's included in your layout) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
         $(document).ready(function() {
@@ -736,6 +731,213 @@
             function formatWeight(weight) {
                 return weight ? parseFloat(weight).toLocaleString('en-GB') : "0";
             }
+
+            // Split Invoice Modal Handler
+            $('#splitInvoiceModal').on('show.bs.modal', function (e) {
+                var button = $(e.relatedTarget);
+                var invoiceId = button.data('invoice-id');
+                var modal = $(this);
+
+                // Clear previous content and show loading
+                modal.find('.modal-body').html(`
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-primary">Loading invoice items...</p>
+                    </div>
+                `);
+
+                // Fetch split invoice items
+                $.ajax({
+                    url: "{{ route('get.splitinvoice.items') }}",
+                    type: "GET",
+                    data: { invoice_id: invoiceId },
+                    success: function(response) {
+                        if (!response.invoice_items || response.invoice_items.length === 0) {
+                            modal.find('.modal-body').html('<div class="alert alert-warning">No items found to split.</div>');
+                            return;
+                        }
+
+                        let html = `
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Select</th>
+                                            <th>Load ID</th>
+                                            <th>Material</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+
+                        response.invoice_items.forEach(function(item) {
+                            html += `
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="load-checkbox" data-load-id="${item.BookingID}"
+                                               data-material="${item.MaterialName}" data-price="${item.Price}">
+                                    </td>
+                                    <td>${item.BookingID}</td>
+                                    <td>${item.MaterialName}</td>
+                                    <td>${item.Loads}</td>
+                                    <td>£${item.Price}</td>
+                                </tr>`;
+                        });
+
+                        html += `</tbody></table></div>`;
+                        modal.find('.modal-body').html(html);
+                    },
+                    error: function(xhr) {
+                        modal.find('.modal-body').html(
+                            '<div class="alert alert-danger">Error loading invoice items. Please try again.</div>'
+                        );
+                    }
+                });
+            });
+
+            // Handle Split Invoice Submit
+            $('#submitSelectedLoads').on('click', function() {
+                var selectedLoads = [];
+                $('.load-checkbox:checked').each(function() {
+                    selectedLoads.push({
+                        LoadID: $(this).data('load-id'),
+                        MaterialName: $(this).data('material'),
+                        Price: $(this).data('price')
+                    });
+                });
+
+                if (selectedLoads.length === 0) {
+                    alert('Please select at least one load to split.');
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('split.invoice') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        loads: selectedLoads
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Invoice split successfully!');
+                            location.reload();
+                        } else {
+                            alert('Error: ' + response.error);
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('Error splitting invoice. Please try again.');
+                    }
+                });
+            });
+
+            // Merge Booking Modal Handler
+            $('#mergeBookingModal').on('show.bs.modal', function (e) {
+                var button = $(e.relatedTarget);
+                var invoiceId = button.data('invoice-id');
+                var modal = $(this);
+
+                // Clear previous content and show loading
+                modal.find('.modal-body').html(`
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-primary">Loading bookings...</p>
+                    </div>
+                `);
+
+                // Fetch merge booking items
+                $.ajax({
+                    url: "{{ route('get.mergebookings.items') }}",
+                    type: "GET",
+                    data: { invoice_id: invoiceId },
+                    success: function(response) {
+                        if (!response.invoice_items || response.invoice_items.length === 0) {
+                            modal.find('.modal-body').html('<div class="alert alert-warning">No bookings found to merge.</div>');
+                            return;
+                        }
+
+                        let html = `
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Select</th>
+                                            <th>Booking ID</th>
+                                            <th>Company</th>
+                                            <th>Opportunity</th>
+                                            <th>Created Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+
+                        response.invoice_items.forEach(function(item) {
+                            html += `
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="booking-checkbox"
+                                               data-booking-id="${item.BookingRequestID}">
+                                    </td>
+                                    <td>${item.BookingRequestID}</td>
+                                    <td>${item.CompanyName}</td>
+                                    <td>${item.OpportunityName}</td>
+                                    <td>${new Date(item.CreateDateTime).toLocaleDateString()}</td>
+                                </tr>`;
+                        });
+
+                        html += `</tbody></table></div>`;
+                        modal.find('.modal-body').html(html);
+                    },
+                    error: function(xhr) {
+                        modal.find('.modal-body').html(
+                            '<div class="alert alert-danger">Error loading bookings. Please try again.</div>'
+                        );
+                    }
+                });
+            });
+
+            // Handle Merge Booking Submit
+            $('#submitSelectedbooking').on('click', function() {
+                var selectedBookings = [];
+                $('.booking-checkbox:checked').each(function() {
+                    selectedBookings.push({
+                        BookingID: $(this).data('booking-id')
+                    });
+                });
+
+                if (selectedBookings.length === 0) {
+                    alert('Please select at least one booking to merge.');
+                    return;
+                }
+
+                var bookingRequestId = $(this).data('booking-request-id');
+
+                $.ajax({
+                    url: "{{ route('merge.booking') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        booking_request_id: bookingRequestId,
+                        bookings: selectedBookings
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Bookings merged successfully!');
+                            location.reload();
+                        } else {
+                            alert('Error: ' + response.error);
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('Error merging bookings. Please try again.');
+                    }
+                });
+            });
         });
     </script>
 @endsection

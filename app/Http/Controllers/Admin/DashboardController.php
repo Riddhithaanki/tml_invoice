@@ -33,60 +33,58 @@ class DashboardController extends Controller
 
     public function getInvoiceData($id)
     {
-        $id = Crypt::decrypt($id);
+        try {
+            $id = Crypt::decrypt($id);
 
-        // Find the booking entry using BookingID with eager loaded loads count
-        $bookingData = Booking::with(['bookingRequest'])
-            ->withCount('loads')
-            ->where('BookingID', $id)
-            ->first();
+            // First try to find the booking
+            $booking = Booking::where('BookingRequestID', $id)
+                ->first();
 
-        if (!$bookingData) {
-            return abort(404, 'Booking not found');
-        }
+            if (!$booking) {
+                return abort(404, 'Booking not found');
+            }
 
-        // Fetch the BookingRequestID from the booking
-        $bookingRequestId = $bookingData->BookingRequestID;
+            $bookingRequestId = $booking->BookingRequestID;
 
-        // ✅ Check if this BookingRequestID exists in the ready_invoice table
-        $readyInvoice = ReadyInvoice::where('BookingRequestID', $bookingRequestId)->first();
-        if ($readyInvoice) {
-            $invoice = ReadyInvoice::with(['items', 'booking'])->where('BookingRequestID', '=', $bookingRequestId)->first();
+            // Check if this BookingRequestID exists in the ready_invoice table
+            $readyInvoice = ReadyInvoice::where('BookingRequestID', $bookingRequestId)->first();
+            if ($readyInvoice) {
+                $invoice = $readyInvoice->load(['items', 'booking']);
+                $user = User::where('userId', '=', $invoice->CreatedUserID)->first();
+                return view('admin.pages.invoice.viewinvoice', compact('invoice', 'user'));
+            }
+
+            // If not in ready_invoice, check BookingRequest
+            $invoice = BookingRequest::with(['booking', 'invoice_items', 'invoice'])
+                ->where('BookingRequestID', $bookingRequestId)
+                ->first();
+
             if (!$invoice) {
                 return abort(404, 'Invoice not found');
             }
-            $user = User::where('userId', '=', $invoice->CreatedUserID)->first();
-            $invoice = $readyInvoice;
-            return view('admin.pages.invoice.viewinvoice', compact('invoice', 'user'));
+
+            // Check if this is a split invoice
+            $isSplitInvoice = !is_null($invoice->parent_invoice_id);
+
+            // Get all related bookings
+            $bookings = Booking::withCount('loads')
+                ->where('BookingRequestID', $invoice->BookingRequestID)
+                ->when($isSplitInvoice, function ($query) use ($invoice) {
+                    return $query->where('parent_invoice_id', $invoice->InvoiceID);
+                })
+                ->when(!$isSplitInvoice, function ($query) {
+                    return $query->whereNull('parent_invoice_id');
+                })
+                ->get()
+                ->each(function ($booking) {
+                    $booking->Loads = $booking->loads_count;
+                });
+
+            return view('admin.pages.invoice.invoice_details', compact('invoice', 'bookings', 'booking', 'isSplitInvoice'));
+
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            return abort(404, 'Invalid ID');
         }
-
-        // Fetch Invoice (Original or Split)
-        $invoice = BookingRequest::with(['booking', 'invoice_items', 'invoice'])
-            ->where('BookingRequestID', $bookingRequestId)
-            ->first();
-
-        if (!$invoice) {
-            return abort(404, 'Invoice not found');
-        }
-
-        // Check if this is a split invoice or an original invoice
-        $isSplitInvoice = !is_null($invoice->parent_invoice_id);
-
-        // Fetch bookings related to this invoice with loads count
-        $bookings = Booking::withCount('loads')
-            ->where('BookingRequestID', $invoice->BookingRequestID)
-            ->when($isSplitInvoice, function ($query) use ($invoice) {
-                return $query->where('parent_invoice_id', $invoice->InvoiceID);
-            })
-            ->when(!$isSplitInvoice, function ($query) {
-                return $query->whereNull('parent_invoice_id');
-            })
-            ->get()
-            ->each(function ($booking) {
-                $booking->Loads = $booking->loads_count;
-            });
-
-        return view('admin.pages.invoice.invoice_details', compact('invoice', 'bookings', 'bookingData', 'isSplitInvoice'));
     }
 
     public function getInvoiceItems(Request $request)

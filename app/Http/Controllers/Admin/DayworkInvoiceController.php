@@ -44,7 +44,7 @@ class DayworkInvoiceController extends Controller
         if (!empty($endDate)) {
             $query->whereDate('tbl_booking_request.CreateDateTime', '<=', $endDate);
         }
-        
+
         // Filter by invoice type if specified
         if ($invoiceType === 'readyinvoice') {
             $query->whereExists(function ($q) {
@@ -59,7 +59,7 @@ class DayworkInvoiceController extends Controller
                   ->whereRaw('ready_invoices.BookingRequestID = tbl_booking1.BookingRequestID');
             });
         }
-        
+
         return DataTables::of($query)
             ->addIndexColumn() // Adds SR. No column
             ->addColumn('CompanyName', function ($booking) {
@@ -72,8 +72,8 @@ class DayworkInvoiceController extends Controller
                 return $booking->CreateDateTime ?? 'N/A';
             })
             ->addColumn('action', function ($booking) {
-                if ($booking->BookingID) {
-                    return '<a href="' . route('invoice.show', Crypt::encrypt($booking->BookingID)) . '"
+                if ($booking->BookingRequestID) {
+                    return '<a href="' . route('invoice.show', Crypt::encrypt($booking->BookingRequestID)) . '"
             class="btn btn-sm btn-primary">View</a>';
                 }
                 return 'No Booking Found';

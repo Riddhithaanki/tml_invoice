@@ -22,7 +22,7 @@ class HaulageInvoiceController extends Controller
         $invoiceType = $request->input('invoice_type', 'preinvoice');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
-        
+
         // Fetch bookings first, as we need BookingID as the main identifier
         $query = Booking::select([
             'tbl_booking1.BookingID',
@@ -35,7 +35,7 @@ class HaulageInvoiceController extends Controller
             ->join('tbl_booking_request', 'tbl_booking1.BookingRequestID', '=', 'tbl_booking_request.BookingRequestID')
             ->where('tbl_booking1.BookingType', 4)
             ->orderBy('tbl_booking_request.CreateDateTime', 'desc');
-        
+
         // Apply date filters
         if (!empty($startDate)) {
             $query->whereDate('tbl_booking_request.CreateDateTime', '>=', $startDate);
@@ -58,7 +58,7 @@ class HaulageInvoiceController extends Controller
                   ->whereRaw('ready_invoices.BookingRequestID = tbl_booking1.BookingRequestID');
             });
         }
-        
+
         return DataTables::of($query)
             ->addIndexColumn() // Adds SR. No column
             ->addColumn('CompanyName', function ($booking) {
@@ -71,8 +71,8 @@ class HaulageInvoiceController extends Controller
                 return $booking->CreateDateTime ?? 'N/A';
             })
             ->addColumn('action', function ($booking) {
-                if ($booking->BookingID) {
-                    return '<a href="' . route('invoice.show', Crypt::encrypt($booking->BookingID)) . '"
+                if ($booking->BookingRequestID) {
+                    return '<a href="' . route('invoice.show', Crypt::encrypt($booking->BookingRequestID)) . '"
             class="btn btn-sm btn-primary">View</a>';
                 }
                 return 'No Booking Found';

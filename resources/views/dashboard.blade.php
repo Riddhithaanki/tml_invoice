@@ -186,7 +186,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Booking ID</th>
+                                <th>Booking Request ID</th>
                                 <th>Date</th>
                                 <th>Company</th>
                                 <th>Site</th>

@@ -93,8 +93,8 @@ class DeliveryController extends Controller
                 return '<span class="badge ' . $badgeClass . '">' . $statusText . '</span>';
             })
             ->addColumn('action', function ($booking) {
-                if ($booking->BookingID) {
-                    return '<a href="' . route('invoice.show', Crypt::encrypt($booking->BookingID)) . '"
+                if ($booking->BookingRequestID) {
+                    return '<a href="' . route('invoice.show', Crypt::encrypt($booking->BookingRequestID)) . '"
                     class="btn btn-sm btn-primary">View</a>';
                 }
                 return 'No Booking Found';
