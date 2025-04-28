@@ -133,13 +133,10 @@
                 }
             });
 
-            // Apply search to each column
-            $('.column-search').on('keyup change', function () {
-                var colIndex = $(this).closest('th').index();
-                table
-                    .column(colIndex)
-                    .search(this.value)
-                    .draw();
+            // 🔹 Enable column search
+            $('#invoiceTable thead .column-search').on('keyup change', function() {
+                let colIndex = $(this).parent().index();  // Get column index
+                table.column(colIndex).search(this.value).draw();
             });
 
 
