@@ -256,6 +256,17 @@
             <h5 class="mb-0"><i class="fas fa-truck me-2"></i>Invoice Items</h5>
         </div>
         <div class="table-responsive">
+            @php
+                $calculatedSubtotal = $invoice->items->sum(function($item) {
+                    return $item->UnitPrice * $item->Qty;
+                });
+            @endphp
+
+            @if (round($calculatedSubtotal, 2) != round($invoice->SubTotalAmount, 2))
+                <div class="alert alert-warning">
+                    Warning: The sum of invoice items ({{ number_format($calculatedSubtotal, 2) }}) does not match the invoice subtotal ({{ number_format($invoice->SubTotalAmount, 2) }}).
+                </div>
+            @endif
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -306,15 +317,15 @@
                 <tfoot>
                     <tr>
                         <td colspan="6" class="text-end">Subtotal</td>
-                        <td class="text-end numeric-cell fw-bold">£{{ number_format($subtotal, 2) }}</td>
+                        <td class="text-end numeric-cell fw-bold">£{{ number_format($invoice->SubTotalAmount, 2) }}</td>
                     </tr>
                     <tr>
                         <td colspan="6" class="text-end">VAT 20%</td>
-                        <td class="text-end numeric-cell fw-bold">£{{ number_format($subtotal * 0.20, 2) }}</td>
+                        <td class="text-end numeric-cell fw-bold">£{{ number_format($invoice->VatAmount, 2) }}</td>
                     </tr>
                     <tr class="border-top">
                         <td colspan="6" class="text-end fw-bold">Total Amount</td>
-                        <td class="text-end numeric-cell fw-bold fs-5 text-primary">£{{ number_format($subtotal * 1.20, 2) }}</td>
+                        <td class="text-end numeric-cell fw-bold fs-5 text-primary">£{{ number_format($invoice->FinalAmount, 2) }}</td>
                     </tr>
                 </tfoot>
                 @endif

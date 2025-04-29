@@ -279,7 +279,8 @@ class DashboardController extends Controller
             $bookingLoads = json_decode($request->booking_loads, true);
             $invoiceItems = json_decode($request->invoice_items, true);
 
-            // Create a new invoice record
+
+            // Create a new in  voice record
             $invoice = new ReadyInvoice();
 
             // Get the last invoice number and increment it
@@ -288,6 +289,12 @@ class DashboardController extends Controller
 
             // Format invoice number with leading zeros (6 digits)
             $formattedInvoiceNumber = str_pad($nextInvoiceNumber, 6, '0', STR_PAD_LEFT);
+
+            // Calculate totals from bookingLoads
+            $subTotal = collect($bookingLoads)->sum('TotalAmount');
+            $taxRate = isset($validated['TaxRate']) ? floatval($validated['TaxRate']) : 20;
+            $vatAmount = $subTotal * $taxRate / 100;
+            $finalAmount = $subTotal + $vatAmount;
 
             $invoice->fill([
                 'BookingRequestID' => $validated['BookingRequestID'],
@@ -299,10 +306,10 @@ class DashboardController extends Controller
                 'ContactID' => $validated['ContactID'],
                 'ContactName' => $validated['ContactName'],
                 'ContactMobile' => $validated['ContactMobile'],
-                'SubTotalAmount' => $validated['SubTotalAmount'],
-                'VatAmount' => $validated['VatAmount'],
-                'FinalAmount' => $validated['FinalAmount'],
-                'TaxRate' => $validated['TaxRate'] ?? "0",
+                'SubTotalAmount' => $subTotal,
+                'VatAmount' => $vatAmount,
+                'FinalAmount' => $finalAmount,
+                'TaxRate' => $taxRate,
                 'CreatedUserID' => Auth::user()->userId,
                 'Status' => $validated['hold_invoice'] ? 0 : 1, // 0 for hold, 1 for ready
                 'Comment' => $validated['comment'],
