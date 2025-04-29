@@ -67,6 +67,11 @@ class InvoiceController extends Controller
             ->make(true);
     }
 
+    public function indexArchive($type = null)
+    {
+        $type = $type ?? 1;
+        return view('customer.pages.invoice.index', compact('type'));
+    }
 
 
 

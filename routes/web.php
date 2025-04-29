@@ -109,6 +109,7 @@ Route::group(['middleware' => ['web', 'auth', 'customer', 'log_activity', 'netwo
     Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
 
     Route::get('invoice-list/{type?}', [InvoiceController::class, 'index'])->name('invoice.index');
+    Route::get('invoice-list-archive/{type?}', [InvoiceController::class, 'indexArchive'])->name('invoice.indexArchive');
     Route::get('invoice-data', [InvoiceController::class, 'getInvoiceData'])->name('invoice.data');
     Route::get('pdf-list', [InvoiceController::class, 'pdflist'])->name('pdflist.index');
 

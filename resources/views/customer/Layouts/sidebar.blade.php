@@ -26,7 +26,7 @@
         </li>
 
         <!-- Invoice -->
-        <li class="menu-item {{ Request::routeIs('customer.invoice.*') ? 'active' : '' }}">
+        <li class="menu-item {{ Request::routeIs('customer.invoice.index') ? 'active' : '' }}">
             <a href="{{ route('customer.invoice.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons mdi mdi-file-document-outline"></i>
                 <div>Invoice</div>
@@ -34,8 +34,8 @@
         </li>
 
         <!-- Collection Invoice -->
-        <li class="menu-item {{ Request::routeIs('collection.*') ? 'active' : '' }}">
-            <a href="{{ route('customer.invoice.index') }}" class="menu-link">
+        <li class="menu-item {{ Request::routeIs('customer.invoice.indexArchive') ? 'active' : '' }}">
+            <a href="{{ route('customer.invoice.indexArchive') }}" class="menu-link">
                 <i class="menu-icon tf-icons mdi mdi-file-document-outline"></i>
                 <div>Archieve</div>
             </a>
