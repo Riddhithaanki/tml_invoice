@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('content')
     <div class="table-container mt-4">
-    <div class="tab-container mb-3">
+        <div class="tab-container mb-3">
             <ul class="nav nav-tabs d-flex justify-content-between" id="invoiceTabs"
                 style="
             overflow-y: unset;
@@ -10,10 +10,14 @@
                 <div class="d-flex">
                     <!-- Left side tabs -->
                     <li class="nav-item">
-                        <a class="nav-link {{ $type === 'loads' ? 'active' : '' }}" id="loads" data-toggle="tab" href="{{ route('collection.index', ['type' => 'loads']) }}" role="tab">Loads</a>
+                        <a class="nav-link {{ $type === 'loads' ? 'active' : '' }}" id="loads"
+                            data-invoice-type="preinvoice" data-toggle="tab"
+                            href="{{ route('collection.index', ['type' => 'loads']) }}" role="tab">Loads</a>
                     </li>
                     <li class="nav-item">
-                    <a class="nav-link {{ $type === 'tonnage' ? 'active' : '' }}" id="tonnage" data-toggle="tab" href="{{ route('collection.index', ['type' => 'tonnage']) }}" role="tab">Tonnage</a>
+                        <a class="nav-link {{ $type === 'tonnage' ? 'active' : '' }}" id="tonnage"
+                            data-invoice-type="readyinvoice" data-toggle="tab"
+                            href="{{ route('collection.index', ['type' => 'tonnage']) }}" role="tab">Tonnage</a>
                     </li>
                 </div>
 
@@ -37,15 +41,15 @@
         </div>
 
         <!-- <div class="tab-container mb-3">
-            <ul class="nav nav-tabs" id="invoiceTabs">
-                <li class="nav-item">
-                    <a class="nav-link {{ $type === 'loads' ? 'active' : '' }}" id="loads" data-toggle="tab" href="{{ route('collection.index', ['type' => 'loads']) }}" role="tab">Loads</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ $type === 'tonnage' ? 'active' : '' }}" id="tonnage" data-toggle="tab" href="{{ route('collection.index', ['type' => 'tonnage']) }}" role="tab">Tonnage</a>
-                </li>
-            </ul>
-        </div> -->
+                    <ul class="nav nav-tabs" id="invoiceTabs">
+                        <li class="nav-item">
+                            <a class="nav-link {{ $type === 'loads' ? 'active' : '' }}" id="loads" data-toggle="tab" href="{{ route('collection.index', ['type' => 'loads']) }}" role="tab">Loads</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ $type === 'tonnage' ? 'active' : '' }}" id="tonnage" data-toggle="tab" href="{{ route('collection.index', ['type' => 'tonnage']) }}" role="tab">Tonnage</a>
+                        </li>
+                    </ul>
+                </div> -->
         <div class="table-header">
             <h3 class="table-title text-center text-white">Collection Invoices</h3>
         </div>
@@ -63,7 +67,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="table-responsive">
             <table id="invoiceTable" class="table table-hover">
                 <thead>
@@ -79,11 +83,13 @@
                         <th></th>
                         <th><input type="text" class="form-control form-control-sm column-search"
                                 placeholder="Search Booking ID"></th>
-                        <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Date">
+                        <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Search Date">
                         </th>
                         <th><input type="text" class="form-control form-control-sm column-search"
                                 placeholder="Search Company"></th>
-                        <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Site">
+                        <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Search Site">
                         </th>
                         <th></th>
                     </tr>
@@ -91,54 +97,87 @@
             </table>
         </div>
     </div>
-
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
+            var table;
+
+            // Initialize DataTable
+            function initializeDataTable(type, invoiceType) {
+                table = $('#invoiceTable').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    destroy: true, // Destroy the previous instance before reinitializing
+                    ajax: {
+                        url: "{{ route('collection.data') }}",
+                        data: function(d) {
+                            d.type = type; // Pass the updated type parameter
+                            d.invoice_type = invoiceType; // Pass the invoice_type parameter
+                            d.start_date = $('#startDate').val(); // Get start date
+                            d.end_date = $('#endDate').val(); // Get end date
+                        }
+                    },
+                    columns: [{
+                            data: 'DT_RowIndex',
+                            name: 'DT_RowIndex',
+                            orderable: false,
+                            searchable: false
+                        }, // SR. No
+                        {
+                            data: 'BookingRequestID',
+                            name: 'BookingRequestID'
+                        },
+                        {
+                            data: 'CreateDateTime',
+                            name: 'CreateDateTime'
+                        },
+                        {
+                            data: 'CompanyName',
+                            name: 'CompanyName'
+                        },
+                        {
+                            data: 'OpportunityName',
+                            name: 'OpportunityName'
+                        },
+                        {
+                            data: 'action',
+                            name: 'action',
+                            orderable: false,
+                            searchable: false
+                        } // Action buttons
+                    ],
+                    order: [
+                        [2, 'desc']
+                    ], // Sort by Booking Date by default
+                    pageLength: 10,
+                    lengthMenu: [10, 25, 50, 100],
+                    responsive: true,
+                    orderCellsTop: true,
+                    searching: true, // Hide the search box
+                    lengthChange: false, // Hide the "Show entries" dropdown
+                    language: {
+                        search: "_INPUT_",
+                        searchPlaceholder: "Search invoices...",
+                        paginate: {
+                            previous: "<i class='fas fa-chevron-left'></i>",
+                            next: "<i class='fas fa-chevron-right'></i>"
+                        }
+                    }
+                });
+            }
+
+            // Initialize DataTable with default type and invoice_type
             var type = "{{ $type }}";
-            // Initialize DataTable with individual column searching
-            var table = $('#invoiceTable').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: "{{ route('collection.data') }}",
-                    data: function (d) {
-                        d.type = type; // Pass the type parameter to the server
-                        d.invoice_type = '{{ request('invoice_type', 'preinvoice') }}';
-                        d.start_date = $('#startDate').val(); // Get start date
-                        d.end_date = $('#endDate').val(); // Get end date
-                    }
-                },
-                columns: [
-                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false }, // SR. No
-                    { data: 'BookingRequestID', name: 'BookingRequestID' },
-                    { data: 'CreateDateTime', name: 'CreateDateTime' },
-                    { data: 'CompanyName', name: 'CompanyName' },
-                    { data: 'OpportunityName', name: 'OpportunityName' },
-                    { data: 'action', name: 'action', orderable: false, searchable: false } // Action buttons
-                ],
-                order: [[2, 'desc']], // Sort by Booking Date by default
-                pageLength: 10,
-                lengthMenu: [10, 25, 50, 100],
-                responsive: true,
-                orderCellsTop: true,
-                searching: true,    // Hide the search box
-                lengthChange: false, // Hide the "Show entries" dropdown
-                language: {
-                    search: "_INPUT_",
-                    searchPlaceholder: "Search invoices...",
-                    paginate: {
-                        previous: "<i class='fas fa-chevron-left'></i>",
-                        next: "<i class='fas fa-chevron-right'></i>"
-                    }
-                }
-            });
+            var invoiceType = "{{ $invoice_type }}";
+            initializeDataTable(type, invoiceType);
 
-            // 🔹 Enable column search
-            $('#invoiceTable thead .column-search').on('keyup change', function() {
-                let colIndex = $(this).parent().index();  // Get column index
-                table.column(colIndex).search(this.value).draw();
+            // Handle tab click to update type
+            $('.nav-link').on('click', function(e) {
+                e.preventDefault();
+                type = $(this).attr('id'); // Get the ID of the clicked tab (e.g., 'loads', 'tonnage')
+                invoiceType = $(this).data('invoice-type') || invoiceType; // Update invoice_type if needed
+                table.destroy(); // Destroy the existing DataTable instance
+                initializeDataTable(type, invoiceType); // Reinitialize DataTable with the new type
             });
-
 
             // Filter button click event
             $('#filterBtn').click(function() {
@@ -151,7 +190,6 @@
                 $('#endDate').val('');
                 table.ajax.reload();
             });
-
         });
     </script>
 

@@ -19,9 +19,10 @@ class CollectionController extends Controller
         return view('admin.pages.collection.index', compact('type', 'invoice_type'));
     }
 
-    public function getCollectionInvoiceData(Request $request)
+    public function getCollectionInvoiceData(Request $request, $type = 'loads')
     {
-        $type = $request->input('type', 'withtipticket');
+
+        $type = $request->input('type', 'loads');
         $invoiceType = $request->input('invoice_type', 'preinvoice');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
@@ -54,14 +55,22 @@ class CollectionController extends Controller
         if ($invoiceType === 'readyinvoice') {
             $query->whereExists(function ($q) {
                 $q->select(\DB::raw(1))
-                  ->from('ready_invoices')
-                  ->whereRaw('ready_invoices.BookingRequestID = tbl_booking1.BookingRequestID');
+                    ->from('ready_invoices')
+                    ->whereRaw('ready_invoices.BookingRequestID = tbl_booking1.BookingRequestID');
             });
         } elseif ($invoiceType === 'preinvoice') {
             $query->whereNotExists(function ($q) {
                 $q->select(\DB::raw(1))
-                  ->from('ready_invoices')
-                  ->whereRaw('ready_invoices.BookingRequestID = tbl_booking1.BookingRequestID');
+                    ->from('ready_invoices')
+                    ->whereRaw('ready_invoices.BookingRequestID = tbl_booking1.BookingRequestID');
+            });
+        }
+        if ($type === 'tonnage') {
+            $query->where('tbl_booking1.TonBook', 1);
+        } elseif ($type === 'load') {
+            $query->where(function ($q) {
+                $q->whereNull('tbl_booking1.TonBook')
+                    ->orWhere('tbl_booking1.TonBook', '!=', 1);
             });
         }
 
