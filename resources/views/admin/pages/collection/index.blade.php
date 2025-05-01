@@ -190,6 +190,12 @@
                 $('#endDate').val('');
                 table.ajax.reload();
             });
+
+             // 🔹 Enable column search
+             $('#invoiceTable thead .column-search').on('keyup change', function() {
+                let colIndex = $(this).parent().index();  // Get column index
+                table.column(colIndex).search(this.value).draw();
+            });
         });
     </script>
 
