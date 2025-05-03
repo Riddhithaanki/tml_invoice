@@ -32,6 +32,22 @@ class InvoiceController extends Controller
 
         return DataTables::of($query)
             ->addIndexColumn()
+            // Searchable columns
+            ->filterColumn('id', function ($q, $keyword) {
+                $q->where('invoices.id', 'like', "%{$keyword}%");
+            })
+            ->filterColumn('reference', function ($q, $keyword) {
+                $q->where('invoices.reference', 'like', "%{$keyword}%");
+            })
+            ->filterColumn('created_at', function ($q, $keyword) {
+                $q->where('invoices.created_at', 'like', "%{$keyword}%");
+            })
+            ->filterColumn('CompanyName', function ($q, $keyword) {
+                $q->where('invoices.CompanyName', 'like', "%{$keyword}%");
+            })
+            ->filterColumn('billing_address', function ($q, $keyword) {
+                $q->where('invoices.billing_address', 'like', "%{$keyword}%");
+            })
             ->addColumn('select_all', function ($row) {
                 return '<input type="checkbox" class="row-select" value="' . $row->id . '">';
             })

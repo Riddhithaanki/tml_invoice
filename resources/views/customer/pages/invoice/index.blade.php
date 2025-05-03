@@ -37,6 +37,25 @@
                         <th>Tickets</th>
                         <th>Select All</th>
                     </tr>
+                    <tr class="search-row">
+                        <th></th>
+                        <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Search Invoice No."></th>
+                        <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Search Ref No">
+                        </th>
+                        <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Search Invoice Date"></th>
+                        <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Search Company Name">
+                        </th>
+                        <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Search Site Name">
+                        </th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
                 </thead>
             </table>
         </div>
@@ -45,7 +64,7 @@
     <script>
         $(document).ready(function () {
             function loadTable(start_date = '', end_date = '') {
-                $('#invoiceTable').DataTable({
+                table = $('#invoiceTable').DataTable({
                     processing: true,
                     serverSide: true,
                     destroy: true,
@@ -83,6 +102,12 @@
                 $('#start_date').val('');
                 $('#end_date').val('');
                 loadTable();
+            });
+
+             // 🔹 Enable column search
+             $('#invoiceTable thead .column-search').on('keyup change', function() {
+                let colIndex = $(this).parent().index();  // Get column index
+                table.column(colIndex).search(this.value).draw();
             });
         });
     </script>
