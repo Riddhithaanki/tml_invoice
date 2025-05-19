@@ -69,22 +69,24 @@ class DeliveryController extends Controller
             });
         }
 
-        // ✅ Tip ticket filtering logic
         if ($type === 'withtipticket') {
             $query->whereExists(function ($q) {
                 $q->select(\DB::raw(1))
                     ->from('tbl_booking_loads1')
-                    ->join('tbl_tipticket', 'tbl_tipticket.LoadID', '=', 'tbl_booking_loads1.LoadID')
+                    ->join('tbl_materials', 'tbl_materials.MaterialID', '=', 'tbl_booking_loads1.MaterialID')
+                    ->where('tbl_materials.Type', '=', 1)
                     ->whereRaw('tbl_booking_loads1.BookingRequestID = tbl_booking1.BookingRequestID');
             });
         } elseif ($type === 'withouttipticket') {
             $query->whereNotExists(function ($q) {
                 $q->select(\DB::raw(1))
                     ->from('tbl_booking_loads1')
-                    ->join('tbl_tipticket', 'tbl_tipticket.LoadID', '=', 'tbl_booking_loads1.LoadID')
+                    ->join('tbl_materials', 'tbl_materials.MaterialID', '=', 'tbl_booking_loads1.MaterialID')
+                    ->where('tbl_materials.Type', '=', 1)
                     ->whereRaw('tbl_booking_loads1.BookingRequestID = tbl_booking1.BookingRequestID');
             });
         }
+
 
         return DataTables::of($query)
             ->addIndexColumn()
