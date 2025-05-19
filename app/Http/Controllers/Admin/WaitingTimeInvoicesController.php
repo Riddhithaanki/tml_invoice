@@ -8,6 +8,7 @@ use App\Models\BookingRequest;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\Booking;
+use Carbon\Carbon;
 
 class WaitingTimeInvoicesController extends Controller
 {
@@ -105,6 +106,9 @@ class WaitingTimeInvoicesController extends Controller
             })
             ->filterColumn('OpportunityName', function ($query, $keyword) {
                 $query->where('tbl_booking_request.OpportunityName', 'like', "%$keyword%");
+            })
+             ->editColumn('CreateDateTime', function ($row) {
+                return Carbon::parse($row->CreateDateTime)->format('d/m/Y H:i');
             })
             ->addColumn('CompanyName', function ($booking) {
                 return $booking->CompanyName ?? 'N/A';

@@ -215,7 +215,7 @@
                                             <i class="fas fa-chevron-down"></i>
                                         </button>
                                     </td>
-                                    <td>{{ $invoice->CreateDateTime }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($invoice->CreateDateTime)->format('d/m/Y H:i') }}</td>
                                     <td><span class="badge bg-primary">{{ $booking->BookingType }}</span></td>
                                     <td>{{ $booking->MaterialName }}</td>
                                     <td>

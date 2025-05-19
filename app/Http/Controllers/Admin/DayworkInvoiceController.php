@@ -8,7 +8,7 @@ use App\Models\BookingRequest;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\Booking;
-
+use Carbon\Carbon;
 class DayworkInvoiceController extends Controller
 {
 
@@ -62,6 +62,9 @@ class DayworkInvoiceController extends Controller
 
         return DataTables::of($query)
             ->addIndexColumn() // Adds SR. No column
+            ->editColumn('CreateDateTime', function ($row) {
+                return Carbon::parse($row->CreateDateTime)->format('d/m/Y H:i');
+            })
             ->filterColumn('CreateDateTime', function ($query, $keyword) {
                 $query->where('tbl_booking_request.CreateDateTime', 'like', "%$keyword%");
             })

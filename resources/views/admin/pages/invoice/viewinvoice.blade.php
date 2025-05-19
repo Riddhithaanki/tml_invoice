@@ -120,7 +120,7 @@
             <div>
                 <h3 class="m-0 fw-bold">Invoice #{{ $invoice->InvoiceNumber }}</h3>
                 <p class="text-white-50 mb-0 mt-2"></p>
-                    <i class="far fa-calendar-alt me-2"></i>{{ date('F d, Y', strtotime($invoice->InvoiceDate)) }}
+                    <i class="far fa-calendar-alt me-2"></i>{{ \Carbon\Carbon::parse($invoice->InvoiceDate)->format('d/m/Y H:i') }}
                 </p>
             </div>
             <div class="text-end">
@@ -144,7 +144,8 @@
                     </div>
                     <div class="mb-4">
                         <div class="info-label">Invoice Date</div>
-                        <div class="info-value">{{ date('F d, Y', strtotime($invoice->InvoiceDate)) }}</div>
+                        
+                        <div class="info-value">{{ \Carbon\Carbon::parse($invoice->InvoiceDate)->format('d/m/Y H:i') }}</div>
                     </div>
                     <div class="mb-4">
                         <div class="info-label">Status</div>
@@ -355,15 +356,15 @@
                     </div>
                     <div class="mb-4">
                         <div class="info-label">Created At</div>
-                        <div class="info-value">{{ date('M d, Y H:i', strtotime($invoice->CreateDateTime)) }}</div>
+                        <div class="info-value">{{ \Carbon\Carbon::parse($invoice->CreateDateTime)->format('d/m/Y H:i') }}</div>
                     </div>
                     <div class="mb-4">
                         <div class="info-label">Last Updated</div>
                         <div class="info-value">
                             @if($invoice->UpdateDateTime && $invoice->UpdateDateTime != '0000-00-00 00:00:00')
-                                {{ date('M d, Y H:i', strtotime($invoice->UpdateDateTime)) }}
+                                {{ \Carbon\Carbon::parse($invoice->UpdateDateTime)->format('d/m/Y H:i') }}
                             @else
-                                {{ date('M d, Y H:i', strtotime($invoice->CreateDateTime)) }}
+                                {{ \Carbon\Carbon::parse($invoice->UpdateDateTime)->format('d/m/Y H:i') }}
                             @endif
                         </div>
                     </div>

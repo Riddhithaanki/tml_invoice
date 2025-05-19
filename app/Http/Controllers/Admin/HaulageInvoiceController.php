@@ -8,6 +8,7 @@ use App\Models\BookingRequest;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\Booking;
+use Carbon\Carbon;
 
 class HaulageInvoiceController extends Controller
 {
@@ -63,6 +64,9 @@ class HaulageInvoiceController extends Controller
             ->addIndexColumn() // Adds SR. No column
             ->filterColumn('CreateDateTime', function ($query, $keyword) {
                 $query->where('tbl_booking_request.CreateDateTime', 'like', "%$keyword%");
+            })
+             ->editColumn('CreateDateTime', function ($row) {
+                return Carbon::parse($row->CreateDateTime)->format('d/m/Y H:i');
             })
             ->filterColumn('CompanyName', function ($query, $keyword) {
                 $query->where('tbl_booking_request.CompanyName', 'like', "%$keyword%");
