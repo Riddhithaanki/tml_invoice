@@ -42,6 +42,9 @@ class InvoiceController extends Controller
             ->filterColumn('created_at', function ($q, $keyword) {
                 $q->where('invoices.created_at', 'like', "%{$keyword}%");
             })
+            ->editColumn('created_at', function ($row) {
+                return Carbon::parse($row->created_at)->format('d/m/Y H:i');
+            })
             ->filterColumn('CompanyName', function ($q, $keyword) {
                 $q->where('invoices.CompanyName', 'like', "%{$keyword}%");
             })
