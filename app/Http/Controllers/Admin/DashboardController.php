@@ -24,11 +24,12 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $recentInvoice = ReadyInvoice::with('booking')->orderBy('CreateDateTime', "DESC")->limit(10)->get();
+        $recentInvoice = ReadyInvoice::with('booking')->orderBy('CreateDateTime', "DESC")->limit(value: 10)->get();
 
-        $readyHoldInvoiceCount = BookingInvoice::where('Status', '0')->count();
-        $completedInvoice = BookingInvoice::where('Status', '1')->count();
-        return view('dashboard', compact('recentInvoice', 'readyHoldInvoiceCount', 'completedInvoice'));
+        $readyHoldInvoiceCount = InvoiceDifference::where('status', '0')->count();
+        $readyInvoiceCount = ReadyInvoice::count();
+        $completedInvoice = InvoiceDifference::where('status', '1')->count();
+        return view('dashboard', compact('recentInvoice', 'readyHoldInvoiceCount', 'completedInvoice','readyInvoiceCount'));
     }
 
     public function getInvoiceData($id)

@@ -129,8 +129,8 @@
                 <div class="col-md-4 col-sm-6">
                     <div class="stat-card d-flex align-items-center justify-content-between border p-3 rounded">
                         <div class="card-body">
-                            <div class="card-title">New Added Invoice</div>
-                            <div class="card-value">{{ $readyHoldInvoiceCount }}</div>
+                            <div class="card-title">Completed Invoice</div>
+                            <div class="card-value">{{ $completedInvoice }}</div>
                         </div>
                         <div class="icon-box border rounded-circle p-2">
                             <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
@@ -145,7 +145,7 @@
                     <div class="stat-card d-flex align-items-center justify-content-between border p-3 rounded">
                         <div class="card-body">
                             <div class="card-title">Invoices on Hold</div>
-                            <div class="card-value">{{ $completedInvoice }}</div>
+                            <div class="card-value">{{ $readyHoldInvoiceCount }}</div>
                         </div>
                         <div class="icon-box border rounded-circle p-2">
                             <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
@@ -162,7 +162,7 @@
                     <div class="stat-card d-flex align-items-center justify-content-between border p-3 rounded">
                         <div class="card-body">
                             <div class="card-title">Ready Invoice</div>
-                            <div class="card-value">{{ $readyHoldInvoiceCount }}</div>
+                            <div class="card-value">{{ $readyInvoiceCount }}</div>
                         </div>
                         <div class="icon-box border rounded-circle p-2">
                             <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
