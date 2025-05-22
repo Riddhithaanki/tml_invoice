@@ -63,8 +63,13 @@ class HaulageInvoiceController extends Controller
         return DataTables::of($query)
             ->addIndexColumn() // Adds SR. No column
             ->filterColumn('CreateDateTime', function ($query, $keyword) {
-                $query->where('tbl_booking_request.CreateDateTime', 'like', "%$keyword%");
+                $query->where(function ($q) use ($keyword) {
+                    $q->whereRaw("DATE_FORMAT(tbl_booking_request.CreateDateTime, '%d/%m/%Y %H:%i') like ?", ["%{$keyword}%"])
+                    ->orWhereRaw("DATE_FORMAT(tbl_booking_request.CreateDateTime, '%d/%m/%Y') like ?", ["%{$keyword}%"])
+                    ->orWhereRaw("DATE_FORMAT(tbl_booking_request.CreateDateTime, '%H:%i') like ?", ["%{$keyword}%"]);
+                });
             })
+
              ->editColumn('CreateDateTime', function ($row) {
                 return Carbon::parse($row->CreateDateTime)->format('d/m/Y H:i');
             })

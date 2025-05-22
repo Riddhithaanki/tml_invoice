@@ -120,7 +120,7 @@
             <div>
                 <h3 class="m-0 fw-bold">Invoice #{{ $invoice->InvoiceNumber }}</h3>
                 <p class="text-white-50 mb-0 mt-2"></p>
-                    <i class="far fa-calendar-alt me-2"></i>{{ \Carbon\Carbon::parse($invoice->InvoiceDate)->format('d/m/Y H:i') }}
+                    <i class="far fa-calendar-alt me-2"></i>{{ \Carbon\Carbon::parse($invoice->InvoiceDate)->format('d/m/Y') }}
                 </p>
             </div>
             <div class="text-end">
@@ -145,7 +145,7 @@
                     <div class="mb-4">
                         <div class="info-label">Invoice Date</div>
                         
-                        <div class="info-value">{{ \Carbon\Carbon::parse($invoice->InvoiceDate)->format('d/m/Y H:i') }}</div>
+                        <div class="info-value">{{ \Carbon\Carbon::parse($invoice->InvoiceDate)->format('d/m/Y') }}</div>
                     </div>
                     <div class="mb-4">
                         <div class="info-label">Status</div>
@@ -257,17 +257,6 @@
             <h5 class="mb-0"><i class="fas fa-truck me-2"></i>Invoice Items</h5>
         </div>
         <div class="table-responsive">
-            @php
-                $calculatedSubtotal = $invoice->items->sum(function($item) {
-                    return $item->UnitPrice * $item->Qty;
-                });
-            @endphp
-
-            @if (round($calculatedSubtotal, 2) != round($invoice->SubTotalAmount, 2))
-                <div class="alert alert-warning">
-                    Warning: The sum of invoice items ({{ number_format($calculatedSubtotal, 2) }}) does not match the invoice subtotal ({{ number_format($invoice->SubTotalAmount, 2) }}).
-                </div>
-            @endif
             <table class="table table-hover">
                 <thead>
                     <tr>

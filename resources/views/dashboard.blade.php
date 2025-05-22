@@ -133,8 +133,10 @@
                             <div class="card-value">{{ $completedInvoice }}</div>
                         </div>
                         <div class="icon-box border rounded-circle p-2">
-                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M8 2H16L20 6V21C20 21.55 19.55 22 19 22H5C4.45 22 4 21.55 4 21V3C4 2.45 4.45 2 5 2H8ZM14 3H10V7H14V3ZM6 20H18V8H6V20ZM12 12H7V14H12V12ZM17 16H7V18H17V16Z" />
+                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black"
+                                stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M8 2H16L20 6V21C20 21.55 19.55 22 19 22H5C4.45 22 4 21.55 4 21V3C4 2.45 4.45 2 5 2H8ZM14 3H10V7H14V3ZM6 20H18V8H6V20ZM12 12H7V14H12V12ZM17 16H7V18H17V16Z" />
                             </svg>
                         </div>
                     </div>
@@ -148,10 +150,12 @@
                             <div class="card-value">{{ $readyHoldInvoiceCount }}</div>
                         </div>
                         <div class="icon-box border rounded-circle p-2">
-                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="12" cy="12" r="10" stroke="black" stroke-width="2" fill="none"/>
-                                <rect x="8" y="7" width="3" height="10" fill="black"/>
-                                <rect x="13" y="7" width="3" height="10" fill="black"/>
+                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black"
+                                stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10" stroke="black" stroke-width="2"
+                                    fill="none" />
+                                <rect x="8" y="7" width="3" height="10" fill="black" />
+                                <rect x="13" y="7" width="3" height="10" fill="black" />
                             </svg>
                         </div>
                     </div>
@@ -165,9 +169,12 @@
                             <div class="card-value">{{ $readyInvoiceCount }}</div>
                         </div>
                         <div class="icon-box border rounded-circle p-2">
-                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="12" cy="12" r="10" stroke="black" stroke-width="2" fill="none"/>
-                                <path d="M9 12l2 2 4-4" stroke="black" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black"
+                                stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10" stroke="black" stroke-width="2"
+                                    fill="none" />
+                                <path d="M9 12l2 2 4-4" stroke="black" stroke-width="2" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                         </div>
                     </div>
@@ -185,7 +192,7 @@
                     <table id="invoiceTable" class="table table-hover">
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <th>SR. No</th>
                                 <th>Booking Request ID</th>
                                 <th>Date</th>
                                 <th>Company</th>
@@ -198,11 +205,15 @@
                                 <tr>
                                     <td><strong>{{ $key + 1 }}</strong></td>
                                     <td>{{ $invoice->BookingRequestID ?? 'N/A' }}</td>
-                                    <td>{{ $invoice->CreateDateTime ??  'N/A' }}</td>
+                                    <td>
+                                        {{ $invoice->CreateDateTime ? \Carbon\Carbon::parse($invoice->CreateDateTime)->format('d/m/Y H:i') : 'N/A' }}
+                                    </td>
+
                                     <td>{{ $invoice->CompanyName ?? 'N/A' }}</td>
                                     <td>{{ $invoice->OpportunityName ?? 'N/A' }}</td>
                                     <td>
-                                        <a href="{{ route('invoice.show',Crypt::encrypt($invoice->BookingRequestID)) }}" class="btn btn-xs btn-primary">View</a>
+                                        <a href="{{ route('invoice.show', Crypt::encrypt($invoice->BookingRequestID)) }}"
+                                            class="btn btn-xs btn-primary">View</a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -236,7 +247,9 @@
                 },
                 lengthMenu: [5, 10, 25],
                 pageLength: 5,
-                order: [[0, 'desc']]
+                order: [
+                    [0, 'desc']
+                ]
             });
         });
     </script>

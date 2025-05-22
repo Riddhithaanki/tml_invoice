@@ -59,7 +59,7 @@ class WaitingTimeInvoicesController extends Controller
         $invoiceType = $request->input('invoice_type', 'preinvoice');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
-        
+
         // Fetch bookings first, as we need BookingID as the main identifier
         $query = Booking::select([
             'tbl_booking1.BookingID',
@@ -70,9 +70,9 @@ class WaitingTimeInvoicesController extends Controller
             'tbl_booking_request.OpportunityName',
         ])
             ->join('tbl_booking_request', 'tbl_booking1.BookingRequestID', '=', 'tbl_booking_request.BookingRequestID')
-            ->where('tbl_booking1.BookingType', 4)
+            ->where('tbl_booking1.BookingType', 3)
             ->orderBy('tbl_booking_request.CreateDateTime', 'desc');
-        
+
         // Apply date filters
         if (!empty($startDate)) {
             $query->whereDate('tbl_booking_request.CreateDateTime', '>=', $startDate);
@@ -95,20 +95,25 @@ class WaitingTimeInvoicesController extends Controller
                   ->whereRaw('ready_invoices.BookingRequestID = tbl_booking1.BookingRequestID');
             });
         }
-        
+
         return DataTables::of($query)
             ->addIndexColumn() // Adds SR. No column
-            ->filterColumn('CreateDateTime', function ($query, $keyword) {
-                $query->where('tbl_booking_request.CreateDateTime', 'like', "%$keyword%");
+            ->editColumn('CreateDateTime', function ($row) {
+                return Carbon::parse($row->CreateDateTime)->format('d/m/Y H:i');
             })
+            ->filterColumn('CreateDateTime', function ($query, $keyword) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->whereRaw("DATE_FORMAT(tbl_booking_request.CreateDateTime, '%d/%m/%Y %H:%i') like ?", ["%{$keyword}%"])
+                    ->orWhereRaw("DATE_FORMAT(tbl_booking_request.CreateDateTime, '%d/%m/%Y') like ?", ["%{$keyword}%"])
+                    ->orWhereRaw("DATE_FORMAT(tbl_booking_request.CreateDateTime, '%H:%i') like ?", ["%{$keyword}%"]);
+                });
+            })
+
             ->filterColumn('CompanyName', function ($query, $keyword) {
                 $query->where('tbl_booking_request.CompanyName', 'like', "%$keyword%");
             })
             ->filterColumn('OpportunityName', function ($query, $keyword) {
                 $query->where('tbl_booking_request.OpportunityName', 'like', "%$keyword%");
-            })
-             ->editColumn('CreateDateTime', function ($row) {
-                return Carbon::parse($row->CreateDateTime)->format('d/m/Y H:i');
             })
             ->addColumn('CompanyName', function ($booking) {
                 return $booking->CompanyName ?? 'N/A';
@@ -120,8 +125,8 @@ class WaitingTimeInvoicesController extends Controller
                 return $booking->CreateDateTime ?? 'N/A';
             })
             ->addColumn('action', function ($booking) {
-                if ($booking->BookingID) {
-                    return '<a href="' . route('invoice.show', Crypt::encrypt($booking->BookingID)) . '"
+                if ($booking->BookingRequestID) {
+                    return '<a href="' . route('invoice.show', Crypt::encrypt($booking->BookingRequestID)) . '"
             class="btn btn-sm btn-primary">View</a>';
                 }
                 return 'No Booking Found';

@@ -18,12 +18,12 @@
                     <tr class="search-row">
                         <th></th>
                         <th><input type="text" class="form-control form-control-sm column-search"
-                                placeholder="Search Booking ID"></th>
-                        <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Date">
+                                placeholder="Search Username"></th>
+                        <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Email">
                         </th>
                         <th><input type="text" class="form-control form-control-sm column-search"
-                                placeholder="Search Company"></th>
-                        <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Site">
+                                placeholder="Search Mobile"></th>
+                        <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Role">
                         </th>
                         <th></th>
                     </tr>
