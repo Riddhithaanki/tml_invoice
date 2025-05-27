@@ -16,7 +16,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&ampdisplay=swap"
         rel="stylesheet" />
 
-    <!-- Icons -->
+    <!-- Icons - Load Font Awesome first -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url('vendor/fonts/materialdesignicons.css') }}" />
     <link rel="stylesheet" href="{{ url('vendor/fonts/flag-icons.css') }}" />
 
@@ -24,11 +25,9 @@
     <link rel="stylesheet" href="{{ url('vendor/libs/node-waves/node-waves.css') }}" />
 
     <!-- Core CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    {{-- <link rel="stylesheet" href="{{ url('vendor/css/rtl/core.css') }}" class="template-customizer-core-css" /> --}}
+    <link rel="stylesheet" href="{{ request()->root() }}/vendor/css/rtl/core.css" />
     <link rel="stylesheet" href="{{ url('css/demo.css') }}" class="template-customizer-theme-css" />
     <link rel="stylesheet" href="{{ url('vendor/css/rtl/theme-default.css') }}" class="template-customizer-theme-css" />
-    <link rel="stylesheet" href="{{ request()->root() }}/vendor/css/rtl/core.css" />
 
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="{{ url('vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
@@ -42,17 +41,11 @@
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ url('vendor/css/pages/cards-statistics.css') }}" />
     <link rel="stylesheet" href="{{ url('vendor/css/pages/cards-analytics.css') }}" />
-
-    <!-- Add Leaflet.js CDN link in the <head> section -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 
-    <!-- Helpers -->
-    <script src="{{ url('vendor/js/template-customizer.js') }}"></script>
-    <script src="{{ url('vendor/js/helpers.js') }}"></script>
-    <script src="{{ url('js/config.js') }}"></script>
+    <!-- Load Toastr CSS last -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
     <style>
         .btn-primary {
             background-color: #3c8dbc;
@@ -64,7 +57,130 @@
             background-color: #367fa9;
             border-color: #367fa9;
         }
+
+        /* Updated Toastr Styling */
+        #toast-container {
+            z-index: 999999;
+        }
+
+        #toast-container > .toast {
+            background-image: none !important;
+            padding: 15px 15px 15px 50px;
+            width: 350px;
+            border-radius: 8px;
+            opacity: 1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        #toast-container > .toast:before {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            font-size: 24px;
+            line-height: 18px;
+            color: #ffffff;
+        }
+
+        #toast-container > .toast-success {
+            background-color: #51A351 !important;
+            color: #ffffff !important;
+        }
+
+        #toast-container > .toast-success:before {
+            content: '\f00c';
+        }
+
+        #toast-container > .toast-error {
+            background-color: #BD362F !important;
+            color: #ffffff !important;
+        }
+
+        #toast-container > .toast-error:before {
+            content: '\f00d';
+        }
+
+        #toast-container > .toast-info {
+            background-color: #2F96B4 !important;
+            color: #ffffff !important;
+        }
+
+        #toast-container > .toast-info:before {
+            content: '\f129';
+        }
+
+        #toast-container > .toast-warning {
+            background-color: #F89406 !important;
+            color: #ffffff !important;
+        }
+
+        #toast-container > .toast-warning:before {
+            content: '\f071';
+        }
+
+        .toast-close-button {
+            position: absolute;
+            right: 10px;
+            top: 5px;
+            color: #ffffff;
+            opacity: 0.7;
+            text-shadow: none;
+            font-weight: 300;
+        }
+
+        .toast-close-button:hover {
+            color: #ffffff;
+            opacity: 1;
+        }
+
+        #toast-container > .toast-message {
+            font-size: 14px;
+            line-height: 1.4;
+            color: #ffffff;
+            margin-top: 4px;
+        }
+
+        /* Ensure toasts are visible on modals */
+        .modal-backdrop {
+            z-index: 99999;
+        }
+        .modal {
+            z-index: 999999;
+        }
     </style>
+
+    <!-- Load jQuery first -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    
+    <!-- Then load Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script>
+        // Configure Toastr options
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    </script>
+
+    <!-- Other scripts -->
+    <script src="{{ url('vendor/js/helpers.js') }}"></script>
+    <script src="{{ url('js/config.js') }}"></script>
 </head>
 
 <body>
@@ -102,11 +218,9 @@
     <script src="{{ url('vendor/libs/apex-charts/apexcharts.js') }}"></script>
     <script src="{{ url('vendor/libs/swiper/swiper.js') }}"></script>
     <script src="{{ url('vendor/libs/sweetalert2/sweetalert2.js') }}"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <!-- Main JS -->
     <script src="{{ url('js/main.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script>
         $(document).ready(function () {
