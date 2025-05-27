@@ -69,6 +69,12 @@ class DashboardController extends Controller
 
             // Get all related bookings
             $bookings = Booking::withCount('loads')
+                ->with(['loads' => function($query) {
+                    $query->addSelect([
+                        'tbl_booking_loads1.*',
+                        DB::raw('COALESCE(tbl_booking_loads1.LoadPrice, 0) as LoadPrice')
+                    ]);
+                }])
                 ->where('BookingRequestID', $invoice->BookingRequestID)
                 ->when($isSplitInvoice, function ($query) use ($invoice) {
                     return $query->where('parent_invoice_id', $invoice->InvoiceID);
@@ -78,7 +84,25 @@ class DashboardController extends Controller
                 })
                 ->get()
                 ->each(function ($booking) {
+                    // Set the total number of loads
                     $booking->Loads = $booking->loads_count;
+                    
+                    // Calculate total amount by summing individual load prices
+                    $totalAmount = 0;
+                    $totalLoads = 0;
+                    
+                    foreach ($booking->loads as $load) {
+                        $loadPrice = $load->LoadPrice ?? 0;
+                        $loadCount = $load->Loads ?? 1;
+                        $totalAmount += ($loadPrice * $loadCount);
+                        $totalLoads += $loadCount;
+                    }
+                    
+                    // Get the price per load from the first load
+                    $pricePerLoad = $booking->loads->first() ? $booking->loads->first()->LoadPrice : 0;
+                    
+                    $booking->TotalAmount = $totalAmount;
+                    $booking->Price = $pricePerLoad;
                 });
 
             return view('admin.pages.invoice.invoice_details', compact('invoice', 'bookings', 'booking', 'isSplitInvoice'));
@@ -90,20 +114,60 @@ class DashboardController extends Controller
 
     public function getInvoiceItems(Request $request)
     {
-        // Validate request input
-        $bookingId = $request->booking_id;
-        if (!$bookingId) {
-            return response()->json(['error' => 'Booking ID is required'], 400);
+        try {
+            $bookingId = $request->booking_id;
+
+            $booking = Booking::with(['loads' => function($query) {
+                $query->select('tbl_booking_loads1.*');
+            }])
+            ->where('BookingID', $bookingId)
+            ->first();
+
+            if (!$booking) {
+                return response()->json(['error' => 'Booking not found'], 404);
+            }
+
+            $groupedLoads = $booking->loads->groupBy('MaterialName');
+            $invoice_items = [];
+
+            foreach ($groupedLoads as $materialName => $loads) {
+                // Calculate total for this material
+                $totalLoads = $loads->sum('Loads');
+                $totalAmount = $loads->sum(function($load) {
+                    return $load->LoadPrice * $load->Loads;
+                });
+
+                $loadDetails = $loads->map(function($load) {
+                    return [
+                        'LoadID' => $load->LoadID,
+                        'ConveyanceNo' => $load->ConveyanceNo,
+                        'TicketID' => $load->TicketID,
+                        'JobStartDateTime' => $load->JobStartDateTime,
+                        'DriverName' => $load->DriverName,
+                        'VehicleRegNo' => $load->VehicleRegNo,
+                        'GrossWeight' => $load->GrossWeight,
+                        'Tare' => $load->Tare,
+                        'Net' => $load->Net,
+                        'SiteInDateTime' => $load->SiteInDateTime,
+                        'SiteOutDateTime' => $load->SiteOutDateTime,
+                        'Status' => $load->Status,
+                        'LoadPrice' => $load->LoadPrice,
+                        'Loads' => $load->Loads
+                    ];
+                });
+
+                $invoice_items[] = [
+                    'MaterialName' => $materialName,
+                    'totalLoads' => $totalLoads,
+                    'totalAmount' => $totalAmount,
+                    'loads' => $loadDetails
+                ];
+            }
+
+            return response()->json(['invoice_items' => $invoice_items]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        // Fetch the booking
-        $booking = Booking::with('loads')->where('BookingId', $bookingId)->first();
-
-        if (!$booking) {
-            return response()->json(['error' => 'Booking not found'], 404);
-        }
-
-        return response()->json(['invoice_items' => [$booking]]);
     }
 
     public function getSplitInvoiceItems(Request $request)
@@ -257,6 +321,7 @@ class DashboardController extends Controller
 
     public function confirm(Request $request)
     {
+        DB::beginTransaction();
         try {
             // Validate the request data
             $validated = $request->validate([
@@ -268,20 +333,42 @@ class DashboardController extends Controller
                 'ContactID' => 'required|string',
                 'ContactName' => 'required|string',
                 'ContactMobile' => 'required|string',
-                'SubTotalAmount' => 'required|numeric',
-                'VatAmount' => 'required|numeric',
-                'FinalAmount' => 'required|numeric',
+                'SubTotalAmount' => 'required|numeric|min:0',
+                'VatAmount' => 'required|numeric|min:0',
+                'FinalAmount' => 'required|numeric|min:0',
                 'hold_invoice' => 'nullable|boolean',
                 'comment' => 'nullable|string',
-                'booking_loads' => 'required|string',
+                'booking_loads' => [
+                    'required',
+                    'string',
+                    function ($attribute, $value, $fail) {
+                        $loads = json_decode($value, true);
+                        if (!is_array($loads)) {
+                            $fail('The booking loads data is invalid.');
+                            return;
+                        }
+                        foreach ($loads as $load) {
+                            if (!isset($load['BookingID'], $load['MaterialName'], 
+                                     $load['LoadType'], $load['Loads'], 
+                                     $load['Price'], $load['TotalAmount'])) {
+                                $fail('Each load must contain all required fields.');
+                                return;
+                            }
+                            if ($load['Price'] < 0 || $load['Loads'] <= 0) {
+                                $fail('Price and quantity must be greater than or equal to zero for price and greater than zero for loads.');
+                                return;
+                            }
+                        }
+                    }
+                ],
                 'invoice_items' => 'required|string'
             ]);
+
             // Decode the JSON strings
             $bookingLoads = json_decode($request->booking_loads, true);
             $invoiceItems = json_decode($request->invoice_items, true);
 
-
-            // Create a new in  voice record
+            // Create a new invoice record
             $invoice = new ReadyInvoice();
 
             // Get the last invoice number and increment it
@@ -292,10 +379,19 @@ class DashboardController extends Controller
             $formattedInvoiceNumber = str_pad($nextInvoiceNumber, 6, '0', STR_PAD_LEFT);
 
             // Calculate totals from bookingLoads
-            $subTotal = collect($bookingLoads)->sum('TotalAmount');
+            $subTotal = collect($bookingLoads)->sum(function($load) {
+                return round($load['Price'] * $load['Loads'], 2);
+            });
             $taxRate = isset($validated['TaxRate']) ? floatval($validated['TaxRate']) : 20;
-            $vatAmount = $subTotal * $taxRate / 100;
+            $vatAmount = round($subTotal * $taxRate / 100, 2);
             $finalAmount = $subTotal + $vatAmount;
+
+            // Verify calculated amounts match the submitted amounts
+            if (abs($subTotal - $validated['SubTotalAmount']) > 0.01 ||
+                abs($vatAmount - $validated['VatAmount']) > 0.01 ||
+                abs($finalAmount - $validated['FinalAmount']) > 0.01) {
+                throw new \Exception('Calculated amounts do not match submitted amounts');
+            }
 
             $invoice->fill([
                 'BookingRequestID' => $validated['BookingRequestID'],
@@ -316,7 +412,9 @@ class DashboardController extends Controller
                 'Comment' => $validated['comment'],
                 'InvoiceDate' => now(),
                 'InvoiceNumber' => $formattedInvoiceNumber,
-                'is_hold' => $validated['hold_invoice'] ? 1 : 0
+                'is_hold' => $validated['hold_invoice'] ? 1 : 0,
+                'CreateDateTime' => now(),
+                'UpdateDateTime' => now()
             ]);
 
             $invoice->save();
@@ -325,11 +423,14 @@ class DashboardController extends Controller
             if (!empty($bookingLoads)) {
                 $itemNumber = 1;
                 foreach ($bookingLoads as $load) {
-
                     // Get MaterialCode from tbl_materials
                     $material = DB::table('tbl_materials')
                         ->where('MaterialName', $load['MaterialName'])
                         ->first();
+
+                    $totalAmount = round($load['Price'] * $load['Loads'], 2);
+                    $taxAmount = round($totalAmount * $taxRate / 100, 2);
+
                     $invoiceItem = new ReadyInvoiceItem();
                     $invoiceItem->fill([
                         'InvoiceID' => $invoice->id,
@@ -337,13 +438,14 @@ class DashboardController extends Controller
                         'ItemNumber' => $itemNumber++,
                         'Qty' => $load['Loads'],
                         'UnitPrice' => $load['Price'],
-                        'GrossAmount' => $load['TotalAmount'],
-                        'TaxAmount' => $load['TotalAmount'] * ($validated['TaxRate'] ?? 0) / 100,
-                        'TaxRate' => $validated['TaxRate'] ?? 0,
-                        'NetAmount' => $load['TotalAmount'],
+                        'GrossAmount' => $totalAmount,
+                        'TaxAmount' => $taxAmount,
+                        'TaxRate' => $taxRate,
+                        'NetAmount' => $totalAmount,
                         'NominalCode' => $material ? $material->MaterialCode : null,
                         'Description' => $load['MaterialName'],
                         'Comment1' => $load['LoadType'],
+                        'BookingID' => $load['BookingID'],
                         'CreateDateTime' => now(),
                         'UpdateDateTime' => now()
                     ]);
@@ -354,10 +456,14 @@ class DashboardController extends Controller
             // Update the booking request status
             $bookingRequest = BookingRequest::where('BookingRequestID', $validated['BookingRequestID'])->first();
             if ($bookingRequest) {
-                $bookingRequest->InvoiceHold = $validated['hold_invoice'] ? 0 : 1;
-                $bookingRequest->invoiceID = $invoice->id;
-                $bookingRequest->save();
+                $bookingRequest->update([
+                    'InvoiceHold' => $validated['hold_invoice'] ? 0 : 1,
+                    'invoiceID' => $invoice->id,
+                    'UpdateDateTime' => now()
+                ]);
             }
+
+            DB::commit();
 
             return response()->json([
                 'success' => true,
@@ -366,6 +472,7 @@ class DashboardController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
@@ -375,12 +482,66 @@ class DashboardController extends Controller
 
     public function show($id)
     {
-        $invoice = ReadyInvoice::with(['items', 'booking'])->where('InvoiceID', '=', $id)->first();
-        if (!$invoice) {
-            return abort(404, 'Invoice not found');
+        try {
+            // First try to find the invoice
+            $invoice = ReadyInvoice::with(['items' => function($query) {
+                    $query->orderBy('ItemNumber', 'asc');
+                }, 'booking.loads'])
+                ->findOrFail($id);
+
+            // Get the user who created the invoice
+            $user = User::where('userId', $invoice->CreatedUserID)->first();
+
+            // Process items to include load details
+            foreach ($invoice->items as $item) {
+                // Get loads for this material
+                $loads = $invoice->booking->loads()
+                    ->where('MaterialName', $item->Description)
+                    ->get();
+
+                if ($loads->isEmpty()) {
+                    continue;
+                }
+
+                // Calculate totals for this material
+                $totalLoads = $loads->sum('Loads');
+                $totalAmount = $loads->sum(function($load) {
+                    return ($load->LoadPrice ?? 0) * ($load->Loads ?? 1);
+                });
+
+                // Calculate average price per load
+                $avgPricePerLoad = $totalLoads > 0 ? $totalAmount / $totalLoads : 0;
+
+                // Update item with calculated values
+                $item->Qty = $totalLoads;
+                $item->UnitPrice = $avgPricePerLoad;
+                $item->NetAmount = $totalAmount;
+                $item->GrossAmount = $totalAmount;
+                $item->Comment1 = 'Loads';
+            }
+
+            // Calculate totals
+            $subtotal = $invoice->items->sum('NetAmount');
+            $vatRate = $invoice->TaxRate ?? 20;
+            $vatAmount = round($subtotal * ($vatRate / 100), 2);
+            $finalAmount = $subtotal + $vatAmount;
+
+            // Update invoice amounts
+            $invoice->update([
+                'SubTotalAmount' => $subtotal,
+                'VatAmount' => $vatAmount,
+                'FinalAmount' => $finalAmount,
+                'UpdateDateTime' => now()
+            ]);
+
+            return view('admin.pages.invoice.viewinvoice', compact('invoice', 'user'));
+
+        } catch (\Exception $e) {
+            \Log::error('Error in show method: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
+            
+            return back()->with('error', 'Error loading invoice: ' . $e->getMessage());
         }
-        $user = User::where('userId', '=', $invoice->CreatedUserID)->first();
-        return view('admin.pages.invoice.viewinvoice', compact('invoice', 'user'));
     }
 
     public function compareWithSage(Request $request)

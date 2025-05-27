@@ -63,7 +63,6 @@
             <table id="invoiceTable" class="table table-hover">
                 <thead>
                     <tr class="filters">
-                        <th>SR. No</th>
                         <th>Booking ID</th>
                         <th>Booking Date</th>
                         <th>Company Name</th>
@@ -71,7 +70,6 @@
                         <th>Action</th>
                     </tr>
                     <tr class="search-row">
-                        <th></th>
                         <th><input type="text" class="form-control form-control-sm column-search"
                                 placeholder="Search Booking ID"></th>
                         <th><input type="text" class="form-control form-control-sm column-search"
@@ -105,12 +103,7 @@
                         d.end_date = $('#endDate').val(); // Get end date
                     }
                 },
-                columns: [{
-                        data: 'DT_RowIndex',
-                        name: 'DT_RowIndex',
-                        orderable: false,
-                        searchable: false
-                    },
+                columns: [
                     {
                         data: 'BookingRequestID',
                         name: 'BookingRequestID'

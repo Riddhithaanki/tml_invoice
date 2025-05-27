@@ -114,6 +114,8 @@
 
 @section('content')
 <div class="container-fluid py-4 invoice-page">
+
+
     <!-- Invoice Header -->
     <div class="invoice-header">
         <div class="d-flex justify-content-between align-items-center">
@@ -275,22 +277,14 @@
                         $subtotal = 0;
                     @endphp
                     @forelse($items as $item)
-                        @php
-                            // Calculate the net amount from unit price and quantity
-                            $netAmount = $item->UnitPrice * $item->Qty;
-                            // Use the calculated net amount for gross (before VAT)
-                            $grossAmount = $netAmount;
-                            // Add to subtotal
-                            $subtotal += $netAmount;
-                        @endphp
                         <tr>
-                            <td><span class="badge bg-light text-dark">{{ str_pad($loop->iteration, 3, '0', STR_PAD_LEFT) }}</span></td>
+                            <td><span class="badge bg-light text-dark">{{ str_pad($item->ItemNumber, 3, '0', STR_PAD_LEFT) }}</span></td>
                             <td>{{ $item->Description }}</td>
                             <td class="text-center numeric-cell">{{ $item->Qty }}</td>
-                            <td>{{ $item->Comment1 ?: 'Loads' }}</td>
+                            <td>{{ $item->Comment1 }}</td>
                             <td class="text-end numeric-cell">£{{ number_format($item->UnitPrice, 2) }}</td>
-                            <td class="text-end numeric-cell">£{{ number_format($netAmount, 2) }}</td>
-                            <td class="text-end numeric-cell">£{{ number_format($grossAmount, 2) }}</td>
+                            <td class="text-end numeric-cell">£{{ number_format($item->NetAmount, 2) }}</td>
+                            <td class="text-end numeric-cell">£{{ number_format($item->GrossAmount, 2) }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -310,7 +304,7 @@
                         <td class="text-end numeric-cell fw-bold">£{{ number_format($invoice->SubTotalAmount, 2) }}</td>
                     </tr>
                     <tr>
-                        <td colspan="6" class="text-end">VAT 20%</td>
+                        <td colspan="6" class="text-end">VAT {{ $invoice->TaxRate ?? 20 }}%</td>
                         <td class="text-end numeric-cell fw-bold">£{{ number_format($invoice->VatAmount, 2) }}</td>
                     </tr>
                     <tr class="border-top">

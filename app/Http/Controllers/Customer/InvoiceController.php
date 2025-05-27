@@ -100,22 +100,21 @@ class InvoiceController extends Controller
     }
 
     public function updateLoadPrice(Request $request)
-    {
+    {   
         $request->validate([
-            'ticket_id' => 'required|integer',
             'new_price' => 'required|numeric|min:0',
         ]);
 
         // Find the load by TicketID
-        $load = BookingLoad::where('TicketID', $request->ticket_id)->first();
-
+        $load = BookingLoad::where('ConveyanceNo', $request->conveyance_no)->first();
+ 
         if (!$load) {
             return response()->json(['error' => 'Load not found'], 404);
         }
 
         // Store old price for history (optional)
         PriceHistory::create([
-            'TicketID' => $load->TicketID,
+            'ConveyanceNo' => $load->ConveyanceNo,
             'OldPrice' => $load->LoadPrice,
             'NewPrice' => $request->new_price,
             'ChangedBy' => auth()->id(),
@@ -146,12 +145,12 @@ class InvoiceController extends Controller
 
     public function getPriceHistory(Request $request)
     {
-        $ticketId = $request->ticket_id;
-
+        $ConveyanceNo = $request->conveyance_no;
+        
         // Fetch price history with username from users table
         $history = DB::table('price_histories')
             ->join('tbl_users', 'price_histories.ChangedBy', '=', 'tbl_users.userId')
-            ->where('price_histories.TicketID', $ticketId)
+            ->where('price_histories.ConveyanceNo', $ConveyanceNo)
             ->orderBy('price_histories.ChangedAt', 'desc')
             ->select('price_histories.*', 'tbl_users.name as ChangedByName') // Get username
             ->get();

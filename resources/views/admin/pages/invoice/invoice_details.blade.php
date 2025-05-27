@@ -206,7 +206,10 @@
                             @endphp
                             @foreach ($bookings as $booking)
                                 @php
-                                    $subtotal += $booking->TotalAmount;
+                                    $totalAmount = $booking->loads->sum(function($load) {
+                                        return $load->LoadPrice * $load->Loads;
+                                    });
+                                    $subtotal += $totalAmount;
                                 @endphp
                                 <tr>
                                     <td class="text-center">
@@ -239,8 +242,12 @@
                                         @endif
                                     </td>
                                     <td class="text-center">{{ $booking->Loads }}</td>
-                                    <td class="text-end price-per-load" data-price="{{ $booking->Price }}">£{{ number_format($booking->Price, 2) }}</td>
-                                    <td class="text-end booking-total" data-total="{{ $booking->TotalAmount }}">£{{ number_format($booking->TotalAmount, 2) }}</td>
+                                    <td class="text-end price-per-load" data-price="{{ $booking->Price }}">
+                                        £{{ number_format($booking->Price, 2) }}
+                                    </td>
+                                    <td class="text-end booking-total" data-total="{{ $booking->TotalAmount }}">
+                                        £{{ number_format($booking->TotalAmount, 2) }}
+                                    </td>
                                     <td class="validation-status"></td>
                                 </tr>
                                 <tr class="invoice-items-container d-none" data-booking-id="{{ $booking->BookingID }}">
@@ -253,20 +260,29 @@
                             @endforeach
                         </tbody>
                         <tfoot>
+                            @php
+                                $subtotal = $bookings->sum('TotalAmount');
+                                $vatRate = $invoice->TaxRate ?? 20;
+                                $vatAmount = $subtotal * ($vatRate / 100);
+                                $total = $subtotal + $vatAmount;
+                            @endphp
                             <tr>
                                 <td colspan="7"></td>
                                 <td class="text-end text-muted">SubTotal</td>
                                 <td class="text-end subtotal-amount">£{{ number_format($subtotal, 2) }}</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td colspan="7"></td>
-                                <td class="text-end text-muted">VAT ({{ $invoice->TaxRate ?? 20 }}%)</td>
-                                <td class="text-end vat-amount">£{{ number_format($subtotal * ($invoice->TaxRate ?? 20) / 100, 2) }}</td>
+                                <td class="text-end text-muted">VAT ({{ $vatRate }}%)</td>
+                                <td class="text-end vat-amount">£{{ number_format($vatAmount, 2) }}</td>
+                                <td></td>
                             </tr>
                             <tr class="border-top">
                                 <td colspan="7"></td>
                                 <td class="text-end text-muted">Total</td>
-                                <td class="text-end total-amount fw-bold">£{{ number_format($subtotal * (1 + ($invoice->TaxRate ?? 20) / 100), 2) }}</td>
+                                <td class="text-end total-amount fw-bold">£{{ number_format($total, 2) }}</td>
+                                <td></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -421,15 +437,15 @@
 
     <script>
         $(document).ready(function() {
-            // Handle hold invoice checkbox
-            $('#holdInvoice').on('change', function() {
-                $('#hold_invoice').val(this.checked ? '1' : '0');
-            });
+            // Helper function to parse currency values
+            function parseCurrencyValue(value) {
+                return parseFloat(value.replace(/[£,]/g, '')) || 0;
+            }
 
-            // Handle comment textarea
-            $('#comment').on('change', function() {
-                $('#comment_value').val($(this).val());
-            });
+            // Helper function to format currency
+            function formatCurrency(value) {
+                return '£' + parseFloat(value).toFixed(2);
+            }
 
             // Handle form submission with loading state
             $('#confirmInvoiceForm').on('submit', function(e) {
@@ -441,6 +457,10 @@
                 const $normalState = $button.find('.normal-state');
                 const $loadingState = $button.find('.loading-state');
 
+                // Validate totals before submission
+                let hasError = false;
+                let errorMessage = '';
+
                 // Show loading state
                 $button.prop('disabled', true);
                 $normalState.addClass('d-none');
@@ -450,46 +470,56 @@
                 // Get all form data
                 var formData = $(this).serialize();
 
-                // Collect all booking loads data
+                // Collect all booking loads data with proper price handling
                 var bookingLoads = [];
                 $('.table-striped tbody tr').each(function() {
-                    var bookingId = $(this).find('button[data-booking-id]').data('booking-id');
+                    var $row = $(this);
+                    var bookingId = $row.find('button[data-booking-id]').data('booking-id');
+                    
                     if (bookingId) {
-                        // Clean and parse numeric values
-                        var price = $(this).find('td:eq(7)').text().replace('£', '').trim();
-                        var totalAmount = $(this).find('td:eq(8)').text().replace('£', '').trim();
+                        // Clean and parse numeric values properly
+                        var price = parseCurrencyValue($row.find('td:eq(7)').text());
+                        var loads = parseInt($row.find('td:eq(6)').text().trim()) || 0;
+                        var totalAmount = price * loads;
+
+                        // Validate the values
+                        if (loads <= 0) {
+                            hasError = true;
+                            errorMessage = 'Number of loads must be greater than zero';
+                            return false;
+                        }
+
+                        if (price < 0) {
+                            hasError = true;
+                            errorMessage = 'Price cannot be negative';
+                            return false;
+                        }
 
                         var bookingData = {
                             BookingID: bookingId,
-                            MaterialName: $(this).find('td:eq(3)').text().trim(),
-                            LoadType: $(this).find('td:eq(4)').text().trim(),
-                            Loads: parseInt($(this).find('td:eq(6)').text().trim()) || 0,
-                            Price: parseFloat(price) || 0,
-                            TotalAmount: parseFloat(totalAmount) || 0
+                            MaterialName: $row.find('td:eq(3)').text().trim(),
+                            LoadType: $row.find('td:eq(4)').text().trim(),
+                            Loads: loads,
+                            Price: price,
+                            TotalAmount: totalAmount
                         };
                         bookingLoads.push(bookingData);
                     }
                 });
 
-                // Add booking loads to form data
-                formData += '&booking_loads=' + encodeURIComponent(JSON.stringify(bookingLoads));
+                if (hasError) {
+                    // Reset loading state
+                    $button.prop('disabled', false);
+                    $normalState.removeClass('d-none');
+                    $loadingState.addClass('d-none');
+                    $form.removeClass('processing');
+                    
+                    alert(errorMessage);
+                    return;
+                }
 
-                // Collect all invoice items data
-                var invoiceItems = [];
-                $('.editable-price').each(function() {
-                    var ticketId = $(this).data('ticket-id');
-                    var price = parseFloat($(this).val()) || 0;
-                    invoiceItems.push({
-                        ticket_id: ticketId,
-                        price: price
-                    });
-                });
-
-                // Add invoice items to form data
-                formData += '&invoice_items=' + encodeURIComponent(JSON.stringify(invoiceItems));
-
-                // Ensure numeric values are properly formatted
-                var subtotal = parseFloat($('.subtotal-amount').text().replace('£', '')) || 0;
+                // Calculate totals
+                var subtotal = bookingLoads.reduce((sum, load) => sum + load.TotalAmount, 0);
                 var vatRate = parseFloat("{{ $invoice->TaxRate ?? 20 }}");
                 var vatAmount = (subtotal * vatRate) / 100;
                 var finalAmount = subtotal + vatAmount;
@@ -498,6 +528,42 @@
                 $('input[name="SubTotalAmount"]').val(subtotal.toFixed(2));
                 $('input[name="VatAmount"]').val(vatAmount.toFixed(2));
                 $('input[name="FinalAmount"]').val(finalAmount.toFixed(2));
+
+                // Add booking loads to form data
+                formData += '&booking_loads=' + encodeURIComponent(JSON.stringify(bookingLoads));
+
+                // Collect all invoice items data
+                var invoiceItems = [];
+                $('.editable-price').each(function() {
+                    var $input = $(this);
+                    var ticketId = $input.data('ticket-id');
+                    var price = parseCurrencyValue($input.val());
+                    
+                    if (price < 0) {
+                        hasError = true;
+                        errorMessage = 'Individual load prices cannot be negative';
+                        return false;
+                    }
+
+                    invoiceItems.push({
+                        ticket_id: ticketId,
+                        price: price
+                    });
+                });
+
+                if (hasError) {
+                    // Reset loading state
+                    $button.prop('disabled', false);
+                    $normalState.removeClass('d-none');
+                    $loadingState.addClass('d-none');
+                    $form.removeClass('processing');
+                    
+                    alert(errorMessage);
+                    return;
+                }
+
+                // Add invoice items to form data
+                formData += '&invoice_items=' + encodeURIComponent(JSON.stringify(invoiceItems));
 
                 // Submit form via AJAX
                 $.ajax({
@@ -526,9 +592,20 @@
                         $form.removeClass('processing');
 
                         // Show error
-                        alert('An error occurred while processing your request.');
+                        alert('An error occurred while processing your request: ' + 
+                              (xhr.responseJSON ? xhr.responseJSON.message : 'Unknown error'));
                     }
                 });
+            });
+
+            // Handle hold invoice checkbox
+            $('#holdInvoice').on('change', function() {
+                $('#hold_invoice').val(this.checked ? '1' : '0');
+            });
+
+            // Handle comment textarea
+            $('#comment').on('change', function() {
+                $('#comment_value').val($(this).val());
             });
 
             // Toggle invoice details
@@ -582,17 +659,18 @@
                                         <td colspan="12" class="text-center text-warning fw-bold">No details available for this material.</td>
                                     </tr>`;
                                 } else {
+                                    // Add individual load rows
                                     item.loads.forEach(load => {
                                         let waitTime = calculateWaitTime(load.SiteInDateTime, load.SiteOutDateTime);
                                         let statusText = getStatusText(load.Status);
                                         let statusClass = getStatusClass(load.Status);
 
                                         html += `<tr>
-                                            <td>${load.ConveyanceNo}</td>
-                                            <td><span class="badge bg-dark">${load.TicketID}</span></td>
+                                            <td>${load.ConveyanceNo || ''}</td>
+                                            <td><span class="badge bg-dark">${load.TicketID || ''}</span></td>
                                             <td>${formatDateTime(load.JobStartDateTime)}</td>
-                                            <td>${load.DriverName}</td>
-                                            <td>${load.VehicleRegNo}</td>
+                                            <td>${load.DriverName || ''}</td>
+                                            <td>${load.VehicleRegNo || ''}</td>
                                             <td class="text-end">${formatWeight(load.GrossWeight)}</td>
                                             <td class="text-end">${formatWeight(load.Tare)}</td>
                                             <td class="text-end fw-bold">${formatWeight(load.Net)}</td>
@@ -600,13 +678,15 @@
                                             <td>${waitTime}</td>
                                             <td><span class="badge ${statusClass}">${statusText}</span></td>
                                             <td class="text-end fw-bold">
-                                                <div class="d-flex align-items-center">
+                                                <div class="d-flex align-items-center justify-content-end">
                                                     <input type="text" class="form-control editable-price me-2"
                                                         style="width: 100px;"
-                                                        data-ticket-id="${load.TicketID}"
-                                                        value="${load.LoadPrice}">
+                                                        data-ticket-id="${load.LoadID}"
+                                                        data-old-price="${load.LoadPrice || 0}"
+                                                        data-loads="${load.Loads || 1}"
+                                                        value="${load.LoadPrice || 0}">
                                                     <button class="btn btn-sm btn-outline-primary price-history-btn"
-                                                            data-ticket-id="${load.TicketID}"
+                                                            data-ticket-id="${load.LoadID}"
                                                             title="View Price History">
                                                         <i class="fas fa-history"></i>
                                                     </button>
@@ -646,10 +726,16 @@
             // Handle price history button click
             $(document).on('click', '.price-history-btn', function() {
                 let ticketId = $(this).data('ticket-id');
+                let $row = $(this).closest('tr');
+                let conveyanceNo = $row.find('td:first').text().trim();
+                
                 $.ajax({
                     url: "{{ route('get.price.history') }}",
                     type: "GET",
-                    data: { ticket_id: ticketId },
+                    data: { 
+                        ticket_id: ticketId,
+                        conveyance_no: conveyanceNo
+                    },
                     success: function(response) {
                         if (!response.history || response.history.length === 0) {
                             $('#priceHistoryModal .modal-body').html(
@@ -937,6 +1023,118 @@
                         alert('Error merging bookings. Please try again.');
                     }
                 });
+            });
+
+            // Handle price updates
+            $(document).on('change', '.editable-price', function() {
+                let $input = $(this);
+                let ticketId = $input.data('ticket-id');
+                let oldPrice = parseFloat($input.data('old-price')) || 0;
+                let newPrice = parseFloat($input.val()) || 0;
+                let $row = $input.closest('tr');
+                let conveyanceNo = $row.find('td:first').text().trim();
+                let $mainRow = $input.closest('.invoice-items-container').prev('tr');
+                
+                $.ajax({
+                    url: "{{ route('update.invoice.price') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        ticket_id: ticketId,
+                        conveyance_no: conveyanceNo,
+                        old_price: oldPrice,
+                        new_price: newPrice
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Update the data-old-price attribute with new price
+                            $input.data('old-price', newPrice);
+                            
+                            // Calculate new total for this booking
+                            let $container = $input.closest('.invoice-items-content');
+                            let totalAmount = 0;
+                            
+                            // Sum up all prices in the container
+                            $container.find('.editable-price').each(function() {
+                                let price = parseFloat($(this).val()) || 0;
+                                totalAmount += price;
+                            });
+                            
+                            // Update the main row's price and total
+                            let totalLoads = parseInt($mainRow.find('td:eq(6)').text()) || 0;
+                            let avgPrice = totalAmount / totalLoads;
+                            
+                            $mainRow.find('.price-per-load')
+                                .data('price', avgPrice)
+                                .text('£' + avgPrice.toFixed(2));
+                                
+                            $mainRow.find('.booking-total')
+                                .data('total', totalAmount)
+                                .text('£' + totalAmount.toFixed(2));
+                            
+                            // Recalculate all totals
+                            recalculateBookingTotals();
+                            
+                            toastr.success('Price updated successfully');
+                        } else {
+                            toastr.error('Error updating price');
+                            $input.val(oldPrice);
+                        }
+                    },
+                    error: function() {
+                        toastr.error('Error updating price');
+                        $input.val(oldPrice);
+                    }
+                });
+            });
+
+            function recalculateBookingTotals() {
+                let subtotal = 0;
+                
+                // Calculate new totals for each booking
+                $('.table-striped tbody tr:not(.invoice-items-container)').each(function() {
+                    let $row = $(this);
+                    let bookingId = $row.find('button[data-booking-id]').data('booking-id');
+                    
+                    if (bookingId) {
+                        let totalPrice = parseFloat($row.find('.booking-total').data('total')) || 0;
+                        subtotal += totalPrice;
+                    }
+                });
+                
+                // Update subtotal
+                $('.subtotal-amount').text('£' + subtotal.toFixed(2));
+                
+                // Calculate VAT
+                let vatRate = parseFloat("{{ $invoice->TaxRate ?? 20 }}");
+                let vatAmount = (subtotal * vatRate) / 100;
+                $('.vat-amount').text('£' + vatAmount.toFixed(2));
+                
+                // Update total
+                let finalAmount = subtotal + vatAmount;
+                $('.total-amount').text('£' + finalAmount.toFixed(2));
+                
+                // Update hidden form fields
+                $('input[name="SubTotalAmount"]').val(subtotal.toFixed(2));
+                $('input[name="VatAmount"]').val(vatAmount.toFixed(2));
+                $('input[name="FinalAmount"]').val(finalAmount.toFixed(2));
+            }
+
+            // Add input validation for prices
+            $(document).on('input', '.editable-price', function() {
+                let value = $(this).val();
+                // Remove any non-numeric characters except decimal point
+                value = value.replace(/[^\d.]/g, '');
+                // Ensure only one decimal point
+                let parts = value.split('.');
+                if (parts.length > 2) {
+                    value = parts[0] + '.' + parts.slice(1).join('');
+                }
+                // Limit to 2 decimal places
+                if (parts.length > 1) {
+                    value = parts[0] + '.' + parts[1].slice(0, 2);
+                }
+                $(this).val(value);
             });
         });
     </script>

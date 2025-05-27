@@ -9,5 +9,5 @@ class PriceHistory extends Model
 {
     use HasFactory;
 
-    protected $fillable = ["TicketID", "OldPrice", "NewPrice", "ChangedBy","ChangedAt"];
+    protected $fillable = ["ConveyanceNo", "OldPrice", "NewPrice", "ChangedBy","ChangedAt"];
 }
