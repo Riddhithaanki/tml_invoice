@@ -93,17 +93,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mb-3 d-flex justify-content-between">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="remember-me">
-                                <label class="form-check-label" for="remember-me">
-                                    Remember Me
-                                </label>
-                            </div>
-                            <a href="javascript:void(0);" class="float-end mb-1">
-                                <span>Forgot Password?</span>
-                            </a>
-                        </div>
                         {{-- <a href="{{ route('admin.registerView') }}" class="float-end mb-1">
                             <span>Don't Have Account? Register Now</span>
                         </a> --}}

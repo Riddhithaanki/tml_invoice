@@ -192,7 +192,6 @@
                     <table id="invoiceTable" class="table table-hover">
                         <thead>
                             <tr>
-                                <th>SR. No</th>
                                 <th>Booking Request ID</th>
                                 <th>Date</th>
                                 <th>Company</th>
@@ -203,7 +202,6 @@
                         <tbody>
                             @foreach ($recentInvoice as $key => $invoice)
                                 <tr>
-                                    <td><strong>{{ $key + 1 }}</strong></td>
                                     <td>{{ $invoice->BookingRequestID ?? 'N/A' }}</td>
                                     <td>
                                         {{ $invoice->CreateDateTime ? \Carbon\Carbon::parse($invoice->CreateDateTime)->format('d/m/Y H:i') : 'N/A' }}

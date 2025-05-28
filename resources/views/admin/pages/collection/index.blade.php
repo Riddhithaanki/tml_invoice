@@ -1,60 +1,47 @@
 @extends('layouts.main')
 @section('content')
     <div class="table-container mt-4">
-        <div class="tab-container mb-3">
-            <ul class="nav nav-tabs d-flex justify-content-between" id="invoiceTabs"
-                style="
-            overflow-y: unset;
-            overflow-x: unset !important;!i;!;
-        ">
-                <div class="d-flex">
-                    <!-- Left side tabs -->
-                    <li class="nav-item">
-                        <a class="nav-link {{ $type === 'loads' ? 'active' : '' }}" id="loads"
-                            data-invoice-type="preinvoice" data-toggle="tab"
-                            href="{{ route('collection.index', ['type' => 'loads']) }}" role="tab">Loads</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ $type === 'tonnage' ? 'active' : '' }}" id="tonnage"
-                            data-invoice-type="readyinvoice" data-toggle="tab"
-                            href="{{ route('collection.index', ['type' => 'tonnage']) }}" role="tab">Tonnage</a>
-                    </li>
-                </div>
 
-                <div class="d-flex">
-                    <!-- Right side tabs -->
-                    <li class="nav-item">
-                        <a class="nav-link {{ $invoice_type === 'preinvoice' ? 'active' : '' }}" id="pre-invoice-tab"
-                            data-toggle="tab"
-                            href="{{ route('collection.index', ['type' => $type, 'invoice_type' => 'preinvoice']) }}"
-                            role="tab">Pre Invoice</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ $invoice_type === 'readyinvoice' ? 'active' : '' }}" id="ready-invoice-tab"
-                            data-toggle="tab"
-                            href="{{ route('collection.index', ['type' => $type, 'invoice_type' => 'readyinvoice']) }}"
-                            role="tab">Ready Invoice</a>
-                    </li>
-                </div>
+        <!-- Tabs -->
+        <div class="tab-container mb-3">
+            <ul class="nav nav-tabs justify-content-between flex-wrap w-100" id="invoiceTabs">
+                <!-- Left Tabs -->
+                <li class="nav-item">
+                    <a class="nav-link {{ $type === 'loads' ? 'active' : '' }}"
+                        href="{{ route('collection.index', ['type' => 'loads', 'invoice_type' => $invoice_type]) }}">
+                        Loads
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $type === 'tonnage' ? 'active' : '' }}"
+                        href="{{ route('collection.index', ['type' => 'tonnage', 'invoice_type' => $invoice_type]) }}">
+                        Tonnage
+                    </a>
+                </li>
+
+                <!-- Right Tabs (separated visually using ms-auto) -->
+                <li class="nav-item ms-auto">
+                    <a class="nav-link {{ $invoice_type === 'preinvoice' ? 'active' : '' }}"
+                        href="{{ route('collection.index', ['type' => $type, 'invoice_type' => 'preinvoice']) }}">
+                        Pre Invoice
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $invoice_type === 'readyinvoice' ? 'active' : '' }}"
+                        href="{{ route('collection.index', ['type' => $type, 'invoice_type' => 'readyinvoice']) }}">
+                        Ready Invoice
+                    </a>
+                </li>
             </ul>
 
         </div>
 
-        <!-- <div class="tab-container mb-3">
-                    <ul class="nav nav-tabs" id="invoiceTabs">
-                        <li class="nav-item">
-                            <a class="nav-link {{ $type === 'loads' ? 'active' : '' }}" id="loads" data-toggle="tab" href="{{ route('collection.index', ['type' => 'loads']) }}" role="tab">Loads</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ $type === 'tonnage' ? 'active' : '' }}" id="tonnage" data-toggle="tab" href="{{ route('collection.index', ['type' => 'tonnage']) }}" role="tab">Tonnage</a>
-                        </li>
-                    </ul>
-                </div> -->
+        <!-- Header -->
         <div class="table-header">
             <h3 class="table-title text-center text-white">Collection Invoices</h3>
         </div>
 
-        <!-- Compact date filter row -->
+        <!-- Filters -->
         <div class="date-filter-container p-2 bg-light border-bottom">
             <div class="d-flex align-items-center justify-content-end">
                 <div class="date-range-compact d-flex align-items-center">
@@ -68,11 +55,11 @@
             </div>
         </div>
 
+        <!-- Table -->
         <div class="table-responsive">
             <table id="invoiceTable" class="table table-hover">
                 <thead>
                     <tr class="filters">
-                        <th>SR. No</th>
                         <th>Booking ID</th>
                         <th>Booking Date</th>
                         <th>Company Name</th>
@@ -80,49 +67,41 @@
                         <th>Action</th>
                     </tr>
                     <tr class="search-row">
-                        <th></th>
                         <th><input type="text" class="form-control form-control-sm column-search"
                                 placeholder="Search Booking ID"></th>
                         <th><input type="text" class="form-control form-control-sm column-search"
-                                placeholder="Search Date">
-                        </th>
+                                placeholder="Search Date"></th>
                         <th><input type="text" class="form-control form-control-sm column-search"
                                 placeholder="Search Company"></th>
                         <th><input type="text" class="form-control form-control-sm column-search"
-                                placeholder="Search Site">
-                        </th>
+                                placeholder="Search Site"></th>
                         <th></th>
                     </tr>
                 </thead>
             </table>
         </div>
     </div>
+
+    <!-- JS -->
     <script>
         $(document).ready(function() {
             var table;
 
-            // Initialize DataTable
             function initializeDataTable(type, invoiceType) {
                 table = $('#invoiceTable').DataTable({
                     processing: true,
                     serverSide: true,
-                    destroy: true, // Destroy the previous instance before reinitializing
+                    destroy: true,
                     ajax: {
                         url: "{{ route('collection.data') }}",
                         data: function(d) {
-                            d.type = type; // Pass the updated type parameter
-                            d.invoice_type = invoiceType; // Pass the invoice_type parameter
-                            d.start_date = $('#startDate').val(); // Get start date
-                            d.end_date = $('#endDate').val(); // Get end date
+                            d.type = "{{ $type }}";
+                            d.invoice_type = "{{ $invoice_type }}";
+                            d.start_date = $('#startDate').val();
+                            d.end_date = $('#endDate').val();
                         }
                     },
                     columns: [{
-                            data: 'DT_RowIndex',
-                            name: 'DT_RowIndex',
-                            orderable: false,
-                            searchable: false
-                        }, // SR. No
-                        {
                             data: 'BookingRequestID',
                             name: 'BookingRequestID'
                         },
@@ -143,17 +122,17 @@
                             name: 'action',
                             orderable: false,
                             searchable: false
-                        } // Action buttons
+                        }
                     ],
                     order: [
                         [2, 'desc']
-                    ], // Sort by Booking Date by default
-                    pageLength: 10,
+                    ],
+                    pageLength: 100,
                     lengthMenu: [10, 25, 50, 100],
                     responsive: true,
                     orderCellsTop: true,
-                    searching: true, // Hide the search box
-                    lengthChange: false, // Hide the "Show entries" dropdown
+                    searching: true,
+                    lengthChange: false,
                     language: {
                         search: "_INPUT_",
                         searchPlaceholder: "Search invoices...",
@@ -165,40 +144,26 @@
                 });
             }
 
-            // Initialize DataTable with default type and invoice_type
-            var type = "{{ $type }}";
-            var invoiceType = "{{ $invoice_type }}";
-            initializeDataTable(type, invoiceType);
+            initializeDataTable("{{ $type }}", "{{ $invoice_type }}");
 
-            // Handle tab click to update type
-            $('.nav-link').on('click', function(e) {
-                e.preventDefault();
-                type = $(this).attr('id'); // Get the ID of the clicked tab (e.g., 'loads', 'tonnage')
-                invoiceType = $(this).data('invoice-type') || invoiceType; // Update invoice_type if needed
-                table.destroy(); // Destroy the existing DataTable instance
-                initializeDataTable(type, invoiceType); // Reinitialize DataTable with the new type
-            });
-
-            // Filter button click event
             $('#filterBtn').click(function() {
-                table.ajax.reload(); // Reload table with new date filters
+                table.ajax.reload();
             });
 
-            // Clear filters button
             $('#clearFilters').click(function() {
                 $('#startDate').val('');
                 $('#endDate').val('');
                 table.ajax.reload();
             });
 
-             // 🔹 Enable column search
-             $('#invoiceTable thead .column-search').on('keyup change', function() {
-                let colIndex = $(this).parent().index();  // Get column index
+            $('#invoiceTable thead .column-search').on('keyup change', function() {
+                let colIndex = $(this).parent().index();
                 table.column(colIndex).search(this.value).draw();
             });
         });
     </script>
 
+    <!-- CSS -->
     <style>
         .table-container {
             background-color: white;
@@ -212,7 +177,6 @@
         .table-header {
             background-color: #3c8dbc;
             padding: 12px 15px;
-            position: relative;
         }
 
         .table-title {
@@ -222,7 +186,6 @@
             color: white;
         }
 
-        /* Compact date filter styling */
         .date-filter-container {
             background-color: #f8f9fa;
             border-bottom: 1px solid #dee2e6;
@@ -264,17 +227,12 @@
             padding: 6px 8px;
             border-radius: 4px;
             border: 1px solid #ddd;
-            transition: all 0.2s ease;
         }
 
         .search-row input:focus {
             border-color: #3c8dbc;
             box-shadow: 0 0 0 0.2rem rgba(60, 141, 188, 0.25);
             outline: none;
-        }
-
-        #invoiceTable tbody tr {
-            transition: background-color 0.2s ease;
         }
 
         #invoiceTable tbody tr:hover {
@@ -288,27 +246,8 @@
             border-color: #f0f0f0;
         }
 
-        /* DataTables styling */
-        div.dataTables_wrapper div.dataTables_length select {
-            width: auto;
-            padding: 4px 24px 4px 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        div.dataTables_wrapper div.dataTables_filter input {
-            margin-left: 8px;
-            padding: 6px 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 200px;
-        }
-
-        div.dataTables_wrapper div.dataTables_filter input:focus,
-        div.dataTables_wrapper div.dataTables_length select:focus {
-            border-color: #3c8dbc;
-            box-shadow: 0 0 0 0.2rem rgba(60, 141, 188, 0.25);
-            outline: none;
+        .table-responsive {
+            padding: 0 15px 15px;
         }
 
         div.dataTables_wrapper div.dataTables_paginate ul.pagination {
@@ -335,33 +274,6 @@
             border-color: #ddd;
         }
 
-        div.dataTables_wrapper div.dataTables_paginate ul.pagination li.paginate_button.active a:hover {
-            background-color: #3c8dbc;
-            border-color: #3c8dbc;
-            color: white;
-        }
-
-        .table-responsive {
-            padding: 0 15px 15px;
-        }
-
-        /* Processing indicator */
-        div.dataTables_processing {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Action buttons styling */
-        .action-btn {
-            padding: 4px 8px;
-            border-radius: 4px;
-            margin: 0 2px;
-            font-size: 0.85rem;
-        }
-
-        /* Clear button hover effect */
         #clearFilters:hover {
             background-color: white;
             color: #3c8dbc;
@@ -369,6 +281,20 @@
 
         div.dataTables_filter {
             display: none;
+        }
+
+        div.dataTables_processing {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-btn {
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin: 0 2px;
+            font-size: 0.85rem;
         }
     </style>
 @endsection

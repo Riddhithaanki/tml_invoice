@@ -272,7 +272,7 @@
                     }
                 },
                 lengthMenu: [5, 10, 25, 50],
-                pageLength: 5,
+                pageLength: 100,
                 order: [[0, 'desc']]
             });
         });

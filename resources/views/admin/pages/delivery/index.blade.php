@@ -94,6 +94,7 @@
                 serverSide: true,
                 lengthChange: false,
                 searching: true,
+                pageLength: 100,
                 ajax: {
                     url: "{{ route('delivery.data') }}",
                     data: function(d) {

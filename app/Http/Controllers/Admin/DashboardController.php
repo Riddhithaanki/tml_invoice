@@ -24,7 +24,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $recentInvoice = ReadyInvoice::with('booking')->orderBy('CreateDateTime', "DESC")->limit(value: 10)->get();
+        $recentInvoice = ReadyInvoice::with('booking')->orderBy('CreateDateTime', "DESC")->get();
 
         $readyHoldInvoiceCount = InvoiceDifference::where('status', '0')->count();
         $readyInvoiceCount = ReadyInvoice::count();

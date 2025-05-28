@@ -8,7 +8,6 @@
             <table id="invoiceTable" class="table table-hover">
                 <thead>
                     <tr class="filters">
-                        <th>SR. No</th>
                         <th>Booking ID</th>
                         <th>Booking Date</th>
                         <th>Company Name</th>
@@ -40,7 +39,6 @@
                 serverSide: true,
                 ajax: "{{ route('haulage.data') }}",
                 columns: [
-                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false }, // SR. No
                     { data: 'BookingRequestID', name: 'BookingRequestID' },
                     { data: 'CreateDateTime', name: 'CreateDateTime' },
                     { data: 'CompanyName', name: 'CompanyName' },
