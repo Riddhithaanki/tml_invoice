@@ -65,13 +65,14 @@
             </a>
         </li>
 
+        <li class="menu-item {{ Request::routeIs('invoice.differences') ? 'active' : '' }}">
+            <a href="{{ route('invoice.differences') }}" class="menu-link">
+                <i class="menu-icon tf-icons mdi mdi-file-document-outline"></i>
+                <div>Invoice Comparison</div>
+            </a>
+        </li>
+
         @if (session('roleId') != 8)
-            <li class="menu-item {{ Request::routeIs('invoice.differences') ? 'active' : '' }}">
-                <a href="{{ route('invoice.differences') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-file-document-outline"></i>
-                    <div>Invoice Comparison</div>
-                </a>
-            </li>
             <!-- Users -->
             <li class="menu-item {{ Request::routeIs('users.*') ? 'active' : '' }}">
                 <a href="{{ route('users.list') }}" class="menu-link">
