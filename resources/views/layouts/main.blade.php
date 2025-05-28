@@ -36,7 +36,9 @@
     <link rel="stylesheet" href="{{ url('vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css') }}" />
     <link rel="stylesheet" href="{{ url('vendor/libs/apex-charts/apex-charts.css') }}" />
     <link rel="stylesheet" href="{{ url('vendor/libs/swiper/swiper.css') }}" />
-    <link rel="stylesheet" href="{{ url('vendor/libs/sweetalert2/sweetalert2.scss') }}" />
+    
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ url('vendor/css/pages/cards-statistics.css') }}" />
@@ -50,7 +52,7 @@
         .btn-primary {
             background-color: #3c8dbc;
             border-color: #3c8dbc;
-            color:white;
+            color: white;
         }
 
         .btn-primary:hover {
@@ -58,21 +60,53 @@
             border-color: #367fa9;
         }
 
+        /* SweetAlert2 Custom Styles */
+        .swal2-popup {
+            font-size: 1rem;
+        }
+
+        .swal2-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .swal2-content {
+            font-size: 1rem;
+        }
+
+        .swal2-styled.swal2-confirm {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            box-shadow: none;
+        }
+
+        .swal2-styled.swal2-cancel {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            box-shadow: none;
+        }
+
+        .swal2-icon {
+            border-color: #ffa000;
+        }
+
         /* Updated Toastr Styling */
         #toast-container {
             z-index: 999999;
         }
 
-        #toast-container > .toast {
+        #toast-container>.toast {
             background-image: none !important;
             padding: 15px 15px 15px 50px;
             width: 350px;
             border-radius: 8px;
             opacity: 1;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
-        #toast-container > .toast:before {
+        #toast-container>.toast:before {
             position: absolute;
             left: 15px;
             top: 50%;
@@ -84,39 +118,39 @@
             color: #ffffff;
         }
 
-        #toast-container > .toast-success {
+        #toast-container>.toast-success {
             background-color: #51A351 !important;
             color: #ffffff !important;
         }
 
-        #toast-container > .toast-success:before {
+        #toast-container>.toast-success:before {
             content: '\f00c';
         }
 
-        #toast-container > .toast-error {
+        #toast-container>.toast-error {
             background-color: #BD362F !important;
             color: #ffffff !important;
         }
 
-        #toast-container > .toast-error:before {
+        #toast-container>.toast-error:before {
             content: '\f00d';
         }
 
-        #toast-container > .toast-info {
+        #toast-container>.toast-info {
             background-color: #2F96B4 !important;
             color: #ffffff !important;
         }
 
-        #toast-container > .toast-info:before {
+        #toast-container>.toast-info:before {
             content: '\f129';
         }
 
-        #toast-container > .toast-warning {
+        #toast-container>.toast-warning {
             background-color: #F89406 !important;
             color: #ffffff !important;
         }
 
-        #toast-container > .toast-warning:before {
+        #toast-container>.toast-warning:before {
             content: '\f071';
         }
 
@@ -135,7 +169,7 @@
             opacity: 1;
         }
 
-        #toast-container > .toast-message {
+        #toast-container>.toast-message {
             font-size: 14px;
             line-height: 1.4;
             color: #ffffff;
@@ -146,6 +180,7 @@
         .modal-backdrop {
             z-index: 99999;
         }
+
         .modal {
             z-index: 999999;
         }
@@ -153,7 +188,10 @@
 
     <!-- Load jQuery first -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    
+
+    <!-- Then load SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <!-- Then load Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
@@ -176,6 +214,15 @@
             "showMethod": "fadeIn",
             "hideMethod": "fadeOut"
         };
+
+        // Configure SweetAlert2 default options
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-danger ms-2',
+                cancelButton: 'btn btn-secondary'
+            },
+            buttonsStyling: false
+        });
     </script>
 
     <!-- Other scripts -->
@@ -223,7 +270,7 @@
     <script src="{{ url('js/main.js') }}"></script>
 
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             @if ($errors->any())
                 @foreach ($errors->all() as $error)
                     toastr.error("{{ $error }}");
@@ -240,4 +287,5 @@
         });
     </script>
 </body>
+
 </html>

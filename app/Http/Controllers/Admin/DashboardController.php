@@ -29,7 +29,8 @@ class DashboardController extends Controller
         $readyHoldInvoiceCount = InvoiceDifference::where('status', '0')->count();
         $readyInvoiceCount = ReadyInvoice::count();
         $completedInvoice = InvoiceDifference::where('status', '1')->count();
-        return view('dashboard', compact('recentInvoice', 'readyHoldInvoiceCount', 'completedInvoice','readyInvoiceCount'));
+        $bookingCount = Booking::count();
+        return view('dashboard', compact('recentInvoice', 'bookingCount','readyHoldInvoiceCount', 'completedInvoice','readyInvoiceCount'));
     }
 
     public function getInvoiceData($id)
@@ -762,6 +763,53 @@ class DashboardController extends Controller
                 'success' => false,
                 'message' => 'Error fetching invoice: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function deleteInvoiceLoad(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Get the load details before deletion
+            $load = DB::table('tbl_booking_loads1')
+                ->where('LoadID', $request->load_id)
+                ->first();
+
+            if (!$load) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Load not found'
+                ]);
+            }
+            // Store in deleted loads table
+            DB::table('tbl_booking_loads_deleted')->insert([
+                'LoadID' => $load->LoadID,
+                'ConveyanceNo' => $request->conveyance_no,
+                'LoadValues' => json_encode($load), // Store all load values as JSON
+                'CreateDateTime' => now(),
+            ]);
+
+            // Delete the load
+            DB::table('tbl_booking_loads1')
+                ->where('LoadID', $request->load_id)
+                ->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Load deleted successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error deleting load: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
         }
     }
 }

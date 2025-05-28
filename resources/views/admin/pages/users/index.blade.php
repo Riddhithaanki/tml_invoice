@@ -13,17 +13,19 @@
                         <th>Email</th>
                         <th>Mobile</th>
                         <th>Role</th>
-                        <th>Created On</th>                    
+                        <th>Created On</th>
                     </tr>
                     <tr class="search-row">
                         <th></th>
                         <th><input type="text" class="form-control form-control-sm column-search"
                                 placeholder="Search Username"></th>
-                        <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Email">
+                        <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Search Email">
                         </th>
                         <th><input type="text" class="form-control form-control-sm column-search"
                                 placeholder="Search Mobile"></th>
-                        <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Role">
+                        <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Search Role">
                         </th>
                         <th></th>
                     </tr>
@@ -33,26 +35,48 @@
     </div>
 
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
 
             // Initialize DataTable with individual column searching
             var table = $('#invoiceTable').DataTable({
                 processing: true,
                 serverSide: true,
+                paging: false,
                 ajax: {
                     url: "{{ route('users.data') }}",
                 },
-                columns: [
-                    { data: 'userId', name: 'userId', orderable: false, searchable: false }, // SR. No
-                    { data: 'name', name: 'name' },
-                    { data: 'email', name: 'email' },
-                    { data: 'mobile', name: 'mobile' },
-                    { data: 'role.role', name: 'role.role' },
-                    { data: 'createdDtm', name: 'createdDtm', orderable: false, searchable: false } // Action buttons
+                columns: [{
+                        data: 'userId',
+                        name: 'userId',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'name',
+                        name: 'name'
+                    },
+                    {
+                        data: 'email',
+                        name: 'email'
+                    },
+                    {
+                        data: 'mobile',
+                        name: 'mobile'
+                    },
+                    {
+                        data: 'role.role',
+                        name: 'role.role'
+                    },
+                    {
+                        data: 'createdDtm',
+                        name: 'createdDtm',
+                        orderable: false,
+                        searchable: false
+                    }
                 ],
-                order: [[2, 'desc']], // Sort by Booking Date by default
-                pageLength: 10,
-                lengthMenu: [10, 25, 50, 100],
+                order: [
+                    [2, 'desc']
+                ],
                 responsive: true,
                 orderCellsTop: true,
                 searching: true,
@@ -67,8 +91,9 @@
                 }
             });
 
+
             // Apply search to each column
-            $('.column-search').on('keyup change', function () {
+            $('.column-search').on('keyup change', function() {
                 var colIndex = $(this).closest('th').index();
                 table
                     .column(colIndex)
@@ -82,7 +107,7 @@
                 '<i class="fas fa-times"></i> Clear</button>'
             );
 
-            $('#clearFilters').on('click', function () {
+            $('#clearFilters').on('click', function() {
                 $('.column-search').val('');
                 table.search('').columns().search('').draw();
             });

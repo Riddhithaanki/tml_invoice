@@ -79,8 +79,8 @@ class CollectionController extends Controller
             ->addIndexColumn()
             ->filterColumn('CreateDateTime', function ($query, $keyword) {
                 $query->where(function ($q) use ($keyword) {
-                    $q->whereRaw("DATE_FORMAT(tbl_booking_request.CreateDateTime, '%d/%m/%Y %H:%i') like ?", ["%{$keyword}%"])
-                    ->orWhereRaw("DATE_FORMAT(tbl_booking_request.CreateDateTime, '%d/%m/%Y') like ?", ["%{$keyword}%"])
+                    $q->whereRaw("DATE_FORMAT(tbl_booking_request.CreateDateTime, '%d-%m-%Y %H:%i') like ?", ["%{$keyword}%"])
+                    ->orWhereRaw("DATE_FORMAT(tbl_booking_request.CreateDateTime, '%d-%m-%Y') like ?", ["%{$keyword}%"])
                     ->orWhereRaw("DATE_FORMAT(tbl_booking_request.CreateDateTime, '%H:%i') like ?", ["%{$keyword}%"]);
                 });
             })
@@ -92,7 +92,7 @@ class CollectionController extends Controller
                 $query->where('tbl_booking_request.OpportunityName', 'like', "%$keyword%");
             })
              ->editColumn('CreateDateTime', function ($row) {
-                return Carbon::parse($row->CreateDateTime)->format('d/m/Y H:i');
+                return Carbon::parse($row->CreateDateTime)->format('d-m-Y H:i');
             })
             ->addColumn('CompanyName', function ($booking) {
                 return $booking->CompanyName ?? 'N/A';

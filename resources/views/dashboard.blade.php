@@ -111,6 +111,32 @@
             background-color: #3c8dbc;
             border-color: #3c8dbc;
         }
+
+        /* Add these styles for the search inputs */
+        .search-row input {
+            width: 100%;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 0.85rem;
+        }
+
+        .search-row input:focus {
+            border-color: #3c8dbc;
+            box-shadow: 0 0 0 0.2rem rgba(60, 141, 188, 0.25);
+            outline: none;
+        }
+
+        .search-row th {
+            padding: 8px;
+            background-color: white;
+            border-top: none;
+        }
+
+        .column-search {
+            min-width: 100px;
+            max-width: 150px;
+        }
     </style>
 
     <div class="container px-2 py-1">
@@ -180,6 +206,24 @@
                     </div>
                 </div>
 
+                <div class="col-md-4 col-sm-6 mt-3">
+                    <div class="stat-card d-flex align-items-center justify-content-between border p-3 rounded">
+                        <div class="card-body">
+                            <div class="card-title">Bookings</div>
+                            <div class="card-value">{{ $bookingCount }}</div>
+                        </div>
+                        <div class="icon-box border rounded-circle p-2">
+                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black"
+                                stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10" stroke="black" stroke-width="2"
+                                    fill="none" />
+                                <path d="M9 12l2 2 4-4" stroke="black" stroke-width="2" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
 
@@ -198,6 +242,13 @@
                                 <th>Site</th>
                                 <th>Action</th>
                             </tr>
+                            <tr class="search-row">
+                                <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Booking ID"></th>
+                                <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Date"></th>
+                                <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Company"></th>
+                                <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Site"></th>
+                                <th></th>
+                            </tr>
                         </thead>
                         <tbody>
                             @foreach ($recentInvoice as $key => $invoice)
@@ -206,7 +257,6 @@
                                     <td>
                                         {{ $invoice->CreateDateTime ? \Carbon\Carbon::parse($invoice->CreateDateTime)->format('d/m/Y H:i') : 'N/A' }}
                                     </td>
-
                                     <td>{{ $invoice->CompanyName ?? 'N/A' }}</td>
                                     <td>{{ $invoice->OpportunityName ?? 'N/A' }}</td>
                                     <td>
@@ -233,21 +283,22 @@
 
     <script>
         $(document).ready(function() {
-            $('#invoiceTable').DataTable({
+            var table = $('#invoiceTable').DataTable({
                 responsive: true,
-                language: {
-                    search: "_INPUT_",
-                    searchPlaceholder: "Search...",
-                    paginate: {
-                        previous: "<i class='fas fa-chevron-left'></i>",
-                        next: "<i class='fas fa-chevron-right'></i>"
-                    }
-                },
-                lengthMenu: [5, 10, 25],
-                pageLength: 5,
+                orderCellsTop: true,
+                lengthMenu: [5, 10, 50, 100],
+                pageLength: 50,
                 order: [
                     [0, 'desc']
                 ]
+            });
+
+            // Apply column search
+            $('.column-search').on('keyup change', function() {
+                table
+                    .column($(this).closest('th').index())
+                    .search(this.value)
+                    .draw();
             });
         });
     </script>

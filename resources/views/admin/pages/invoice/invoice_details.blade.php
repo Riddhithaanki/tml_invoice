@@ -104,13 +104,132 @@
         background: rgba(255, 255, 255, 0.7);
         z-index: 1000;
     }
+
+    /* SweetAlert2 Custom Styles */
+    .swal2-popup {
+        border-radius: 15px !important;
+        padding: 2rem !important;
+    }
+
+    .swal2-title-custom {
+        font-size: 1.5rem !important;
+        font-weight: 600 !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .swal2-content-custom {
+        font-size: 1rem !important;
+    }
+
+    .swal2-header-custom {
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 1rem !important;
+    }
+
+    .delete-load-modal .alert {
+        background-color: #fff8e1;
+        border-left: 4px solid #ffa000;
+        margin: 1rem 0;
+    }
+
+    .delete-load-modal .alert i {
+        color: #ffa000;
+    }
+
+    /* Animation classes */
+    .animated {
+        animation-duration: 0.5s;
+        animation-fill-mode: both;
+    }
+
+    .faster {
+        animation-duration: 0.3s;
+    }
+
+    @keyframes zoomIn {
+        from {
+            opacity: 0;
+            transform: scale3d(0.3, 0.3, 0.3);
+        }
+        50% {
+            opacity: 1;
+        }
+    }
+
+    .zoomIn {
+        animation-name: zoomIn;
+    }
+
+    @keyframes zoomOut {
+        from {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0;
+            transform: scale3d(0.3, 0.3, 0.3);
+        }
+        to {
+            opacity: 0;
+        }
+    }
+
+    .zoomOut {
+        animation-name: zoomOut;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translate3d(0, -100%, 0);
+        }
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    .fadeInDown {
+        animation-name: fadeInDown;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translate3d(0, 100%, 0);
+        }
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    .fadeInUp {
+        animation-name: fadeInUp;
+    }
+
+    /* SweetAlert2 Loading Spinner Custom Style */
+    .swal2-loading {
+        overflow: hidden;
+    }
+
+    .swal2-loading .swal2-loader {
+        border-color: #3c8dbc transparent #3c8dbc transparent;
+    }
 </style>
+
+<!-- Add Notiflix CSS and JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notiflix@3.2.6/dist/notiflix-3.2.6.min.css">
+<script src="https://cdn.jsdelivr.net/npm/notiflix@3.2.6/dist/notiflix-3.2.6.min.js"></script>
+
+<!-- Add iziToast CSS and JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
+<script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>
 
 @section('content')
     <div class="container">
         <div class="booking-section p-4 bg-light rounded shadow-sm">
             <div class="d-flex align-items-center mb-4">
-                <a href="#" class="text-decoration-none text-primary">
+                <a href="{{ url()->previous() ?? route('dashboard') }}" class="text-decoration-none text-primary">
                     <i class="fas fa-arrow-left me-2"></i>
                 </a>
                 <h4 class="m-0 fw-bold">Booking No. : {{ $booking->BookingID }}</h4>
@@ -218,7 +337,7 @@
                                             <i class="fas fa-chevron-down"></i>
                                         </button>
                                     </td>
-                                    <td>{{ \Carbon\Carbon::parse($invoice->CreateDateTime)->format('d/m/Y H:i') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($booking->RequestedDate)->format('d-m-Y H:i') }}</td>
                                     <td><span class="badge bg-primary">{{ $booking->BookingType }}</span></td>
                                     <td>{{ $booking->MaterialName }}</td>
                                     <td>
@@ -437,6 +556,19 @@
 
     <script>
         $(document).ready(function() {
+            
+            // Initialize iziToast settings
+            iziToast.settings({
+                timeout: 5000,
+                resetOnHover: true,
+                transitionIn: 'flipInX',
+                transitionOut: 'flipOutX',
+                position: 'topRight',
+                messageSize: '14px',
+                titleSize: '16px',
+                maxWidth: 400
+            });
+
             // Helper function to parse currency values
             function parseCurrencyValue(value) {
                 return parseFloat(value.replace(/[£,]/g, '')) || 0;
@@ -637,6 +769,7 @@
                                 <table class="table table-bordered table-striped table-hover">
                                     <thead class="table-primary">
                                         <tr>
+                                            <th>Action</th>
                                             <th>Conveyance No</th>
                                             <th>Ticket ID</th>
                                             <th>Date Time</th>
@@ -656,7 +789,7 @@
                             response.invoice_items.forEach(item => {
                                 if (!item.loads || item.loads.length === 0) {
                                     html += `<tr>
-                                        <td colspan="12" class="text-center text-warning fw-bold">No details available for this material.</td>
+                                        <td colspan="13" class="text-center text-warning fw-bold">No details available for this material.</td>
                                     </tr>`;
                                 } else {
                                     // Add individual load rows
@@ -666,6 +799,15 @@
                                         let statusClass = getStatusClass(load.Status);
 
                                         html += `<tr>
+                                            <td>
+                                                <button class="btn btn-sm btn-danger delete-load" 
+                                                    data-load-id="${load.LoadID}"
+                                                    data-conveyance="${load.ConveyanceNo || ''}"
+                                                    data-ticket="${load.TicketID || ''}"
+                                                    data-material="${item.MaterialName}">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
                                             <td>${load.ConveyanceNo || ''}</td>
                                             <td><span class="badge bg-dark">${load.TicketID || ''}</span></td>
                                             <td>${formatDateTime(load.JobStartDateTime)}</td>
@@ -695,6 +837,113 @@
                                         </tr>`;
                                     });
                                 }
+                            });
+
+                            // Add delete load handler
+                            $(document).on('click', '.delete-load', function(e) {
+                                e.preventDefault();
+                                const loadId = $(this).data('load-id');
+                                const conveyance = $(this).data('conveyance');
+                                const ticket = $(this).data('ticket');
+                                const material = $(this).data('material');
+                                const $row = $(this).closest('tr');
+                                const $mainRow = $row.closest('.invoice-items-container').prev('tr');
+                                const loadPrice = parseFloat($row.find('.editable-price').val()) || 0;
+                                const loadQuantity = parseInt($row.find('.load-quantity').text()) || 1;
+                                const currentTotal = parseFloat($mainRow.find('.booking-total').data('total')) || 0;
+
+                                // Configure SweetAlert2
+                                const swalWithBootstrapButtons = Swal.mixin({
+                                    customClass: {
+                                        confirmButton: 'btn btn-danger ms-2',
+                                        cancelButton: 'btn btn-secondary'
+                                    },
+                                    buttonsStyling: false
+                                });
+
+                                swalWithBootstrapButtons.fire({
+                                    title: 'Delete Load?',
+                                    html: `
+                                        <div class="text-start">
+                                            <div class="alert alert-warning">
+                                                <p class="mb-2"><i class="fas fa-truck me-2"></i><strong>Conveyance:</strong> ${conveyance || 'N/A'}</p>
+                                                
+                                            </div>
+                                            <p class="text-danger mt-3"><i class="fas fa-exclamation-triangle me-2"></i>This action cannot be undone!</p>
+                                        </div>
+                                    `,
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Yes, delete it!',
+                                    cancelButtonText: 'Cancel',
+                                    reverseButtons: true,
+                                    allowOutsideClick: false
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        // Show loading state
+                                        swalWithBootstrapButtons.fire({
+                                            title: 'Deleting...',
+                                            html: 'Please wait while we process your request.',
+                                            allowOutsideClick: false,
+                                            showConfirmButton: false,
+                                            willOpen: () => {
+                                                Swal.showLoading();
+                                            }
+                                        });
+
+                                        // Proceed with delete
+                                        $.ajax({
+                                            url: "{{ route('delete.invoice.load') }}",
+                                            type: "POST",
+                                            data: {
+                                                _token: "{{ csrf_token() }}",
+                                                load_id: loadId,
+                                                conveyance_no: conveyance
+                                            },
+                                            success: function(response) {
+                                                if (response.success) {
+                                                    // Calculate the amount to subtract
+                                                    const amountToSubtract = loadPrice * loadQuantity;
+                                                    
+                                                    // Remove the row with animation
+                                                    $row.fadeOut(300, function() {
+                                                        $(this).remove();
+                                                        
+                                                        // Update booking total
+                                                        const newTotal = Math.max(0, currentTotal - amountToSubtract);
+                                                        $mainRow.find('.booking-total')
+                                                            .data('total', newTotal)
+                                                            .text('£' + newTotal.toFixed(2));
+                                                        
+                                                        // Recalculate all totals
+                                                        recalculateBookingTotals();
+                                                    });
+
+                                                    swalWithBootstrapButtons.fire({
+                                                        icon: 'success',
+                                                        title: 'Deleted!',
+                                                        text: 'Load has been deleted successfully.',
+                                                        showConfirmButton: false,
+                                                        timer: 1500
+                                                    });
+                                                } else {
+                                                    swalWithBootstrapButtons.fire({
+                                                        icon: 'error',
+                                                        title: 'Error!',
+                                                        text: response.message || 'Error deleting load'
+                                                    });
+                                                }
+                                            },
+                                            error: function(xhr) {
+                                                swalWithBootstrapButtons.fire({
+                                                    icon: 'error',
+                                                    title: 'Error!',
+                                                    text: xhr.responseJSON?.message || 'An error occurred while deleting the load'
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
                             });
 
                             html += '</tbody></table></div>';
@@ -804,14 +1053,20 @@
 
             function formatDateTime(dateTime) {
                 if (!dateTime) return "N/A";
-                let date = new Date(dateTime);
-                return date.toLocaleString('en-GB', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+                try {
+                    let date = new Date(dateTime);
+                    if (isNaN(date.getTime())) return "Invalid Date";
+                    return date.toLocaleString('en-GB', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    }).replace(',', '');
+                } catch (e) {
+                    return "Invalid Date";
+                }
             }
 
             function formatWeight(weight) {
@@ -972,7 +1227,14 @@
                                     <td>${item.BookingRequestID}</td>
                                     <td>${item.CompanyName}</td>
                                     <td>${item.OpportunityName}</td>
-                                    <td>${new Date(item.CreateDateTime).toLocaleDateString()}</td>
+                                    <td>${new Date(item.CreateDateTime).toLocaleString('en-GB', { 
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        hour12: false
+                                    }).replace(',', '-=')}</td>
                                 </tr>`;
                         });
 
@@ -1060,14 +1322,10 @@
                                 totalAmount += price;
                             });
                             
-                            // Update the main row's price and total
-                            let totalLoads = parseInt($mainRow.find('td:eq(6)').text()) || 0;
-                            let avgPrice = totalAmount / totalLoads;
+                            // Keep the original price per load
+                            let pricePerLoad = parseFloat($mainRow.find('.price-per-load').data('price')) || 0;
                             
-                            $mainRow.find('.price-per-load')
-                                .data('price', avgPrice)
-                                .text('£' + avgPrice.toFixed(2));
-                                
+                            // Update only the total amount in the main row
                             $mainRow.find('.booking-total')
                                 .data('total', totalAmount)
                                 .text('£' + totalAmount.toFixed(2));
@@ -1088,30 +1346,26 @@
                 });
             });
 
+            // Function to recalculate booking totals
             function recalculateBookingTotals() {
                 let subtotal = 0;
                 
                 // Calculate new totals for each booking
-                $('.table-striped tbody tr:not(.invoice-items-container)').each(function() {
-                    let $row = $(this);
-                    let bookingId = $row.find('button[data-booking-id]').data('booking-id');
-                    
-                    if (bookingId) {
-                        let totalPrice = parseFloat($row.find('.booking-total').data('total')) || 0;
-                        subtotal += totalPrice;
-                    }
+                $('.booking-total').each(function() {
+                    const total = parseFloat($(this).data('total')) || 0;
+                    subtotal += total;
                 });
                 
-                // Update subtotal
+                // Update subtotal display
                 $('.subtotal-amount').text('£' + subtotal.toFixed(2));
                 
                 // Calculate VAT
-                let vatRate = parseFloat("{{ $invoice->TaxRate ?? 20 }}");
-                let vatAmount = (subtotal * vatRate) / 100;
+                const vatRate = parseFloat("{{ $invoice->TaxRate ?? 20 }}");
+                const vatAmount = (subtotal * vatRate) / 100;
                 $('.vat-amount').text('£' + vatAmount.toFixed(2));
                 
                 // Update total
-                let finalAmount = subtotal + vatAmount;
+                const finalAmount = subtotal + vatAmount;
                 $('.total-amount').text('£' + finalAmount.toFixed(2));
                 
                 // Update hidden form fields

@@ -103,6 +103,8 @@ Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->g
 
     Route::post('/invoice-differences/{id}/update-status', [DashboardController::class, 'updateDifferenceStatus'])
         ->name('invoice.differences.update-status');
+
+    Route::post('/delete-invoice-load', [DashboardController::class, 'deleteInvoiceLoad'])->name('delete.invoice.load');
 });
 
 Route::group(['middleware' => ['web', 'auth', 'customer', 'log_activity', 'network_error'], 'prefix' => 'customer', 'as' => 'customer.'], function () {
