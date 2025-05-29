@@ -45,6 +45,7 @@
         <style>
             .nav-tabs {
                 border-bottom: none;
+                width: auto;
             }
             .nav-tabs .nav-link {
                 color: #495057;
@@ -78,6 +79,22 @@
                 margin-left: 4px;
                 margin-right: 0;
             }
+            .tab-container {
+                overflow-x: auto;
+                overflow-y: hidden;
+                white-space: nowrap;
+                padding-bottom: 2px;
+            }
+
+            .nav-tabs {
+            flex-wrap: nowrap !important;
+            overflow: hidden;
+            }
+
+            .nav-tabs .nav-item {
+            flex-shrink: 0;
+            }
+
         </style>
 
         <!-- Header -->
@@ -85,8 +102,27 @@
             <h3 class="table-title text-center text-white">Collection Invoices</h3>
         </div>
 
+        <!-- Custom Global Search + Date Range Row -->
+<div class="row px-3 py-2 bg-light align-items-center">
+    <!-- Global Search -->
+    <div class="col-md-6 d-flex align-items-center">
+        <input type="text" id="globalSearchInput" class="form-control form-control-sm mr-2" placeholder="Search all data">
+        <button id="globalSearchBtn" class="btn btn-sm btn-primary ms-2">Search</button>
+    </div>
+
+    <!-- Date Range Filter -->
+    <div class="col-md-6 d-flex align-items-center justify-content-end">
+        <span class="mr-2">Date: </span>
+        <input type="date" id="startDate" class="form-control form-control-sm mr-1" placeholder="Start Date">
+        <span class="mx-1">to</span>
+        <input type="date" id="endDate" class="form-control form-control-sm mr-2" placeholder="End Date">
+        <button id="filterBtn" class="btn btn-sm btn-primary ms-2">Filter</button>
+        <button id="clearFilters" class="btn btn-sm btn-outline-secondary ml-1 ms-2">Clear</button>
+    </div>
+</div>
+
         <!-- Filters -->
-        <div class="date-filter-container p-2 bg-light border-bottom">
+        <!-- <div class="date-filter-container p-2 bg-light border-bottom">
             <div class="d-flex align-items-center justify-content-end">
                 <div class="date-range-compact d-flex align-items-center">
                     <span class="mr-2">Date: &nbsp;</span>
@@ -97,7 +133,7 @@
                     <button id="clearFilters" class="btn btn-sm btn-outline-secondary ml-1">Clear</button>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Table -->
         <div class="table-responsive">
@@ -108,6 +144,7 @@
                         <th>Booking Date</th>
                         <th>Company Name</th>
                         <th>Site Name</th>
+                        <th>On Hold</th>
                         <th>Action</th>
                     </tr>
                     <tr class="search-row">
@@ -119,6 +156,7 @@
                                 placeholder="Search Company"></th>
                         <th><input type="text" class="form-control form-control-sm column-search"
                                 placeholder="Search Site"></th>
+                         <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search hold" /></th>
                         <th></th>
                     </tr>
                 </thead>
@@ -160,6 +198,10 @@
                         {
                             data: 'OpportunityName',
                             name: 'OpportunityName'
+                        },
+                        {
+                            data: 'InvoiceHold',
+                            name: 'InvoiceHold'
                         },
                         {
                             data: 'action',
@@ -209,6 +251,33 @@
 
     <!-- CSS -->
     <style>
+              #globalSearchInput {
+    width: 80%;
+    height: 40px;
+}
+
+        #globalSearchBtn{
+            width:140px;
+            height:40px;
+        }
+
+        #clearFilters{
+            width:140px;
+             height:40px;
+        }
+        #endDate{
+             width: 40%;
+            height: 40px;
+        }
+        #startDate{
+             width: 40%;
+            height: 40px;
+        }
+
+        #filterBtn{
+            width:140px;
+             height:40px;
+        }
         .table-container {
             background-color: white;
             border-radius: 6px;

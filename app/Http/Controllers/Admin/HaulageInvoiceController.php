@@ -32,6 +32,7 @@ class HaulageInvoiceController extends Controller
             'tbl_booking_request.CreateDateTime',
             'tbl_booking_request.CompanyName',
             'tbl_booking_request.OpportunityName',
+            'tbl_booking_request.InvoiceHold',
         ])
             ->join('tbl_booking_request', 'tbl_booking1.BookingRequestID', '=', 'tbl_booking_request.BookingRequestID')
             ->where('tbl_booking1.BookingType', 4)
@@ -88,6 +89,17 @@ class HaulageInvoiceController extends Controller
             ->addColumn('CreateDateTime', function ($booking) {
                 return $booking->CreateDateTime ?? 'N/A';
             })
+             ->filterColumn('InvoiceHold', function($query, $keyword) {
+    if (stripos($keyword, 'yes') !== false) {
+        $query->where('tbl_booking_request.InvoiceHold', 1);
+    } elseif (stripos($keyword, 'no') !== false) {
+        $query->where('tbl_booking_request.InvoiceHold', 0);
+    }
+})
+
+            ->editColumn('InvoiceHold', function ($row) {
+    return $row->InvoiceHold == 1 ? 'Yes' : 'No';
+})
             ->addColumn('action', function ($booking) {
                 if ($booking->BookingRequestID) {
                     return '<a href="' . route('invoice.show', Crypt::encrypt($booking->BookingRequestID)) . '"

@@ -45,7 +45,26 @@
             <h3 class="table-title text-center text-white">Delivery Invoices</h3>
         </div>
 
-        <!-- Compact date filter row -->
+        <!-- Custom Global Search + Date Range Row -->
+<div class="row px-3 py-2 bg-light align-items-center">
+    <!-- Global Search -->
+    <div class="col-md-6 d-flex align-items-center">
+        <input type="text" id="globalSearchInput" class="form-control form-control-sm mr-2" placeholder="Search all data">
+        <button id="globalSearchBtn" class="btn btn-sm btn-primary ms-2">Search</button>
+    </div>
+
+    <!-- Date Range Filter -->
+    <div class="col-md-6 d-flex align-items-center justify-content-end">
+        <span class="mr-2">Date: </span>
+        <input type="date" id="startDate" class="form-control form-control-sm mr-1" placeholder="Start Date">
+        <span class="mx-1">to</span>
+        <input type="date" id="endDate" class="form-control form-control-sm mr-2" placeholder="End Date">
+        <button id="filterBtn" class="btn btn-sm btn-primary ms-2">Filter</button>
+        <button id="clearFilters" class="btn btn-sm btn-outline-secondary ml-1 ms-2">Clear</button>
+    </div>
+</div>
+
+        <!-- Compact date filter row
         <div class="date-filter-container p-2 bg-light border-bottom">
             <div class="d-flex align-items-center justify-content-end">
                 <div class="date-range-compact d-flex align-items-center">
@@ -57,7 +76,7 @@
                     <button id="clearFilters" class="btn btn-sm btn-outline-secondary ml-1">Clear</button>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <div class="table-responsive">
             <table id="invoiceTable" class="table table-hover">
@@ -67,6 +86,7 @@
                         <th>Booking Date</th>
                         <th>Company Name</th>
                         <th>Site Name</th>
+                        <th>On Hold</th>
                         <th>Action</th>
                     </tr>
                     <tr class="search-row">
@@ -80,6 +100,7 @@
                         <th><input type="text" class="form-control form-control-sm column-search"
                                 placeholder="Search Site">
                         </th>
+                        <th><input type="text" class="column-ntrol form-control-sm column-search" placeholder="Search hold" /></th>
                         <th></th>
                     </tr>
                 </thead>
@@ -88,69 +109,99 @@
     </div>
 
     <script>
-        $(document).ready(function() {
-            var table = $('#invoiceTable').DataTable({
-                processing: true,
-                serverSide: true,
-                lengthChange: false,
-                searching: true,
-                pageLength: 100,
-                ajax: {
-                    url: "{{ route('delivery.data') }}",
-                    data: function(d) {
-                        d.type = '{{ request('type', 'withtipticket') }}';
-                        d.invoice_type = '{{ request('invoice_type', 'preinvoice') }}';
-                        d.start_date = $('#startDate').val(); // Get start date
-                        d.end_date = $('#endDate').val(); // Get end date
-                    }
-                },
-                columns: [
-                    {
-                        data: 'BookingRequestID',
-                        name: 'BookingRequestID'
-                    },
-                    {
-                        data: 'CreateDateTime',
-                        name: 'CreateDateTime'
-                    },
-                    {
-                        data: 'CompanyName',
-                        name: 'CompanyName'
-                    },
-                    {
-                        data: 'OpportunityName',
-                        name: 'OpportunityName'
-                    },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false
-                    }
-                ],
-            });
+$(document).ready(function() {
+    var table = $('#invoiceTable').DataTable({
+        processing: true,
+        serverSide: true,
+        lengthChange: false,
+        searching: true,
+        pageLength: 100,
+        ajax: {
+            url: "{{ route('delivery.data') }}",
+            data: function(d) {
+                d.type = '{{ request('type', 'withtipticket') }}';
+                d.invoice_type = '{{ request('invoice_type', 'preinvoice') }}';
+                d.start_date = $('#startDate').val();
+                d.end_date = $('#endDate').val();
+            }
+        },
+        columns: [
+            { data: 'BookingRequestID', name: 'BookingRequestID' },
+            { data: 'CreateDateTime', name: 'CreateDateTime' },
+            { data: 'CompanyName', name: 'CompanyName' },
+            { data: 'OpportunityName', name: 'OpportunityName' },
+            { data: 'InvoiceHold', name: 'InvoiceHold' },
+            { data: 'action', name: 'action', orderable: false, searchable: false }
+        ]
+    });
 
-            // 🔹 Enable column search
-            $('#invoiceTable thead .column-search').on('keyup change', function() {
-                let colIndex = $(this).parent().index();  // Get column index
-                table.column(colIndex).search(this.value).draw();
-            });
+    // Column-specific search (requires <th><input class="column-search" /></th> in your table head)
+    $('#invoiceTable thead .column-search').on('keyup change', function() {
+        let colIndex = $(this).parent().index();
+        table.column(colIndex).search(this.value).draw();
+    });
 
-            // Filter button click event
-            $('#filterBtn').click(function() {
-                table.ajax.reload(); // Reload table with new date filters
-            });
+    // Global search on button click
+    $('#globalSearchBtn').on('click', function () {
+        let searchTerm = $('#globalSearchInput').val();
+        table.search(searchTerm).draw();
+    });
 
-            // Clear filters button
-            $('#clearFilters').click(function() {
-                $('#startDate').val('');
-                $('#endDate').val('');
-                table.ajax.reload();
-            });
+    // Filter date range
+    $('#filterBtn').click(function() {
+        table.ajax.reload();
+    });
+
+    // Clear filters
+    $('#clearFilters').click(function() {
+        $('#startDate').val('');
+        $('#endDate').val('');
+        table.ajax.reload();
+    });
+
+    // Safely access table rows/cells after draw
+    table.on('draw', function () {
+        $('#invoiceTable tbody tr').each(function () {
+            let rowIdx = table.row(this).index();
+            if (typeof rowIdx !== 'undefined') {
+                // Example: safely access the 5th column (InvoiceHold)
+                let invoiceHoldValue = table.cell(rowIdx, 4).data();
+                console.log('InvoiceHold:', invoiceHoldValue);
+            }
         });
-    </script>
+    });
+});
+</script>
+
 
     <style>
+        #globalSearchInput {
+    width: 80%;
+    height: 40px;
+}
+
+        #globalSearchBtn{
+            width:140px;
+            height:40px;
+        }
+
+        #clearFilters{
+            width:140px;
+             height:40px;
+        }
+        #endDate{
+             width: 40%;
+            height: 40px;
+        }
+        #startDate{
+             width: 40%;
+            height: 40px;
+        }
+
+        #filterBtn{
+            width:140px;
+             height:40px;
+        }
         .table-container {
             background-color: white;
             border-radius: 6px;

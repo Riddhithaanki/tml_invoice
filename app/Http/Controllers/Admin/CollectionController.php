@@ -35,6 +35,7 @@ class CollectionController extends Controller
             'tbl_booking_request.CreateDateTime',
             'tbl_booking_request.CompanyName',
             'tbl_booking_request.OpportunityName',
+            'tbl_booking_request.InvoiceHold',
             \DB::raw('CASE
                 WHEN EXISTS (SELECT 1 FROM ready_invoices WHERE BookingRequestID = tbl_booking1.BookingRequestID) THEN "ready"
                 ELSE "power"
@@ -103,12 +104,18 @@ class CollectionController extends Controller
             ->addColumn('CreateDateTime', function ($booking) {
                 return $booking->CreateDateTime ?? 'N/A';
             })
-            ->addColumn('invoice_status', function ($booking) {
-                $status = $booking->invoice_status;
-                $badgeClass = $status === 'ready' ? 'badge-success' : 'badge-warning';
-                $statusText = $status === 'ready' ? 'Ready Invoice' : 'Power Invoice';
-                return '<span class="badge ' . $badgeClass . '">' . $statusText . '</span>';
-            })
+            ->filterColumn('InvoiceHold', function($query, $keyword) {
+    if (stripos($keyword, 'yes') !== false) {
+        $query->where('tbl_booking_request.InvoiceHold', 1);
+    } elseif (stripos($keyword, 'no') !== false) {
+        $query->where('tbl_booking_request.InvoiceHold', 0);
+    }
+})
+
+            ->editColumn('InvoiceHold', function ($row) {
+    return $row->InvoiceHold == 1 ? 'Yes' : 'No';
+})
+            
             ->addColumn('action', function ($booking) {
                 if ($booking->BookingRequestID) {
                     return '<a href="' . route('invoice.show', Crypt::encrypt($booking->BookingRequestID)) . '"

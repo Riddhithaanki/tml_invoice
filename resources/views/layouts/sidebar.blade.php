@@ -252,7 +252,7 @@
 
     /* Layout and spacing */
     .menu-item+.menu-item {
-        margin-top: 0.35rem;
+        margin-top: 2.5rem;
     }
 
     .menu-link {

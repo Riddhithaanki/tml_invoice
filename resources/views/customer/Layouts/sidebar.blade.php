@@ -185,7 +185,7 @@
 
     /* Layout and spacing */
     .menu-item+.menu-item {
-        margin-top: 0.35rem;
+        margin-top: 0.5rem;
     }
 
     .menu-link {
@@ -193,7 +193,15 @@
         margin: 0 0.85rem;
         padding-left: 1.15rem !important;
         position: relative;
+         padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
     }
+  
+
+    .menu-inner .menu-item + .menu-item {
+    margin-top: 0.5rem !important;
+}
+
 
     @media (max-width: 727px) {
 

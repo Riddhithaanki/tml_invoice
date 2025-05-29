@@ -18,7 +18,26 @@
         <h3 class="table-title text-center text-white">Daywork Invoices</h3>
     </div>
 
-    <div class="date-filter-container p-2 bg-light border-bottom">
+    <!-- Custom Global Search + Date Range Row -->
+<div class="row px-3 py-2 bg-light align-items-center">
+    <!-- Global Search -->
+    <div class="col-md-6 d-flex align-items-center">
+        <input type="text" id="globalSearchInput" class="form-control form-control-sm mr-2" placeholder="Search all data">
+        <button id="globalSearchBtn" class="btn btn-sm btn-primary ms-2">Search</button>
+    </div>
+
+    <!-- Date Range Filter -->
+    <div class="col-md-6 d-flex align-items-center justify-content-end">
+        <span class="mr-2">Date: </span>
+        <input type="date" id="startDate" class="form-control form-control-sm mr-1" placeholder="Start Date">
+        <span class="mx-1">to</span>
+        <input type="date" id="endDate" class="form-control form-control-sm mr-2" placeholder="End Date">
+        <button id="filterBtn" class="btn btn-sm btn-primary ms-2">Filter</button>
+        <button id="clearFilters" class="btn btn-sm btn-outline-secondary ml-1 ms-2">Clear</button>
+    </div>
+</div>
+
+    <!-- <div class="date-filter-container p-2 bg-light border-bottom">
         <div class="d-flex align-items-center justify-content-end">
             <div class="date-range-compact d-flex align-items-center">
                 <span class="mr-2">Date: &nbsp;</span>
@@ -29,7 +48,7 @@
                 <button id="clearFilters" class="btn btn-sm btn-outline-secondary ml-1">Clear</button>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <div class="table-responsive">
         <table id="invoiceTable" class="table table-hover">
@@ -39,14 +58,16 @@
                     <th>Booking Date</th>
                     <th>Company Name</th>
                     <th>Site Name</th>
+                    <th>On Hold</th>
                     <th>Action</th>
                 </tr>
                 <tr class="search-row">
-                    <th></th>
+                    
                     <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Booking ID"></th>
                     <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Date"></th>
                     <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Company"></th>
                     <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Site"></th>
+                     <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Hold"></th>
                     <th></th>
                 </tr>
             </thead>
@@ -72,6 +93,7 @@
                 { data: 'CreateDateTime', name: 'CreateDateTime' },
                 { data: 'CompanyName', name: 'CompanyName' },
                 { data: 'OpportunityName', name: 'OpportunityName' },
+                 { data: 'InvoiceHold', name: 'InvoiceHold'},
                 { data: 'action', name: 'action', orderable: false, searchable: false }
             ],
             order: [[2, 'desc']],
@@ -96,6 +118,33 @@
 </script>
 
 <style>
+          #globalSearchInput {
+    width: 80%;
+    height: 40px;
+}
+
+        #globalSearchBtn{
+            width:140px;
+            height:40px;
+        }
+
+        #clearFilters{
+            width:140px;
+             height:40px;
+        }
+        #endDate{
+             width: 40%;
+            height: 40px;
+        }
+        #startDate{
+             width: 40%;
+            height: 40px;
+        }
+
+        #filterBtn{
+            width:140px;
+             height:40px;
+        }
     .table-container {
         background-color: white;
         border-radius: 6px;

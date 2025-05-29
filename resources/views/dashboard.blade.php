@@ -11,7 +11,7 @@
             background-color: #f8f9fa;
             border-radius: 8px;
             margin-top: 1rem;
-            margin:10px;
+            margin:10px 0;
             padding:10px;
             margin-right:0;
             margin-left:0;
@@ -25,7 +25,7 @@
             border: none;
             height: 100%;
             background: white;
-        }
+        } 
 
         .stat-card:hover {
             transform: translateY(-5px);
@@ -120,7 +120,7 @@
             border-color: #3c8dbc;
         }
 
-        /* Add these styles for the search inputs */
+        /*  Add these styles for the search inputs */
         .search-row input {
             width: 100%;
             padding: 4px 8px;
@@ -143,7 +143,8 @@
 
         .column-search {
             min-width: 100px;
-            max-width: 150px;
+            max-width: 150px; 
+             
         }
     </style>
 
@@ -241,6 +242,21 @@
                 <div class="table-header">
                     <h5 class="table-title text-center text-white">New Added Invoices</h5>
                 </div>
+                <!-- Full-width search bar with button -->
+<div class="row mb-3">
+    <div class="col-md-12">
+        <div class="input-group">
+            <input type="text" id="globalSearchInput" class="form-control" placeholder="Search across all columns...">
+            <button class="btn btn-primary ms-2" id="globalSearchBtn">
+                Search
+            </button>
+            <button class="btn btn-primary ms-2" id="entriesbtn" >
+                 Show 15 Entries
+            </button>
+        </div>
+    </div>
+</div>
+
                 <div class="table-responsive">
                     <table id="invoiceTable" class="table table-hover">
                         <thead>
@@ -299,7 +315,8 @@
                 pageLength: 20,
                 order: [
                     [0, 'desc']
-                ]
+                ],
+                searching: false
             });
 
             // Apply column search
@@ -310,5 +327,13 @@
                     .draw();
             });
         });
+
+        // Global search on button click
+    $('#globalSearchBtn').on('click', function () {
+        let searchTerm = $('#globalSearchInput').val();
+        table.search(searchTerm).draw();
+    });
+
+
     </script>
 @endsection
