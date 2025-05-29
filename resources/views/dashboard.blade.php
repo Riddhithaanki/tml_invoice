@@ -2,12 +2,19 @@
 
 @section('content')
     <style>
+
         /* Compact styling with #3c8dbc color theme */
+       
+
         .dashboard-container {
             padding: 1rem;
             background-color: #f8f9fa;
             border-radius: 8px;
             margin-top: 0.5rem;
+            margin:0;
+            padding:0;
+            margin-right:0;
+            margin-left:0;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
@@ -51,6 +58,7 @@
             padding: 0.75rem;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             margin-top: 1rem;
+            margin-right: 0;
         }
 
         .table-header {
@@ -139,7 +147,7 @@
         }
     </style>
 
-    <div class="container px-2 py-1">
+    <div class="contaier container-fluid px-2 py-1 me-0 m-0 p-0">
         <div class="dashboard-container">
             <!-- Header -->
             <div class="row mb-2">
@@ -147,12 +155,13 @@
                     <h4 style="color: #3c8dbc; font-weight: 600;">Dashboard Overview</h4>
                 </div>
             </div>
-
+            
+            <div class="container container-fluid mt-4  m-0 p-0">
             <!-- Stat Cards -->
             <div class="row">
 
                 <!-- New Added Invoice -->
-                <div class="col-md-4 col-sm-6">
+                <div class="col-md-3 col-sm-6">
                     <div class="stat-card d-flex align-items-center justify-content-between border p-3 rounded">
                         <div class="card-body">
                             <div class="card-title">Completed Invoice</div>
@@ -169,7 +178,7 @@
                 </div>
 
                 <!-- Invoices on Hold -->
-                <div class="col-md-4 col-sm-6">
+                <div class="col-md-3 col-sm-6">
                     <div class="stat-card d-flex align-items-center justify-content-between border p-3 rounded">
                         <div class="card-body">
                             <div class="card-title">Invoices on Hold</div>
@@ -188,7 +197,7 @@
                 </div>
 
                 <!-- Ready Invoice -->
-                <div class="col-md-4 col-sm-6">
+                <div class="col-md-3 col-sm-6">
                     <div class="stat-card d-flex align-items-center justify-content-between border p-3 rounded">
                         <div class="card-body">
                             <div class="card-title">Ready Invoice</div>
@@ -206,7 +215,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-4 col-sm-6 mt-3">
+                <div class="col-md-3 col-sm-6 ">
                     <div class="stat-card d-flex align-items-center justify-content-between border p-3 rounded">
                         <div class="card-body">
                             <div class="card-title">Bookings</div>

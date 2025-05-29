@@ -119,12 +119,35 @@
     <!-- Invoice Header -->
     <div class="invoice-header">
         <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h3 class="m-0 fw-bold">Invoice #{{ $invoice->InvoiceNumber }}</h3>
+            <!-- <div class="d-flex align-items-center mb-4">
+                <a href="{{ url()->previous() ?? route('dashboard') }}" class="text-decoration-none text-primary">
+                    <i class="fas fa-arrow-left me-2"></i>
+                </a>
+                <h3 class="m-0 fw-bold">Invoice #{{ $invoice->InvoiceNumber }}</h3><br>
+               <div class="mt-2 ps-4">
                 <p class="text-white-50 mb-0 mt-2"></p>
                     <i class="far fa-calendar-alt me-2"></i>{{ \Carbon\Carbon::parse($invoice->InvoiceDate)->format('d/m/Y') }}
-                </p>
-            </div>
+                </p></div>
+            </div> -->
+            <div class="mb-4">
+    <!-- First Line: Back Icon + Invoice Number -->
+    <div class="d-flex align-items-center">
+        <a href="{{ url()->previous() ?? route('dashboard') }}" class="text-decoration-none text-primary me-2">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h3 class="m-0 fw-bold">Invoice #{{ $invoice->InvoiceNumber }}</h3>
+    </div>
+
+    <!-- Second Line: Invoice Date -->
+    <div class="ps-4 mt-1">
+        
+            <i class="far fa-calendar-alt me-2"></i>
+            {{ \Carbon\Carbon::parse($invoice->InvoiceDate)->format('d/m/Y') }}
+       
+    </div>
+</div>
+
+
             <div class="text-end">
                 <h4 class="mb-2">Total Amount</h4>
                 <h2 class="mb-0">£{{ number_format($invoice->FinalAmount, 2) }}</h2>
@@ -137,7 +160,7 @@
         <div class="col-md-3 mb-3">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="text-white mb-0"><i class="fas fa-file-invoice me-2"></i>Invoice Details</h5>
+                    <h5 class="text-white mb-0 fs-3"><i class="fas fa-file-invoice me-2"></i>Invoice Details</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
@@ -173,7 +196,7 @@
         <div class="col-md-3 mb-3">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-header bg-info text-white">
-                    <h5 class="text-white mb-0"><i class="fas fa-building me-2"></i>Client Details</h5>
+                    <h5 class="text-white mb-0 fs-3"><i class="fas fa-building me-2"></i>Client Details</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
@@ -200,7 +223,7 @@
         <div class="col-md-3 mb-3">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-header bg-info text-white">
-                    <h5 class="text-white mb-0"><i class="fas fa-clock me-2"></i>Booking Details</h5>
+                    <h5 class="text-white mb-0 fs-3"><i class="fas fa-clock me-2"></i>Booking Details</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
@@ -229,7 +252,7 @@
         <div class="col-md-3 mb-3">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-header bg-success text-white">
-                    <h5 class="text-white mb-0"><i class="fas fa-money-bill me-2"></i>Financial Summary</h5>
+                    <h5 class="text-white mb-0 fs-3"><i class="fas fa-money-bill me-2"></i>Financial Summary</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
@@ -256,12 +279,12 @@
     <!-- Invoice Items -->
     <div class="loads-section mt-4">
         <div class="header">
-            <h5 class="mb-0"><i class="fas fa-truck me-2"></i>Invoice Items</h5>
+            <h5 class="mb-0 fs-3"><i class="fas fa-truck me-2"></i>Invoice Items</h5>
         </div>
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
-                    <tr>
+                    <tr fs-5>
                         <th>Item #</th>
                         <th>Description</th>
                         <th class="text-center">Quantity</th>
@@ -320,7 +343,7 @@
     <!-- Additional Information -->
     <div class="card mt-4 border-0 shadow-sm">
         <div class="card-header bg-warning text-dark">
-            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Additional Information</h5>
+            <h5 class="mb-0 fs-3"><i class="fas fa-info-circle me-2"></i>Additional Information</h5>
         </div>
         <div class="card-body">
             <div class="row">
