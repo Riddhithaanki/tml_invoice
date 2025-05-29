@@ -12,6 +12,31 @@ class BookingInvoice extends Model
     protected $table = 'tbl_booking_invoice';
     protected $primaryKey = 'InvoiceId';
     public $timestamps = false;
+
+    protected $fillable = [
+        'InvoiceId',
+        'BookingRequestID',
+        'InvoiceDate',
+        'InvoiceType',
+        'InvoiceNumber',
+        'CompanyID',
+        'CompanyName',
+        'OpportunityID',
+        'OpportunityName',
+        'ContactID',
+        'ContactName',
+        'ContactMobile',
+        'SubTotalAmount',
+        'VatAmount',
+        'FinalAmount',
+        'TaxRate',
+        'Status',
+        'CreatedUserID',
+        'is_split',
+        'CreateDateTime',
+        'UpdateDateTime'
+    ];
+    
     public function booking()
     {
         return $this->hasMany(Booking::class, 'BookingRequestID', 'BookingRequestID');

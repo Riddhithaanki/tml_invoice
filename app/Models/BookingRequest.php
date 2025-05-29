@@ -14,6 +14,9 @@ class BookingRequest extends Model
     protected $fillable = [
         'BookingRequestID',
         'is_delete', // Add this field
+        'is_merged',
+        'merged_at',
+        'merged_to_booking_id'
     ];
 
     public $timestamps = false;

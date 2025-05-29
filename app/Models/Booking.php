@@ -11,6 +11,14 @@ class Booking extends Model
 
     protected $table = 'tbl_booking1';
     protected $primaryKey = 'BookingID';
+
+    protected $fillable = [
+        'BookingID',
+        'BookingRequestID',
+        'BookingType',
+        'CompanyName',
+        'OpportunityName',
+    ];
     public $timestamps = false;
     public function loads(){
         return $this->hasMany(BookingLoad::class,'BookingID','BookingID');

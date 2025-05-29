@@ -325,9 +325,33 @@
                             @endphp
                             @foreach ($bookings as $booking)
                                 @php
-                                    $totalAmount = $booking->loads->sum(function($load) {
-                                        return $load->LoadPrice * $load->Loads;
+                                    // Check if this booking has any valid loads
+                                    $validLoads = $booking->loads->filter(function($load) {
+                                        return $load->Status != 5 && ($load->LoadPrice ?? 0) > 0;
                                     });
+
+                                    // Calculate total amount from valid loads
+                                    $totalAmount = $validLoads->sum(function($load) {
+                                        return ($load->LoadPrice ?? 0) * ($load->Loads ?? 1);
+                                    });
+
+                                    // Check if this is a split booking
+                                    $isSplitBooking = DB::table('booking_relationships')
+                                        ->where(function($query) use ($booking) {
+                                            $query->where('source_booking_id', $booking->BookingID)
+                                                  ->orWhere('target_booking_id', $booking->BookingID);
+                                        })
+                                        ->where('relationship_type', 'split')
+                                        ->exists();
+
+                                    // Only skip if it's a source booking of a split
+                                    if ($isSplitBooking && DB::table('booking_relationships')
+                                        ->where('source_booking_id', $booking->BookingID)
+                                        ->where('relationship_type', 'split')
+                                        ->exists()) {
+                                        continue;
+                                    }
+
                                     $subtotal += $totalAmount;
                                 @endphp
                                 <tr>
@@ -360,14 +384,18 @@
                                             <span class="badge bg-warning">NA</span>
                                         @endif
                                     </td>
-                                    <td class="text-center">{{ $booking->Loads }}</td>
+                                    <td class="text-center">{{ $validLoads->count() }}</td>
                                     <td class="text-end price-per-load" data-price="{{ $booking->Price }}">
                                         £{{ number_format($booking->Price, 2) }}
                                     </td>
-                                    <td class="text-end booking-total" data-total="{{ $booking->TotalAmount }}">
-                                        £{{ number_format($booking->TotalAmount, 2) }}
+                                    <td class="text-end booking-total" data-total="{{ $totalAmount }}">
+                                        £{{ number_format($totalAmount, 2) }}
                                     </td>
-                                    <td class="validation-status"></td>
+                                    <td class="validation-status">
+                                        @if ($isSplitBooking)
+                                            <span class="badge bg-info">Split</span>
+                                        @endif
+                                    </td>
                                 </tr>
                                 <tr class="invoice-items-container d-none" data-booking-id="{{ $booking->BookingID }}">
                                     <td colspan="9" class="p-0">
@@ -380,7 +408,6 @@
                         </tbody>
                         <tfoot>
                             @php
-                                $subtotal = $bookings->sum('TotalAmount');
                                 $vatRate = $invoice->TaxRate ?? 20;
                                 $vatAmount = $subtotal * ($vatRate / 100);
                                 $total = $subtotal + $vatAmount;
@@ -1105,11 +1132,12 @@
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
-                                            <th>Select</th>
-                                            <th>Load ID</th>
-                                            <th>Material</th>
-                                            <th>Quantity</th>
-                                            <th>Price</th>
+                                            <th width="5%">Select</th>
+                                            <th width="10%">Booking ID</th>
+                                            <th width="12%">Date</th>
+                                            <th width="10%">Material</th>
+                                            <th width="8%">Quantity</th>
+                                            <th width="10%">Price</th>
                                         </tr>
                                     </thead>
                                     <tbody>`;
@@ -1117,18 +1145,26 @@
                         response.invoice_items.forEach(function(item) {
                             html += `
                                 <tr>
-                                    <td>
-                                        <input type="checkbox" class="load-checkbox" data-load-id="${item.BookingID}"
-                                               data-material="${item.MaterialName}" data-price="${item.Price}">
+                                    <td class="text-center">
+                                        <input type="checkbox" class="load-checkbox" 
+                                            data-load-id="${item.BookingID}"
+                                            data-material="${item.MaterialName}"
+                                            data-price="${item.Price}">
                                     </td>
-                                    <td>${item.BookingID}</td>
+                                    <td><strong>${item.BookingID}</strong></td>
+                                    <td>${formatDateTime(item.CreateDateTime)}</td>
                                     <td>${item.MaterialName}</td>
-                                    <td>${item.Loads}</td>
-                                    <td>£${item.Price}</td>
+                                    <td class="text-center">${item.Loads}</td>
+                                    <td class="text-end">£${item.Price}</td>
                                 </tr>`;
                         });
 
-                        html += `</tbody></table></div>`;
+                        html += `</tbody></table></div>
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Select the bookings you want to split into a new invoice.
+                        </div>`;
+
                         modal.find('.modal-body').html(html);
                     },
                     error: function(xhr) {
@@ -1138,6 +1174,32 @@
                     }
                 });
             });
+
+            // Helper function for Load Type Label
+            function getLoadTypeLabel(type) {
+                switch(type) {
+                    case '1':
+                        return '<span class="badge bg-success">Loads</span>';
+                    case '2':
+                        return '<span class="badge bg-warning">Turnaround</span>';
+                    default:
+                        return '<span class="badge bg-info">Both</span>';
+                }
+            }
+
+            // Helper function for Lorry Type Label
+            function getLorryTypeLabel(type) {
+                switch(type) {
+                    case '1':
+                        return '<span class="badge bg-primary">Tipper</span>';
+                    case '2':
+                        return '<span class="badge bg-info">Grab</span>';
+                    case '3':
+                        return '<span class="badge bg-success">Bin</span>';
+                    default:
+                        return '<span class="badge bg-warning">NA</span>';
+                }
+            }
 
             // Handle Split Invoice Submit
             $('#submitSelectedLoads').on('click', function() {
@@ -1182,6 +1244,8 @@
                 var invoiceId = button.data('invoice-id');
                 var modal = $(this);
 
+                console.log('Opening merge modal with invoice ID:', invoiceId);
+
                 // Clear previous content and show loading
                 modal.find('.modal-body').html(`
                     <div class="text-center py-4">
@@ -1198,56 +1262,137 @@
                     type: "GET",
                     data: { invoice_id: invoiceId },
                     success: function(response) {
-                        if (!response.invoice_items || response.invoice_items.length === 0) {
+                        console.log('Merge bookings response:', response);
+
+                        if (!response.eligible_bookings || response.eligible_bookings.length === 0) {
                             modal.find('.modal-body').html('<div class="alert alert-warning">No bookings found to merge.</div>');
                             return;
                         }
 
                         let html = `
+                            <div class="alert alert-info mb-3">
+                                <strong>Original Booking:</strong><br>
+                                Booking ID: ${response.original_booking.booking_id}<br>
+                                Company: ${response.original_booking.company_name}<br>
+                                Project: ${response.original_booking.opportunity_name}
+                            </div>
                             <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <thead>
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-primary">
                                         <tr>
-                                            <th>Select</th>
-                                            <th>Booking ID</th>
-                                            <th>Company</th>
-                                            <th>Opportunity</th>
-                                            <th>Created Date</th>
+                                            <th width="5%">Select</th>
+                                            <th width="10%">Booking ID</th>
+                                            <th width="15%">Date</th>
+                                            <th width="10%">Total Loads</th>
+                                            <th width="15%">Total Amount</th>
+                                            <th width="45%">Details</th>
                                         </tr>
                                     </thead>
                                     <tbody>`;
 
-                        response.invoice_items.forEach(function(item) {
+                        response.eligible_bookings.forEach(function(booking) {
+                            console.log('Processing booking:', booking);
+                            
+                            const loads = booking.loads || [];
+                            const totalLoads = booking.total_loads || 0;
+                            const totalAmount = booking.total_amount || 0;
+
                             html += `
                                 <tr>
-                                    <td>
-                                        <input type="checkbox" class="booking-checkbox"
-                                               data-booking-id="${item.BookingRequestID}">
+                                    <td class="text-center">
+                                        <input type="checkbox" class="booking-checkbox form-check-input"
+                                               data-booking-id="${booking.booking_request_id}">
                                     </td>
-                                    <td>${item.BookingRequestID}</td>
-                                    <td>${item.CompanyName}</td>
-                                    <td>${item.OpportunityName}</td>
-                                    <td>${new Date(item.CreateDateTime).toLocaleString('en-GB', { 
-                                        day: '2-digit',
-                                        month: '2-digit',
-                                        year: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                        hour12: false
-                                    }).replace(',', '-=')}</td>
+                                    <td>
+                                        <strong>${booking.booking_id}</strong>
+                                        ${booking.parent_invoice_id ? 
+                                            `<br><small class="text-info"><i class="fas fa-code-branch"></i> Split Booking</small>` : ''}
+                                        ${booking.is_merged ? 
+                                            `<br><small class="text-warning"><i class="fas fa-link"></i> Merged</small>` : ''}
+                                    </td>
+                                    <td>${formatDateTime(booking.CreateDateTime) || 'N/A'}</td>
+                                    <td class="text-center">${totalLoads}</td>
+                                    <td class="text-end">£${formatNumber(totalAmount)}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-info view-loads-btn"
+                                                data-booking-id="${booking.booking_id}">
+                                            <i class="fas fa-truck me-1"></i> View Loads
+                                        </button>
+                                        ${booking.split_info ? `
+                                            <div class="mt-2 small text-muted">
+                                                <i class="fas fa-info-circle"></i> 
+                                                ${booking.split_info.source_booking_id === booking.booking_id ? 
+                                                    `Split to: ${booking.split_info.target_booking_id}` : 
+                                                    `Split from: ${booking.split_info.source_booking_id}`}
+                                            </div>
+                                        ` : ''}
+                                    </td>
+                                </tr>
+                                <tr class="loads-details d-none" id="loads-${booking.booking_id}">
+                                    <td colspan="6">
+                                        <div class="loads-content p-3 bg-light">
+                                            <table class="table table-sm table-bordered mb-0">
+                                                <thead class="table-secondary">
+                                                    <tr>
+                                                        <th>Load ID</th>
+                                                        <th>Material</th>
+                                                        <th>Conveyance</th>
+                                                        <th>Driver</th>
+                                                        <th>Vehicle</th>
+                                                        <th>Price</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>`;
+                                                
+                            if (loads && loads.length > 0) {
+                                loads.forEach(load => {
+                                    html += `
+                                        <tr>
+                                            <td>${load.load_id}</td>
+                                            <td>${load.material_name}</td>
+                                            <td>${load.conveyance_no || 'N/A'}</td>
+                                            <td>${load.driver_name || 'N/A'}</td>
+                                            <td>${load.vehicle_reg_no || 'N/A'}</td>
+                                            <td class="text-end">£${formatNumber(load.price)}</td>
+                                        </tr>`;
+                                });
+                            } else {
+                                html += `<tr><td colspan="6" class="text-center">No load details available</td></tr>`;
+                            }
+
+                            html += `
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </td>
                                 </tr>`;
                         });
 
                         html += `</tbody></table></div>`;
+                        
+                        console.log('Generated HTML:', html);
                         modal.find('.modal-body').html(html);
+
+                        // Add click handler for view loads button
+                        $('.view-loads-btn').on('click', function() {
+                            const bookingId = $(this).data('booking-id');
+                            $(`#loads-${bookingId}`).toggleClass('d-none');
+                            $(this).find('i').toggleClass('fa-truck fa-chevron-up');
+                        });
                     },
                     error: function(xhr) {
+                        console.error('Error loading merge bookings:', xhr);
                         modal.find('.modal-body').html(
                             '<div class="alert alert-danger">Error loading bookings. Please try again.</div>'
                         );
                     }
                 });
             });
+
+            // Helper function to format numbers
+            function formatNumber(num) {
+                return parseFloat(num).toFixed(2);
+            }
 
             // Handle Merge Booking Submit
             $('#submitSelectedbooking').on('click', function() {
@@ -1265,6 +1410,12 @@
 
                 var bookingRequestId = $(this).data('booking-request-id');
 
+                // Show loading state
+                const $button = $(this);
+                const originalText = $button.html();
+                $button.prop('disabled', true)
+                    .html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Merging...');
+
                 $.ajax({
                     url: "{{ route('merge.booking') }}",
                     type: "POST",
@@ -1275,14 +1426,36 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            alert('Bookings merged successfully!');
-                            location.reload();
+                            // Show success message
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Bookings merged successfully',
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                location.reload();
+                            });
                         } else {
-                            alert('Error: ' + response.error);
+                            // Show error message
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message || 'Error merging bookings'
+                            });
+                            // Reset button state
+                            $button.prop('disabled', false).html(originalText);
                         }
                     },
                     error: function(xhr) {
-                        alert('Error merging bookings. Please try again.');
+                        // Show error message
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: xhr.responseJSON?.message || 'Error merging bookings'
+                        });
+                        // Reset button state
+                        $button.prop('disabled', false).html(originalText);
                     }
                 });
             });
