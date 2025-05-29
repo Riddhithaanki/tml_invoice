@@ -1,5 +1,9 @@
 @extends('layouts.main')
 @section('content')
+    <!-- Add Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Optional: Add a theme if you want -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
     <div class="table-container container-fluid mt-4">
         <div class="tab-container mb-3">
             <ul class="nav nav-tabs d-flex justify-content-between" id="invoiceTabs"
@@ -108,8 +112,26 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
 $(document).ready(function() {
+    // Initialize Flatpickr for date inputs
+    flatpickr("#startDate", {
+        dateFormat: "Y-m-d",
+        allowInput: true,
+        clickOpens: true,
+        enableTime: false,
+        placeholder: "Start Date",
+    });
+
+    flatpickr("#endDate", {
+        dateFormat: "Y-m-d",
+        allowInput: true,
+        clickOpens: true,
+        enableTime: false,
+        placeholder: "End Date",
+    });
+
     var table = $('#invoiceTable').DataTable({
         processing: true,
         serverSide: true,

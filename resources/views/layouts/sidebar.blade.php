@@ -275,11 +275,4 @@
             /* Ensure toggle button is visible */
         }
     }
-
-    /* Hide toggle button on larger screens */
-    @media (min-width: 728px) {
-        .layout-menu-toggle {
-            display: none !important;
-        }
-    }
 </style>

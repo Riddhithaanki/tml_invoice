@@ -1,5 +1,8 @@
 @extends('layouts.main')
 @section('content')
+    <!-- Add Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
     <div class="table-container mt-4">
         <!-- Back Button -->
         <div class="d-flex align-items-center mb-3">
@@ -14,28 +17,28 @@
             <ul class="nav nav-tabs justify-content-between flex-wrap w-100" id="invoiceTabs">
                 <!-- Left Tabs -->
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->type === 'loads' ? 'active' : '' }}"
-                        href="{{ route('collection.index', ['type' => 'loads', 'invoice_type' => request()->invoice_type]) }}">
+                    <a class="nav-link {{ !request()->has('type') || request()->type === 'loads' ? 'active' : '' }}"
+                        href="{{ route('collection.index', ['type' => 'loads', 'invoice_type' => request()->invoice_type ?? 'preinvoice']) }}">
                         Loads
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ request()->type === 'tonnage' ? 'active' : '' }}"
-                        href="{{ route('collection.index', ['type' => 'tonnage', 'invoice_type' => request()->invoice_type]) }}">
+                        href="{{ route('collection.index', ['type' => 'tonnage', 'invoice_type' => request()->invoice_type ?? 'preinvoice']) }}">
                         Tonnage
                     </a>
                 </li>
 
                 <!-- Right Tabs (separated visually using ms-auto) -->
                 <li class="nav-item ms-auto">
-                    <a class="nav-link {{ request()->invoice_type === 'preinvoice' ? 'active' : '' }}"
-                        href="{{ route('collection.index', ['type' => request()->type, 'invoice_type' => 'preinvoice']) }}">
+                    <a class="nav-link {{ !request()->has('invoice_type') || request()->invoice_type === 'preinvoice' ? 'active' : '' }}"
+                        href="{{ route('collection.index', ['type' => request()->type ?? 'loads', 'invoice_type' => 'preinvoice']) }}">
                         Pre Invoice
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ request()->invoice_type === 'readyinvoice' ? 'active' : '' }}"
-                        href="{{ route('collection.index', ['type' => request()->type, 'invoice_type' => 'readyinvoice']) }}">
+                        href="{{ route('collection.index', ['type' => request()->type ?? 'loads', 'invoice_type' => 'readyinvoice']) }}">
                         Ready Invoice
                     </a>
                 </li>
@@ -165,8 +168,26 @@
     </div>
 
     <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
         $(document).ready(function() {
+            // Initialize Flatpickr for date inputs
+            flatpickr("#startDate", {
+                dateFormat: "Y-m-d",
+                allowInput: true,
+                clickOpens: true,
+                enableTime: false,
+                placeholder: "Start Date"
+            });
+
+            flatpickr("#endDate", {
+                dateFormat: "Y-m-d",
+                allowInput: true,
+                clickOpens: true,
+                enableTime: false,
+                placeholder: "End Date"
+            });
+
             var table;
 
             function initializeDataTable(type, invoiceType) {
@@ -408,6 +429,26 @@
             border-radius: 4px;
             margin: 0 2px;
             font-size: 0.85rem;
+        }
+
+        /* Add these styles for Flatpickr customization */
+        .flatpickr-calendar {
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .flatpickr-day.selected {
+            background: #3c8dbc !important;
+            border-color: #3c8dbc !important;
+        }
+
+        .flatpickr-day:hover {
+            background: #e6f3f9;
+        }
+
+        .flatpickr-current-month {
+            color: #3c8dbc;
         }
     </style>
 @endsection

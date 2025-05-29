@@ -153,24 +153,22 @@
         }
     </style>
 
-    {{-- <div class="container-fluid"> --}}
-    <div class="dashboard-container">
+    <div class="dashboard-container p-0">
         <!-- Header -->
-        <div class="row mb-2">
+        <div class="row mb-2 mx-2">
             <div class="col-12">
                 <h4 style="color: #3c8dbc; font-weight: 600;">Dashboard Overview</h4>
             </div>
         </div>
 
-        <div class="container container-fluid mt-4  m-0 p-0">
+        <div class="container-fluid p-0">
             <!-- Stat Cards -->
-            <div class="row">
-
+            <div class="row mx-2">
                 <!-- New Added Invoice -->
                 <div class="col-md-3 col-sm-6 mb-4">
                     <div class="stat-card">
                         <div class="card-body">
-                            <div class="card-title">Completed Invoice</div>
+                            <div class="card-title">Invoice On Sage</div>
                             <div class="card-value">{{ $completedInvoice }}</div>
                         </div>
                     </div>
@@ -204,12 +202,10 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
-
             <!-- Recent Invoices Table -->
-            <div class="table-container">
+            <div class="table-container mx-2">
                 <div class="table-header">
                     <h5 class="table-title text-center text-white">New Added Invoices</h5>
                 </div>
@@ -257,7 +253,6 @@
                 </div>
             </div>
         </div>
-        {{-- </div> --}}
 
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

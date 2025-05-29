@@ -1,5 +1,8 @@
 @extends('layouts.main')
 @section('content')
+<!-- Add Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 <div class="table-container mt-4">
     <div class="tab-container mb-3">
         <ul class="nav nav-tabs justify-content-end flex-nowrap" id="invoiceTabs">
@@ -75,8 +78,26 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     $(document).ready(function () {
+        // Initialize Flatpickr for date inputs
+        flatpickr("#startDate", {
+            dateFormat: "Y-m-d",
+            allowInput: true,
+            clickOpens: true,
+            enableTime: false,
+            placeholder: "Start Date"
+        });
+
+        flatpickr("#endDate", {
+            dateFormat: "Y-m-d",
+            allowInput: true,
+            clickOpens: true,
+            enableTime: false,
+            placeholder: "End Date"
+        });
+
         var table = $('#invoiceTable').DataTable({
             processing: true,
             serverSide: true,
@@ -118,6 +139,25 @@
 </script>
 
 <style>
+    /* Add these styles for Flatpickr customization */
+    .flatpickr-calendar {
+        background: #fff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .flatpickr-day.selected {
+        background: #3c8dbc !important;
+        border-color: #3c8dbc !important;
+    }
+
+    .flatpickr-day:hover {
+        background: #e6f3f9;
+    }
+
+    .flatpickr-current-month {
+        color: #3c8dbc;
+    }
           #globalSearchInput {
     width: 80%;
     height: 40px;

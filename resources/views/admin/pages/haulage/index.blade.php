@@ -1,16 +1,19 @@
 @extends('layouts.main')
 @section('content')
+<!-- Add Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 <div class="table-container mt-4">
 
     <div class="tab-container mb-3">
         <ul class="nav nav-tabs justify-content-end flex-nowrap" id="invoiceTabs">
             <!-- Right-aligned tabs -->
             <li class="nav-item">
-                <a class="nav-link {{ $invoice_type === 'preinvoice' ? 'active' : '' }}" id="pre-invoice-tab"
+                <a class="nav-link {{ !request()->has('invoice_type') || request()->invoice_type === 'preinvoice' ? 'active' : '' }}" id="pre-invoice-tab"
                     href="{{ route('haulage.index', ['invoice_type' => 'preinvoice']) }}">Pre Invoice</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ $invoice_type === 'readyinvoice' ? 'active' : '' }}" id="ready-invoice-tab"
+                <a class="nav-link {{ request()->invoice_type === 'readyinvoice' ? 'active' : '' }}" id="ready-invoice-tab"
                     href="{{ route('haulage.index', ['invoice_type' => 'readyinvoice']) }}">Ready Invoice</a>
             </li>
         </ul>
@@ -77,8 +80,26 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     $(document).ready(function () {
+        // Initialize Flatpickr for date inputs
+        flatpickr("#startDate", {
+            dateFormat: "Y-m-d",
+            allowInput: true,
+            clickOpens: true,
+            enableTime: false,
+            placeholder: "Start Date"
+        });
+
+        flatpickr("#endDate", {
+            dateFormat: "Y-m-d",
+            allowInput: true,
+            clickOpens: true,
+            enableTime: false,
+            placeholder: "End Date"
+        });
+
         var table = $('#invoiceTable').DataTable({
             processing: true,
             serverSide: true,
@@ -121,33 +142,53 @@
 </script>
 
 <style>
-          #globalSearchInput {
-    width: 80%;
-    height: 40px;
-}
+    /* Add these styles for Flatpickr customization */
+    .flatpickr-calendar {
+        background: #fff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
 
-        #globalSearchBtn{
-            width:140px;
-            height:40px;
-        }
+    .flatpickr-day.selected {
+        background: #3c8dbc !important;
+        border-color: #3c8dbc !important;
+    }
 
-        #clearFilters{
-            width:140px;
-             height:40px;
-        }
-        #endDate{
-             width: 40%;
-            height: 40px;
-        }
-        #startDate{
-             width: 40%;
-            height: 40px;
-        }
+    .flatpickr-day:hover {
+        background: #e6f3f9;
+    }
 
-        #filterBtn{
-            width:140px;
-             height:40px;
-        }
+    .flatpickr-current-month {
+        color: #3c8dbc;
+    }
+
+    #globalSearchInput {
+        width: 80%;
+        height: 40px;
+    }
+
+    #globalSearchBtn{
+        width:140px;
+        height:40px;
+    }
+
+    #clearFilters{
+        width:140px;
+         height:40px;
+    }
+    #endDate{
+         width: 40%;
+        height: 40px;
+    }
+    #startDate{
+         width: 40%;
+        height: 40px;
+    }
+
+    #filterBtn{
+        width:140px;
+         height:40px;
+    }
     .table-container {
         background-color: white;
         border-radius: 6px;
