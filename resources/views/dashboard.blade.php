@@ -10,9 +10,9 @@
             padding: 1rem;
             background-color: #f8f9fa;
             border-radius: 8px;
-            margin-top: 0.5rem;
-            margin:0;
-            padding:0;
+            margin-top: 1rem;
+            margin:10px;
+            padding:10px;
             margin-right:0;
             margin-left:0;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -147,7 +147,7 @@
         }
     </style>
 
-    <div class="contaier container-fluid px-2 py-1 me-0 m-0 p-0">
+    {{-- <div class="container-fluid"> --}}
         <div class="dashboard-container">
             <!-- Header -->
             <div class="row mb-2">
@@ -279,7 +279,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    {{-- </div> --}}
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -296,7 +296,7 @@
                 responsive: true,
                 orderCellsTop: true,
                 lengthMenu: [5, 10, 50, 100],
-                pageLength: 50,
+                pageLength: 20,
                 order: [
                     [0, 'desc']
                 ]

@@ -1,40 +1,84 @@
 @extends('layouts.main')
 @section('content')
     <div class="table-container mt-4">
+        <!-- Back Button -->
+        <div class="d-flex align-items-center mb-3">
+            <a href="{{ url()->previous() }}" class="text-decoration-none text-dark">
+                <i class="fas fa-arrow-left me-2"></i>
+            </a>
+            <h4 class="m-0">Collection Invoices</h4>
+        </div>
 
-        <!-- Tabs -->
+        <!-- Tabs with updated styling -->
         <div class="tab-container mb-3">
             <ul class="nav nav-tabs justify-content-between flex-wrap w-100" id="invoiceTabs">
                 <!-- Left Tabs -->
                 <li class="nav-item">
-                    <a class="nav-link {{ $type === 'loads' ? 'active' : '' }}"
-                        href="{{ route('collection.index', ['type' => 'loads', 'invoice_type' => $invoice_type]) }}">
+                    <a class="nav-link {{ request()->type === 'loads' ? 'active' : '' }}"
+                        href="{{ route('collection.index', ['type' => 'loads', 'invoice_type' => request()->invoice_type]) }}">
                         Loads
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ $type === 'tonnage' ? 'active' : '' }}"
-                        href="{{ route('collection.index', ['type' => 'tonnage', 'invoice_type' => $invoice_type]) }}">
+                    <a class="nav-link {{ request()->type === 'tonnage' ? 'active' : '' }}"
+                        href="{{ route('collection.index', ['type' => 'tonnage', 'invoice_type' => request()->invoice_type]) }}">
                         Tonnage
                     </a>
                 </li>
 
                 <!-- Right Tabs (separated visually using ms-auto) -->
                 <li class="nav-item ms-auto">
-                    <a class="nav-link {{ $invoice_type === 'preinvoice' ? 'active' : '' }}"
-                        href="{{ route('collection.index', ['type' => $type, 'invoice_type' => 'preinvoice']) }}">
+                    <a class="nav-link {{ request()->invoice_type === 'preinvoice' ? 'active' : '' }}"
+                        href="{{ route('collection.index', ['type' => request()->type, 'invoice_type' => 'preinvoice']) }}">
                         Pre Invoice
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ $invoice_type === 'readyinvoice' ? 'active' : '' }}"
-                        href="{{ route('collection.index', ['type' => $type, 'invoice_type' => 'readyinvoice']) }}">
+                    <a class="nav-link {{ request()->invoice_type === 'readyinvoice' ? 'active' : '' }}"
+                        href="{{ route('collection.index', ['type' => request()->type, 'invoice_type' => 'readyinvoice']) }}">
                         Ready Invoice
                     </a>
                 </li>
             </ul>
-
         </div>
+
+        <style>
+            .nav-tabs {
+                border-bottom: none;
+            }
+            .nav-tabs .nav-link {
+                color: #495057;
+                background: none;
+                border: none;
+                margin-right: 4px;
+                padding: 8px 16px;
+                position: relative;
+                transition: all 0.2s ease-in-out;
+            }
+            .nav-tabs .nav-link:hover {
+                border: none;
+                color: #3c8dbc;
+            }
+            .nav-tabs .nav-link.active {
+                color: #3c8dbc;
+                background: none;
+                border: none;
+                font-weight: 500;
+            }
+            .nav-tabs .nav-link.active::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 2px;
+                background-color: #3c8dbc;
+            }
+            .nav-tabs .nav-item.ms-auto .nav-link {
+                margin-left: 4px;
+                margin-right: 0;
+            }
+        </style>
 
         <!-- Header -->
         <div class="table-header">
