@@ -27,7 +27,7 @@ class DashboardController extends Controller
     {
         $recentInvoice = ReadyInvoice::with('booking')->orderBy('CreateDateTime', "DESC")->limit(20)->get();
 
-        $readyHoldInvoiceCount = InvoiceDifference::where('status', '0')->count();
+        $readyHoldInvoiceCount = BookingRequest::where('InvoiceHold', '1')->count();
         $readyInvoiceCount = ReadyInvoice::count();
         $completedInvoice = InvoiceDifference::where('status', '1')->count();
         $bookingCount = Booking::count();
@@ -118,60 +118,44 @@ class DashboardController extends Controller
     {
         try {
             $bookingId = $request->booking_id;
+            
+            \Log::info('Fetching invoice items for booking ID: ' . $bookingId);
 
-            // Get the booking with its valid loads
+            // Get the booking with its loads - removing most restrictions
             $booking = Booking::with(['loads' => function($query) use ($bookingId) {
                 $query->select('tbl_booking_loads1.*')
-                    ->where('Status', '!=', 5) // Exclude deleted/cancelled loads
-                    ->where(function($q) {
-                        $q->whereNotNull('LoadPrice')
-                          ->where('LoadPrice', '>', 0);
-                    })
-                    ->whereNotExists(function($subquery) {
-                        $subquery->select(DB::raw(1))
-                            ->from('booking_relationships as br')
-                            ->whereRaw('br.source_booking_id = tbl_booking_loads1.BookingID')
-                            ->where('br.relationship_type', 'split');
-                    });
+                      ->where(function($q) {
+                          $q->where('Status', '!=', 5) // Only exclude cancelled loads
+                            ->orWhereNull('Status'); // Include loads with null status
+                      });
             }])
             ->where('BookingID', $bookingId)
-            ->whereNotExists(function($query) {
-                $query->select(DB::raw(1))
-                    ->from('booking_relationships')
-                    ->whereRaw('source_booking_id = tbl_booking1.BookingID')
-                    ->where('relationship_type', 'split');
-            })
             ->first();
 
             if (!$booking) {
+                \Log::warning('No booking found for ID: ' . $bookingId);
                 return response()->json(['error' => 'Booking not found'], 404);
             }
 
-            // Filter out any loads that might have slipped through with 0 or null values
-            $validLoads = $booking->loads->filter(function($load) {
-                return $load->LoadPrice > 0 && $load->Loads > 0;
-            });
+            \Log::info('Found booking with ' . ($booking->loads ? $booking->loads->count() : 0) . ' loads');
 
-            $groupedLoads = $validLoads->groupBy('MaterialName');
+            // Group loads by material name without filtering
+            $groupedLoads = $booking->loads->groupBy('MaterialName');
             $invoice_items = [];
 
             foreach ($groupedLoads as $materialName => $loads) {
-                // Skip if no valid loads
-                if ($loads->isEmpty()) {
-                    continue;
-                }
+                \Log::info("Processing material: {$materialName} with " . $loads->count() . " loads");
 
-                // Calculate total for this material
+                // Calculate totals for this material
                 $totalLoads = $loads->sum('Loads');
                 $totalAmount = $loads->sum(function($load) {
-                    return ($load->LoadPrice ?? 0) * ($load->Loads ?? 1);
+                    $price = $load->LoadPrice ?? 0;
+                    $quantity = $load->Loads ?? 1;
+                    \Log::info("Load ID: {$load->LoadID}, Price: {$price}, Quantity: {$quantity}");
+                    return $price * $quantity;
                 });
 
-                // Skip if no valid totals
-                if ($totalLoads <= 0 || $totalAmount <= 0) {
-                    continue;
-                }
-
+                // Include all load details regardless of price
                 $loadDetails = $loads->map(function($load) {
                     return [
                         'LoadID' => $load->LoadID,
@@ -186,8 +170,8 @@ class DashboardController extends Controller
                         'SiteInDateTime' => $load->SiteInDateTime,
                         'SiteOutDateTime' => $load->SiteOutDateTime,
                         'Status' => $load->Status,
-                        'LoadPrice' => $load->LoadPrice,
-                        'Loads' => $load->Loads
+                        'LoadPrice' => $load->LoadPrice ?? 0,
+                        'Loads' => $load->Loads ?? 1
                     ];
                 });
 
@@ -199,7 +183,9 @@ class DashboardController extends Controller
                 ];
             }
 
+            \Log::info('Processed ' . count($invoice_items) . ' materials with loads');
             return response()->json(['invoice_items' => $invoice_items]);
+
         } catch (\Exception $e) {
             \Log::error('Error in getInvoiceItems: ' . $e->getMessage());
             \Log::error($e->getTraceAsString());
