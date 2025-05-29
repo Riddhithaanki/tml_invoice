@@ -24,3 +24,4 @@ class Booking extends Model
         return $this->hasMany(BookingInvoiceItem::class,'BookingID','BookingID');
     }
 }
+   
