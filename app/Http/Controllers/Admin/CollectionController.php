@@ -22,20 +22,19 @@ class CollectionController extends Controller
 
     public function getCollectionInvoiceData(Request $request, $type = 'loads')
     {
-
         $type = $request->input('type', 'loads');
         $invoiceType = $request->input('invoice_type', 'preinvoice');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
         $query = Booking::select([
-            'tbl_booking1.BookingID',
             'tbl_booking1.BookingRequestID',
-            'tbl_booking1.BookingType',
             'tbl_booking_request.CreateDateTime',
             'tbl_booking_request.CompanyName',
             'tbl_booking_request.OpportunityName',
             'tbl_booking_request.InvoiceHold',
+            \DB::raw('MAX(tbl_booking1.BookingID) as BookingID'),
+            \DB::raw('MAX(tbl_booking1.BookingType) as BookingType'),
             \DB::raw('CASE
                 WHEN EXISTS (SELECT 1 FROM ready_invoices WHERE BookingRequestID = tbl_booking1.BookingRequestID) THEN "ready"
                 ELSE "power"
@@ -43,6 +42,13 @@ class CollectionController extends Controller
         ])
             ->join('tbl_booking_request', 'tbl_booking1.BookingRequestID', '=', 'tbl_booking_request.BookingRequestID')
             ->where('tbl_booking1.BookingType', 1)
+            ->groupBy([
+                'tbl_booking1.BookingRequestID',
+                'tbl_booking_request.CreateDateTime',
+                'tbl_booking_request.CompanyName',
+                'tbl_booking_request.OpportunityName',
+                'tbl_booking_request.InvoiceHold'
+            ])
             ->orderBy('tbl_booking_request.CreateDateTime', 'desc');
 
         // Apply date filters
@@ -67,6 +73,7 @@ class CollectionController extends Controller
                     ->whereRaw('ready_invoices.BookingRequestID = tbl_booking1.BookingRequestID');
             });
         }
+
         if ($type === 'tonnage') {
             $query->where('tbl_booking1.TonBook', 1);
         } elseif ($type === 'load') {
@@ -85,14 +92,13 @@ class CollectionController extends Controller
                     ->orWhereRaw("DATE_FORMAT(tbl_booking_request.CreateDateTime, '%H:%i') like ?", ["%{$keyword}%"]);
                 });
             })
-
             ->filterColumn('CompanyName', function ($query, $keyword) {
                 $query->where('tbl_booking_request.CompanyName', 'like', "%$keyword%");
             })
             ->filterColumn('OpportunityName', function ($query, $keyword) {
                 $query->where('tbl_booking_request.OpportunityName', 'like', "%$keyword%");
             })
-             ->editColumn('CreateDateTime', function ($row) {
+            ->editColumn('CreateDateTime', function ($row) {
                 return Carbon::parse($row->CreateDateTime)->format('d-m-Y H:i');
             })
             ->addColumn('CompanyName', function ($booking) {
@@ -105,21 +111,19 @@ class CollectionController extends Controller
                 return $booking->CreateDateTime ?? 'N/A';
             })
             ->filterColumn('InvoiceHold', function($query, $keyword) {
-    if (stripos($keyword, 'yes') !== false) {
-        $query->where('tbl_booking_request.InvoiceHold', 1);
-    } elseif (stripos($keyword, 'no') !== false) {
-        $query->where('tbl_booking_request.InvoiceHold', 0);
-    }
-})
-
+                if (stripos($keyword, 'yes') !== false) {
+                    $query->where('tbl_booking_request.InvoiceHold', 1);
+                } elseif (stripos($keyword, 'no') !== false) {
+                    $query->where('tbl_booking_request.InvoiceHold', 0);
+                }
+            })
             ->editColumn('InvoiceHold', function ($row) {
-    return $row->InvoiceHold == 1 ? 'Yes' : 'No';
-})
-            
+                return $row->InvoiceHold == 1 ? 'Yes' : 'No';
+            })
             ->addColumn('action', function ($booking) {
                 if ($booking->BookingRequestID) {
                     return '<a href="' . route('invoice.show', Crypt::encrypt($booking->BookingRequestID)) . '"
-                    class="btn btn-sm btn-primary">View</a>';
+                        class="btn btn-sm btn-primary">View</a>';
                 }
                 return 'No Booking Found';
             })

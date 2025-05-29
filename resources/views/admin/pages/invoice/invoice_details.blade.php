@@ -226,16 +226,16 @@
 <script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>
 
 @section('content')
-    <div class="container">
-        <div class="booking-section p-4 bg-light rounded shadow-sm">
-            <div class="d-flex align-items-center mb-4">
+    <div class="container-fluid p-0">
+        <div class="booking-section bg-light rounded shadow-sm">
+            <div class="d-flex align-items-center p-3">
                 <a href="{{ url()->previous() ?? route('dashboard') }}" class="text-decoration-none text-primary">
                     <i class="fas fa-arrow-left me-2"></i>
                 </a>
                 <h4 class="m-0 fw-bold">Booking No. : {{ $booking->BookingID }}</h4>
             </div>
 
-            <div class="row g-4">
+            <div class="row g-4 mx-0 px-3">
                 <!-- Company Information -->
                 <div class="col-md-4 mb-3">
                     <div class="card h-100 border-0 shadow-sm">
@@ -299,7 +299,7 @@
             </div>
 
             <!-- Booking Loads List -->
-            <div class="loads-section mt-4">
+            <div class="loads-section mt-4 mx-3">
                 <h5 class="text-white p-3 rounded-top mb-0" style="background: #3c8dbc">
                     <i class="fas fa-truck me-2"></i> Booking Loads List
                 </h5>
@@ -435,9 +435,8 @@
                 </div>
             </div>
 
-
             <!-- Comment and Hold Invoice Section -->
-            <div class="card mt-4 border-0 shadow-sm">
+            <div class="card mt-4 border-0 shadow-sm mx-3 mb-3">
                 <div class="card-header bg-warning">
                     <h5 class="mb-0"><i class="fas fa-comment me-2"></i>Additional Information</h5>
                 </div>

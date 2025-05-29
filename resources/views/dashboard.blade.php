@@ -2,19 +2,18 @@
 
 @section('content')
     <style>
-
         /* Compact styling with #3c8dbc color theme */
-       
+
 
         .dashboard-container {
             padding: 1rem;
             background-color: #f8f9fa;
             border-radius: 8px;
             margin-top: 1rem;
-            margin:10px 0;
-            padding:10px;
-            margin-right:0;
-            margin-left:0;
+            margin: 10px 0;
+            padding: 10px;
+            margin-right: 0;
+            margin-left: 0;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
@@ -25,7 +24,12 @@
             border: none;
             height: 100%;
             background: white;
-        } 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem !important;
+        }
 
         .stat-card:hover {
             transform: translateY(-5px);
@@ -33,20 +37,21 @@
         }
 
         .stat-card .card-body {
-            padding: 1rem;
+            text-align: center;
+            width: 100%;
         }
 
         .card-title {
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 600;
             color: #555;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem !important;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .card-value {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 700;
             margin-bottom: 0;
             color: #3c8dbc;
@@ -143,93 +148,59 @@
 
         .column-search {
             min-width: 100px;
-            max-width: 150px; 
-             
+            max-width: 150px;
+
         }
     </style>
 
     {{-- <div class="container-fluid"> --}}
-        <div class="dashboard-container">
-            <!-- Header -->
-            <div class="row mb-2">
-                <div class="col-12">
-                    <h4 style="color: #3c8dbc; font-weight: 600;">Dashboard Overview</h4>
-                </div>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="row mb-2">
+            <div class="col-12">
+                <h4 style="color: #3c8dbc; font-weight: 600;">Dashboard Overview</h4>
             </div>
-            
-            <div class="container container-fluid mt-4  m-0 p-0">
+        </div>
+
+        <div class="container container-fluid mt-4  m-0 p-0">
             <!-- Stat Cards -->
             <div class="row">
 
                 <!-- New Added Invoice -->
-                <div class="col-md-3 col-sm-6">
-                    <div class="stat-card d-flex align-items-center justify-content-between border p-3 rounded">
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card">
                         <div class="card-body">
                             <div class="card-title">Completed Invoice</div>
                             <div class="card-value">{{ $completedInvoice }}</div>
-                        </div>
-                        <div class="icon-box border rounded-circle p-2">
-                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black"
-                                stroke-width="2" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M8 2H16L20 6V21C20 21.55 19.55 22 19 22H5C4.45 22 4 21.55 4 21V3C4 2.45 4.45 2 5 2H8ZM14 3H10V7H14V3ZM6 20H18V8H6V20ZM12 12H7V14H12V12ZM17 16H7V18H17V16Z" />
-                            </svg>
                         </div>
                     </div>
                 </div>
 
                 <!-- Invoices on Hold -->
-                <div class="col-md-3 col-sm-6">
-                    <div class="stat-card d-flex align-items-center justify-content-between border p-3 rounded">
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card">
                         <div class="card-body">
                             <div class="card-title">Invoices on Hold</div>
                             <div class="card-value">{{ $readyHoldInvoiceCount }}</div>
-                        </div>
-                        <div class="icon-box border rounded-circle p-2">
-                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black"
-                                stroke-width="2" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="12" cy="12" r="10" stroke="black" stroke-width="2"
-                                    fill="none" />
-                                <rect x="8" y="7" width="3" height="10" fill="black" />
-                                <rect x="13" y="7" width="3" height="10" fill="black" />
-                            </svg>
                         </div>
                     </div>
                 </div>
 
                 <!-- Ready Invoice -->
-                <div class="col-md-3 col-sm-6">
-                    <div class="stat-card d-flex align-items-center justify-content-between border p-3 rounded">
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card">
                         <div class="card-body">
                             <div class="card-title">Ready Invoice</div>
                             <div class="card-value">{{ $readyInvoiceCount }}</div>
                         </div>
-                        <div class="icon-box border rounded-circle p-2">
-                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black"
-                                stroke-width="2" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="12" cy="12" r="10" stroke="black" stroke-width="2"
-                                    fill="none" />
-                                <path d="M9 12l2 2 4-4" stroke="black" stroke-width="2" fill="none"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </div>
                     </div>
                 </div>
 
-                <div class="col-md-3 col-sm-6 ">
-                    <div class="stat-card d-flex align-items-center justify-content-between border p-3 rounded">
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="stat-card">
                         <div class="card-body">
                             <div class="card-title">Bookings</div>
                             <div class="card-value">{{ $bookingCount }}</div>
-                        </div>
-                        <div class="icon-box border rounded-circle p-2">
-                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="black"
-                                stroke-width="2" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="12" cy="12" r="10" stroke="black" stroke-width="2"
-                                    fill="none" />
-                                <path d="M9 12l2 2 4-4" stroke="black" stroke-width="2" fill="none"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
                         </div>
                     </div>
                 </div>
@@ -242,20 +213,7 @@
                 <div class="table-header">
                     <h5 class="table-title text-center text-white">New Added Invoices</h5>
                 </div>
-                <!-- Full-width search bar with button -->
-<div class="row mb-3">
-    <div class="col-md-12">
-        <div class="input-group">
-            <input type="text" id="globalSearchInput" class="form-control" placeholder="Search across all columns...">
-            <button class="btn btn-primary ms-2" id="globalSearchBtn">
-                Search
-            </button>
-            <button class="btn btn-primary ms-2" id="entriesbtn" >
-                 Show 15 Entries
-            </button>
-        </div>
-    </div>
-</div>
+            
 
                 <div class="table-responsive">
                     <table id="invoiceTable" class="table table-hover">
@@ -268,10 +226,14 @@
                                 <th>Action</th>
                             </tr>
                             <tr class="search-row">
-                                <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Booking ID"></th>
-                                <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Date"></th>
-                                <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Company"></th>
-                                <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Site"></th>
+                                <th><input type="text" class="form-control form-control-sm column-search"
+                                        placeholder="Search Booking ID"></th>
+                                <th><input type="text" class="form-control form-control-sm column-search"
+                                        placeholder="Search Date"></th>
+                                <th><input type="text" class="form-control form-control-sm column-search"
+                                        placeholder="Search Company"></th>
+                                <th><input type="text" class="form-control form-control-sm column-search"
+                                        placeholder="Search Site"></th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -295,45 +257,43 @@
                 </div>
             </div>
         </div>
-    {{-- </div> --}}
+        {{-- </div> --}}
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <!-- DataTables -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+        <!-- DataTables -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
 
-    <script>
-        $(document).ready(function() {
-            var table = $('#invoiceTable').DataTable({
-                responsive: true,
-                orderCellsTop: true,
-                lengthMenu: [5, 10, 50, 100],
-                pageLength: 20,
-                order: [
-                    [0, 'desc']
-                ],
-                searching: false
+        <script>
+            $(document).ready(function() {
+                var table = $('#invoiceTable').DataTable({
+                    responsive: true,
+                    orderCellsTop: true,
+                    lengthChange: false,
+                    pageLength: 20,
+                    order: [
+                        [0, 'desc']
+                    ],
+                    searching: false
+                });
+
+                // Apply column search
+                $('.column-search').on('keyup change', function() {
+                    table
+                        .column($(this).closest('th').index())
+                        .search(this.value)
+                        .draw();
+                });
             });
 
-            // Apply column search
-            $('.column-search').on('keyup change', function() {
-                table
-                    .column($(this).closest('th').index())
-                    .search(this.value)
-                    .draw();
+            // Global search on button click
+            $('#globalSearchBtn').on('click', function() {
+                let searchTerm = $('#globalSearchInput').val();
+                table.search(searchTerm).draw();
             });
-        });
-
-        // Global search on button click
-    $('#globalSearchBtn').on('click', function () {
-        let searchTerm = $('#globalSearchInput').val();
-        table.search(searchTerm).draw();
-    });
-
-
-    </script>
-@endsection
+        </script>
+    @endsection

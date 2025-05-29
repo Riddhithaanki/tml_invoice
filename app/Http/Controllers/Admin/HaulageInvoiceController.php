@@ -26,16 +26,23 @@ class HaulageInvoiceController extends Controller
 
         // Fetch bookings first, as we need BookingID as the main identifier
         $query = Booking::select([
-            'tbl_booking1.BookingID',
             'tbl_booking1.BookingRequestID',
-            'tbl_booking1.BookingType',
             'tbl_booking_request.CreateDateTime',
             'tbl_booking_request.CompanyName',
             'tbl_booking_request.OpportunityName',
             'tbl_booking_request.InvoiceHold',
+            \DB::raw('MAX(tbl_booking1.BookingID) as BookingID'),
+            \DB::raw('MAX(tbl_booking1.BookingType) as BookingType')
         ])
             ->join('tbl_booking_request', 'tbl_booking1.BookingRequestID', '=', 'tbl_booking_request.BookingRequestID')
             ->where('tbl_booking1.BookingType', 4)
+            ->groupBy([
+                'tbl_booking1.BookingRequestID',
+                'tbl_booking_request.CreateDateTime',
+                'tbl_booking_request.CompanyName',
+                'tbl_booking_request.OpportunityName',
+                'tbl_booking_request.InvoiceHold'
+            ])
             ->orderBy('tbl_booking_request.CreateDateTime', 'desc');
 
         // Apply date filters
@@ -62,7 +69,7 @@ class HaulageInvoiceController extends Controller
         }
 
         return DataTables::of($query)
-            ->addIndexColumn() // Adds SR. No column
+            ->addIndexColumn()
             ->filterColumn('CreateDateTime', function ($query, $keyword) {
                 $query->where(function ($q) use ($keyword) {
                     $q->whereRaw("DATE_FORMAT(tbl_booking_request.CreateDateTime, '%d-%m-%Y %H:%i') like ?", ["%{$keyword}%"])
@@ -70,8 +77,7 @@ class HaulageInvoiceController extends Controller
                     ->orWhereRaw("DATE_FORMAT(tbl_booking_request.CreateDateTime, '%H:%i') like ?", ["%{$keyword}%"]);
                 });
             })
-
-             ->editColumn('CreateDateTime', function ($row) {
+            ->editColumn('CreateDateTime', function ($row) {
                 return Carbon::parse($row->CreateDateTime)->format('d-m-Y H:i');
             })
             ->filterColumn('CompanyName', function ($query, $keyword) {
@@ -89,25 +95,24 @@ class HaulageInvoiceController extends Controller
             ->addColumn('CreateDateTime', function ($booking) {
                 return $booking->CreateDateTime ?? 'N/A';
             })
-             ->filterColumn('InvoiceHold', function($query, $keyword) {
-    if (stripos($keyword, 'yes') !== false) {
-        $query->where('tbl_booking_request.InvoiceHold', 1);
-    } elseif (stripos($keyword, 'no') !== false) {
-        $query->where('tbl_booking_request.InvoiceHold', 0);
-    }
-})
-
+            ->filterColumn('InvoiceHold', function($query, $keyword) {
+                if (stripos($keyword, 'yes') !== false) {
+                    $query->where('tbl_booking_request.InvoiceHold', 1);
+                } elseif (stripos($keyword, 'no') !== false) {
+                    $query->where('tbl_booking_request.InvoiceHold', 0);
+                }
+            })
             ->editColumn('InvoiceHold', function ($row) {
-    return $row->InvoiceHold == 1 ? 'Yes' : 'No';
-})
+                return $row->InvoiceHold == 1 ? 'Yes' : 'No';
+            })
             ->addColumn('action', function ($booking) {
                 if ($booking->BookingRequestID) {
                     return '<a href="' . route('invoice.show', Crypt::encrypt($booking->BookingRequestID)) . '"
-            class="btn btn-sm btn-primary">View</a>';
+                        class="btn btn-sm btn-primary">View</a>';
                 }
                 return 'No Booking Found';
             })
-            ->rawColumns(['action']) // Ensures HTML is rendered
+            ->rawColumns(['action'])
             ->make(true);
     }
 }
