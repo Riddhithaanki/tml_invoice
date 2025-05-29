@@ -20,7 +20,9 @@
         <!-- Dashboard -->
         <li class="menu-item {{ Request::routeIs('dashboard') ? 'active' : '' }}">
             <a href="{{ route('dashboard') }}" class="menu-link">
-                <i class="menu-icon tf-icons mdi mdi-home-outline"></i>
+                <div class="d-flex align-items-center">
+                    <img src="{{ asset('svg/sidebar/dashboard.png') }}" style="width:24px" alt="Dashboard" class="menu-icon">
+                </div>
                 <div>Dashboard</div>
             </a>
         </li>
@@ -28,7 +30,9 @@
         <!-- Delivery Invoice -->
         <li class="menu-item {{ Request::routeIs('delivery.*') ? 'active' : '' }}">
             <a href="{{ route('delivery.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons mdi mdi-file-document-outline"></i>
+                <div class="d-flex align-items-center">
+                    <img src="{{ asset('svg/sidebar/delivery.png') }}" style="width:24px" alt="Delivery" class="menu-icon">
+                </div>
                 <div>Delivery Invoice</div>
             </a>
         </li>
@@ -36,7 +40,9 @@
         <!-- Collection Invoice -->
         <li class="menu-item {{ Request::routeIs('collection.*') ? 'active' : '' }}">
             <a href="{{ route('collection.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons mdi mdi-file-document-outline"></i>
+                <div class="d-flex align-items-center">
+                    <img src="{{ asset('svg/sidebar/collection.png') }}" style="width:24px" alt="Collection" class="menu-icon">
+                </div>
                 <div>Collection Invoice</div>
             </a>
         </li>
@@ -44,7 +50,9 @@
         <!-- Daywork Invoice -->
         <li class="menu-item {{ Request::routeIs('daywork.*') ? 'active' : '' }}">
             <a href="{{ route('daywork.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons mdi mdi-file-document-outline"></i>
+                <div class="d-flex align-items-center">
+                    <img src="{{ asset('svg/sidebar/daywork.png') }}" style="width:24px" alt="Daywork" class="menu-icon">
+                </div>
                 <div>Daywork Invoice</div>
             </a>
         </li>
@@ -52,7 +60,9 @@
         <!-- Haulage Invoice -->
         <li class="menu-item {{ Request::routeIs('haulage.*') ? 'active' : '' }}">
             <a href="{{ route('haulage.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons mdi mdi-file-document-outline"></i>
+                <div class="d-flex align-items-center">
+                    <img src="{{ asset('svg/sidebar/haulage.png') }}" style="width:24px" alt="Haulage" class="menu-icon">
+                </div>
                 <div>Haulage Invoice</div>
             </a>
         </li>
@@ -60,14 +70,18 @@
         <!-- Waiting Time Invoice -->
         <li class="menu-item {{ Request::routeIs('waitingtime.*') ? 'active' : '' }}">
             <a href="{{ route('waitingtime.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons mdi mdi-file-document-outline"></i>
+                <div class="d-flex align-items-center">
+                    <img src="{{ asset('svg/sidebar/waitime.png') }}" style="width:24px" alt="Waiting Time" class="menu-icon">
+                </div>
                 <div>Waiting Time Invoice</div>
             </a>
         </li>
 
         <li class="menu-item {{ Request::routeIs('invoice.differences') ? 'active' : '' }}">
             <a href="{{ route('invoice.differences') }}" class="menu-link">
-                <i class="menu-icon tf-icons mdi mdi-file-document-outline"></i>
+                <div class="d-flex align-items-center">
+                    <img src="{{ asset('svg/sidebar/log.png') }}" style="width:24px" alt="Invoice Comparison" class="menu-icon">
+                </div>
                 <div>Invoice Comparison</div>
             </a>
         </li>
@@ -76,14 +90,18 @@
             <!-- Users -->
             <li class="menu-item {{ Request::routeIs('users.*') ? 'active' : '' }}">
                 <a href="{{ route('users.list') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-account-group"></i>
+                    <div class="d-flex align-items-center">
+                        <img src="{{ asset('svg/sidebar/users.png') }}" style="width:24px" alt="Users" class="menu-icon">
+                    </div>
                     <div>Users</div>
                 </a>
             </li>
             <!-- System Logs -->
             <li class="menu-item {{ Request::routeIs('systemlogs.*') ? 'active' : '' }}">
                 <a href="{{ route('systemlogs.list') }}" class="menu-link">
-                    <i class="menu-icon tf-icons mdi mdi-math-log"></i>
+                    <div class="d-flex align-items-center">
+                        <img src="{{ asset('svg/sidebar/log.png') }}" style="width:24px" alt="System Logs" class="menu-icon">
+                    </div>
                     <div>System Logs</div>
                 </a>
             </li>
@@ -217,17 +235,19 @@
 
     /* Menu icon styling */
     .menu-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        width: 24px;
+        height: 24px;
         margin-right: 0.75rem;
-        color: #697a8d;
-        font-size: 1.35rem;
         transition: all 0.2s;
+        object-fit: contain;
     }
 
     .menu-link:hover .menu-icon {
-        color: #3c8dbc;
+        transform: translateX(2px);
+    }
+
+    .menu-item.active .menu-icon {
+        filter: brightness(0.8);
     }
 
     /* Layout and spacing */

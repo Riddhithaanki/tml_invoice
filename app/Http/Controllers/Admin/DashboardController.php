@@ -25,7 +25,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $recentInvoice = ReadyInvoice::with('booking')->orderBy('CreateDateTime', "DESC")->get();
+        $recentInvoice = ReadyInvoice::with('booking')->orderBy('CreateDateTime', "DESC")->limit(20)->get();
 
         $readyHoldInvoiceCount = InvoiceDifference::where('status', '0')->count();
         $readyInvoiceCount = ReadyInvoice::count();
@@ -283,7 +283,7 @@ class DashboardController extends Controller
                     'success' => false,
                     'message' => 'Original booking not found'
                 ], 404);
-            }
+            } 
 
             \Log::info('Original booking details:', (array)$originalBooking);
 
