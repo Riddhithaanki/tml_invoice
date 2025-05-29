@@ -976,7 +976,7 @@
             $(document).on('click', '.price-history-btn', function() {
                 let ticketId = $(this).data('ticket-id');
                 let $row = $(this).closest('tr');
-                let conveyanceNo = $row.find('td:first').text().trim();
+                let conveyanceNo = $row.find('td:eq(1)').text().trim();
                 
                 $.ajax({
                     url: "{{ route('get.price.history') }}",
@@ -1294,9 +1294,16 @@
                 let oldPrice = parseFloat($input.data('old-price')) || 0;
                 let newPrice = parseFloat($input.val()) || 0;
                 let $row = $input.closest('tr');
-                let conveyanceNo = $row.find('td:first').text().trim();
+                let conveyanceNo = $row.find('td:eq(1)').text().trim();
                 let $mainRow = $input.closest('.invoice-items-container').prev('tr');
                 
+                // Add validation for empty conveyance
+                if (!conveyanceNo) {
+                    toastr.error('Conveyance number not found');
+                    $input.val(oldPrice);
+                    return;
+                }
+
                 $.ajax({
                     url: "{{ route('update.invoice.price') }}",
                     type: "POST",

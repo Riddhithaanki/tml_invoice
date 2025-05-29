@@ -104,10 +104,9 @@ class InvoiceController extends Controller
         $request->validate([
             'new_price' => 'required|numeric|min:0',
         ]);
-
         // Find the load by TicketID
         $load = BookingLoad::where('ConveyanceNo', $request->conveyance_no)->first();
- 
+        
         if (!$load) {
             return response()->json(['error' => 'Load not found'], 404);
         }
