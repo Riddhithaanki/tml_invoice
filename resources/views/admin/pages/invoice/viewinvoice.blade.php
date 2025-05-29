@@ -114,16 +114,27 @@
 
 @section('content')
 <div class="container-fluid py-4 invoice-page">
-
+    <!-- Add Back Button at Top -->
+    <div class="d-flex align-items-center mb-4">
+        <a href="{{ url()->previous() ?? route('dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back
+        </a>
+        <h4 class="m-0 ms-3">View Invoice</h4>
+    </div>
 
     <!-- Invoice Header -->
     <div class="invoice-header">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h3 class="m-0 fw-bold">Invoice #{{ $invoice->InvoiceNumber }}</h3>
-                <p class="text-white-50 mb-0 mt-2"></p>
-                    <i class="far fa-calendar-alt me-2"></i>{{ \Carbon\Carbon::parse($invoice->InvoiceDate)->format('d/m/Y') }}
-                </p>
+                <h3 class="m-0 fw-bold">
+                    <a href="{{ url()->previous() }}" class="text-decoration-none text-dark">
+                        <i class="fas fa-arrow-left me-2"></i>
+                    </a>
+                    Invoice #{{ $invoice->InvoiceNumber }}
+                </h3>
+                <h5 class="text-black mb-0 mt-2">
+                    <i class="far fa-calendar-alt me-2"></i>{{ \Carbon\Carbon::parse($invoice->InvoiceDate)->format('d-m-Y') }}
+                </h5>
             </div>
             <div class="text-end">
                 <h4 class="mb-2">Total Amount</h4>
@@ -354,13 +365,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="d-flex justify-content-end mt-4 gap-3 action-buttons">
-        <a href="{{ url()->previous() }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Back
-        </a>
     </div>
 </div>
 

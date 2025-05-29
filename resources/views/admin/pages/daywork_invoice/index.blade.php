@@ -35,7 +35,6 @@
         <table id="invoiceTable" class="table table-hover">
             <thead>
                 <tr class="filters">
-                    <th>SR. No</th>
                     <th>Booking ID</th>
                     <th>Booking Date</th>
                     <th>Company Name</th>
@@ -69,7 +68,6 @@
                 }
             },
             columns: [
-                { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                 { data: 'BookingRequestID', name: 'BookingRequestID' },
                 { data: 'CreateDateTime', name: 'CreateDateTime' },
                 { data: 'CompanyName', name: 'CompanyName' },
