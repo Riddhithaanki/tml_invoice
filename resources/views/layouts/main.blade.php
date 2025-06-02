@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="{{ url('public/vendor/libs/node-waves/node-waves.css') }}" />
 
     <!-- Core CSS -->
-    <link rel="stylesheet" href="{{ request()->root() }}/vendor/css/rtl/core.css" />
+    <link rel="stylesheet" href="{{ "public/vendor/css/rtl/core.css" />
     <link rel="stylesheet" href="{{ url('public/css/demo.css') }}" class="template-customizer-theme-css" />
     <link rel="stylesheet" href="{{ url('public/vendor/css/rtl/theme-default.css') }}" class="template-customizer-theme-css" />
 
@@ -41,8 +41,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     <!-- Page CSS -->
-    <link rel="stylesheet" href="{{ url('vendor/css/pages/cards-statistics.css') }}" />
-    <link rel="stylesheet" href="{{ url('vendor/css/pages/cards-analytics.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/css/pages/cards-statistics.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/css/pages/cards-analytics.css') }}" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
     <!-- Load Toastr CSS last -->
@@ -226,8 +226,8 @@
     </script>
 
     <!-- Other scripts -->
-    <script src="{{ url('vendor/js/helpers.js') }}"></script>
-    <script src="{{ url('js/config.js') }}"></script>
+    <script src="{{ url('public/vendor/js/helpers.js') }}"></script>
+    <script src="{{ url('public/js/config.js') }}"></script>
 </head>
 
 <body>
