@@ -28,7 +28,8 @@
     {{--
     <link rel="stylesheet" href="{{ url('vendor/css/rtl/core.css') }}" class="template-customizer-core-css" /> --}}
     <link rel="stylesheet" href="{{ url('public/css/demo.css') }}" class="template-customizer-theme-css" />
-
+    <link rel="stylesheet" href="{{ url('public/vendor/css/core.css') }}" />
+<link rel="stylesheet" href="{{ url('public/css/main.css') }}" />
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="{{ url('public/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
     <link rel="stylesheet" href="{{ url('public/vendor/libs/typeahead-js/typeahead.css') }}" />
