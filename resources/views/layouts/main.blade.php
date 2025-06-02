@@ -26,17 +26,20 @@
 
     <!-- Core CSS -->
     <link rel="stylesheet" href="{{ url('public/vendor/css/rtl/core.css') }} />
-    <link rel="stylesheet" href="{{ url('public/css/demo.css') }}" class="template-customizer-theme-css" />
-    <link rel="stylesheet" href="{{ url('public/vendor/css/rtl/theme-default.css') }}" class="template-customizer-theme-css" />
+    <link rel="stylesheet"
+        href="{{ url('public/css/demo.css') }}" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="{{ url('public/vendor/css/rtl/theme-default.css') }}"
+        class="template-customizer-theme-css" />
 
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="{{ url('public/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
     <link rel="stylesheet" href="{{ url('public/vendor/libs/typeahead-js/typeahead.css') }}" />
     <link rel="stylesheet" href="{{ url('public/vendor/libs/datatables-bs5/datatables.bootstrap5.css') }}" />
-    <link rel="stylesheet" href="{{ url('public/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css') }}" />
+    <link rel="stylesheet"
+        href="{{ url('public/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css') }}" />
     <link rel="stylesheet" href="{{ url('public/vendor/libs/apex-charts/apex-charts.css') }}" />
     <link rel="stylesheet" href="{{ url('public/vendor/libs/swiper/swiper.css') }}" />
-    
+
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
@@ -225,9 +228,11 @@
         });
     </script>
 
-    <!-- Other scripts -->
     <script src="{{ url('public/vendor/js/helpers.js') }}"></script>
+    <script src="{{ url('public/vendor/js/template-customizer.js') }}"></script>
+
     <script src="{{ url('public/js/config.js') }}"></script>
+
 </head>
 
 <body>
