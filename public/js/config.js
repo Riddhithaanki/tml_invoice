@@ -88,8 +88,8 @@ TemplateCustomizer.LANGUAGES.fr = { ... };
  */
 if (typeof TemplateCustomizer !== 'undefined') {
   window.templateCustomizer = new TemplateCustomizer({
-    cssPath: 'vendor/css' + (rtlSupport ? '/rtl' : '') + '/',
-    themesPath: 'vendor/css' + (rtlSupport ? '/rtl' : '') + '/',
+    cssPath: 'public/vendor/css' + (rtlSupport ? '/rtl' : '') + '/',
+    themesPath: 'public/vendor/css' + (rtlSupport ? '/rtl' : '') + '/',
     displayCustomizer: true,
     lang: localStorage.getItem('templateCustomizer-' + templateName + '--Lang') || 'en',
     controls: ['rtl', 'style', 'headerType', 'contentLayout', 'layoutCollapsed', 'layoutNavbarOptions', 'themes']
