@@ -1,6 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-template="front-pages">
-
+<html lang="en"
+      class="light-style layout-wide customizer-hide"
+      dir="ltr"
+      data-theme="theme-default"
+      data-template="vertical-menu-template"
+      data-assets-path="{{ url('/') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
