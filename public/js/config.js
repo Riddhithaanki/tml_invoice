@@ -86,15 +86,6 @@ TemplateCustomizer.LANGUAGES.fr = { ... };
  * defaultFooterFixed: true, false (For vertical layout only)
  * defaultShowDropdownOnHover : true, false (for horizontal layout only)
  */
-if (typeof TemplateCustomizer !== 'undefined') {
-  window.templateCustomizer = new TemplateCustomizer({
-    cssPath: 'public/vendor/css' + (rtlSupport ? '/rtl' : '') + '/',
-    themesPath: 'public/vendor/css' + (rtlSupport ? '/rtl' : '') + '/',
-    displayCustomizer: true,
-    lang: localStorage.getItem('templateCustomizer-' + templateName + '--Lang') || 'en',
-    controls: ['rtl', 'style', 'headerType', 'contentLayout', 'layoutCollapsed', 'layoutNavbarOptions', 'themes']
-  });
-} else {
-  console.warn('TemplateCustomizer is not loaded.');
-}
+
+console.log('Theme Customizer is disabled.');
  

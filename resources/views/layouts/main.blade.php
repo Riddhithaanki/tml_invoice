@@ -187,6 +187,12 @@
         .modal {
             z-index: 999999;
         }
+
+        #template-customizer,
+        .template-customizer,
+        .layout-customizer {
+            display: none !important;
+        }
     </style>
 
     <!-- Load jQuery first -->
@@ -229,7 +235,6 @@
     </script>
 
     <script src="{{ url('public/vendor/js/helpers.js') }}"></script>
-    <script src="{{ url('public/vendor/js/template-customizer.js') }}"></script>
 
     <script src="{{ url('public/js/config.js') }}"></script>
 

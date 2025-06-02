@@ -1,4 +1,4 @@
-<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+<aside id="layout-menu" class="layout-menu menu-vertical menu">
     <div class="app-brand demo py-4 px-4">
         <a href="{{ route('dashboard') }}" class="app-brand-link d-flex flex-column align-items-center">
             <span class="app-brand-logo mb-3">
