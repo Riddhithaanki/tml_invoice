@@ -38,7 +38,7 @@
     <link rel="stylesheet" href="{{ url('public/vendor/libs/@form-validation/form-validation.css') }}" />
 
     <!-- Page CSS -->
-    <link rel="stylesheet" href="{{ url('/vendor/css/pages/page-auth.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/css/pages/page-auth.css') }}" />
 
     <!-- Helpers -->
     <script src="{{ url('public/vendor/js/helpers.js') }}"></script>
