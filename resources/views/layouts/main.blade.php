@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" data-template="front-pages">
 
+<!DOCTYPE html>
+<html lang="en" data-template="front-pages" data-assets-path="{{asset('/')}}">
+
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -8,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>@yield('title', 'Admin Panel')</title>
-    <link rel="icon" type="image/x-icon" href="{{ url('img/favicon.ico') }}" />
+    <link rel="icon" type="image/x-icon" href="{{asset('img/favicon.ico')}}" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -16,37 +19,48 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&ampdisplay=swap"
         rel="stylesheet" />
 
-    <!-- Icons - Load Font Awesome first -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url('public/vendor/fonts/materialdesignicons.css') }}" />
-    <link rel="stylesheet" href="{{ url('public/vendor/fonts/flag-icons.css') }}" />
+    <!-- Icons -->
+    <link rel="stylesheet" href="{{asset('vendor/fonts/materialdesignicons.css')}}" />
+    <link rel="stylesheet" href="{{asset('vendor/fonts/flag-icons.css')}}" />
 
     <!-- Menu waves for no-customizer fix -->
-    <link rel="stylesheet" href="{{ url('public/vendor/libs/node-waves/node-waves.css') }}" />
+    <link rel="stylesheet" href="{{asset('vendor/libs/node-waves/node-waves.css')}}" />
 
     <!-- Core CSS -->
-    <link rel="stylesheet" href="{{ url('public/vendor/css/rtl/core.css') }} />
-    <link rel="stylesheet" href="{{ url('public/css/demo.css') }}" class="template-customizer-theme-css" />
-    <link rel="stylesheet" href="{{ url('public/vendor/css/rtl/theme-default.css') }}" class="template-customizer-theme-css" />
-    
+    {{-- {{asset('scss/r')}} --}}
+
+    <link rel="stylesheet" href="{{asset('vendor/css/rtl/core.css')}}" class="template-customizer-core-css" />
+    <link rel="stylesheet" href="{{asset('vendor/css/rtl/theme-default.css')}}" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="{{asset('public/css/demo.css')}}" class="template-customizer-theme-css" />
+
     <!-- Vendors CSS -->
-    <link rel="stylesheet" href="{{ url('public/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
-    <link rel="stylesheet" href="{{ url('public/vendor/libs/typeahead-js/typeahead.css') }}" />
-    <link rel="stylesheet" href="{{ url('public/vendor/libs/datatables-bs5/datatables.bootstrap5.css') }}" />
-    <link rel="stylesheet" href="{{ url('public/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css') }}" />
-    <link rel="stylesheet" href="{{ url('public/vendor/libs/apex-charts/apex-charts.css') }}" />
-    <link rel="stylesheet" href="{{ url('public/vendor/libs/swiper/swiper.css') }}" />
-    
-    <!-- SweetAlert2 CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
+    <link rel="stylesheet" href="{{asset('vendor/libs/perfect-scrollbar/perfect-scrollbar.css')}}" />
+    <link rel="stylesheet" href="{{asset('vendor/libs/typeahead-js/typeahead.css')}}" />
+    <link rel="stylesheet" href="{{asset('vendor/libs/datatables-bs5/datatables.bootstrap5.css')}}" />
+    <link rel="stylesheet" href="{{asset('vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css')}}" />
+    <link rel="stylesheet" href="{{asset('vendor/libs/apex-charts/apex-charts.css')}}" />
+    <link rel="stylesheet" href="{{asset('vendor/libs/swiper/swiper.css')}}" />
     <!-- Page CSS -->
-    <link rel="stylesheet" href="{{ url('public/vendor/css/pages/cards-statistics.css') }}" />
-    <link rel="stylesheet" href="{{ url('public/vendor/css/pages/cards-analytics.css') }}" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{asset('vendor/css/pages/cards-statistics.css')}}" />
+    <link rel="stylesheet" href="{{asset('vendor/css/pages/cards-analytics.css')}}" />
+    <!-- Add this in the <head> or before the closing </body> tag -->
 
-    <!-- Load Toastr CSS last -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- Add Leaflet.js CDN link in the <head> section -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <!-- Helpers -->
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Template customizer: To hide customizer set displayCustomizer value false in config.js.  -->
+    <script src="{{asset('vendor/js/template-customizer.js')}}"></script>
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    {{--
+    <script src="../..//js/config.js"></script> --}}
+
+    <script src="{{asset('vendor/js/helpers.js')}}"></script>
+    <script src="{{asset('public/js/config.js')}}"></script>
+
 
     <style>
         .btn-primary {
@@ -224,10 +238,6 @@
             buttonsStyling: false
         });
     </script>
-
-    <!-- Other scripts -->
-    <script src="{{ url('public/vendor/js/helpers.js') }}"></script>
-    <script src="{{ url('public/js/config.js') }}"></script>
 </head>
 
 <body>
