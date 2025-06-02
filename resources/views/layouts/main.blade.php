@@ -1,10 +1,6 @@
 <!DOCTYPE html>
-<html lang="en"
-      class="light-style layout-wide customizer-hide"
-      dir="ltr"
-      data-theme="theme-default"
-      data-template="vertical-menu-template"
-      data-assets-path="{{ url('/') }}">
+<html lang="en" class="light-style" data-assets-path="{{ url('/') }}">
+
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -34,8 +30,7 @@
     <link rel="stylesheet" href="{{ url('public/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
     <link rel="stylesheet" href="{{ url('public/vendor/libs/typeahead-js/typeahead.css') }}" />
     <link rel="stylesheet" href="{{ url('public/vendor/libs/datatables-bs5/datatables.bootstrap5.css') }}" />
-    <link rel="stylesheet"
-        href="{{ url('public/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css') }}" />
     <link rel="stylesheet" href="{{ url('public/vendor/libs/apex-charts/apex-charts.css') }}" />
     <link rel="stylesheet" href="{{ url('public/vendor/libs/swiper/swiper.css') }}" />
 
@@ -242,20 +237,19 @@
 <body>
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">
-            {{-- Sidebar --}}
             @include('layouts.sidebar')
+
             <div class="layout-page">
-                {{-- Header --}}
                 @include('layouts.header')
                 <div class="container-fluid">
                     <div class="content-wrapper">
-                        {{-- Main Content --}}
                         @yield('content')
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 
     {{-- Scripts --}}
     <script src="{{ url('public/vendor/libs/popper/popper.js') }}"></script>
