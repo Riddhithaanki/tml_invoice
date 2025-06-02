@@ -44,183 +44,198 @@
     </ul>
 </aside>
 
-<!-- CSS for active highlight and other improvements -->
 <style>
-    /* Sidebar main container styles */
+    /* Base Layout Styles */
     .layout-menu {
-        box-shadow: 0 0.125rem 0.375rem 0 rgba(0, 0, 0, 0.16);
-        transition: box-shadow 0.3s ease-in-out;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
         background-color: #3c8dbc;
+        transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+        width: 260px;
+        z-index: 1050;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 
-    .layout-menu:hover {
-        box-shadow: 0 0.25rem 1rem 0 rgba(0, 0, 0, 0.16);
+    /* Main Content Spacing */
+    .layout-page {
+        margin-left: 260px;
+        min-height: 100vh;
+        padding: 1.5rem;
+        transition: margin-left 0.3s ease-in-out;
     }
 
-    /* Menu item styles */
-    /* Active item highlight - Border only & black text */
-    .layout-menu.menu-vertical .menu-inner .menu-item.active .menu-link {
-        border: 1px solid #3c8dbc;
-        background-color: transparent !important;
-        font-weight: 600;
-        color: #000 !important;
-        /* Ensure black text color */
+    .layout-navbar {
+        margin-left: 260px;
+        transition: margin-left 0.3s ease-in-out;
     }
 
-    /* Active menu item icon color */
-    .layout-menu.menu-vertical .menu-inner .menu-item.active .menu-link .menu-icon {
-        color: #000 !important;
-        /* Ensure black icon color */
-    }
-
-    /* Make sure text is black for active items */
-    .layout-menu.menu-vertical .menu-inner .menu-item.active .menu-link div {
-        color: #000 !important;
-        /* Additional selector for text inside divs */
-    }
-
-    /* Hover effect with subtle shift */
-    .menu-vertical .menu-item .menu-link:hover {
-        border: 1px solid #3c8dbc;
-        background-color: rgba(60, 141, 188, 0.05);
-        transform: translateX(3px);
-        color: #000;
-        /* Text color on hover */
-    }
-
-    /* Active menu item indicator */
-    .menu-item.active .menu-link::after {
-        content: '';
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background-color: #3c8dbc;
-    }
-
+    /* Brand Section Styles */
     .app-brand {
-        display: flex;
-        justify-content: space-between;
-        /* Ensures space between logo and toggle button */
-        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* Logo styling */
-    .app-brand-logo {
-        display: flex;
-        justify-content: center;
-        width: 100%;
-        border-radius: 12px;
-    }
-
-    .logo-img {
-        width: 250px;
+    .app-brand-logo .logo-img {
+        width: 200px;
         height: auto;
         transition: transform 0.3s ease;
     }
 
-    .app-brand-link:hover .logo-img {
-        transform: scale(1.05);
-    }
-
-    /* Text below logo */
     .app-brand-text {
-        color: black;
+        color: #ffffff;
         font-size: 1.2rem;
-        transition: color 0.2s;
+        font-weight: 600;
         letter-spacing: 0.5px;
-        text-align: center;
-    }
-
-    .app-brand-link:hover .app-brand-text {
-        color: #3c8dbc;
-    }
-
-    /* Menu inner shadow effect */
-    .menu-inner-shadow {
-        background: linear-gradient(#000000 10%, rgba(255, 255, 255, 0.1) 100%);
-        height: 80px;
-        opacity: 0.7;
-    }
-
-    /* Menu padding and spacing */
-    .menu-inner {
-        padding-top: 0.75rem !important;
-        padding-bottom: 2rem !important;
-    }
-
-    /* App brand container */
-    .app-brand {
-        padding: 0 1.5rem;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-    }
-
-    /* Logo container */
-    .app-brand-link {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-    }
-
-    /* Menu icon styling */
-    .menu-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 0.75rem;
-        color: #697a8d;
-        font-size: 1.35rem;
-        transition: all 0.2s;
-    }
-
-    .menu-link:hover .menu-icon {
-        color: #3c8dbc;
-    }
-
-    /* Layout and spacing */
-    .menu-item+.menu-item {
         margin-top: 0.5rem;
     }
 
+    /* Menu Items Styles */
+    .menu-inner {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+
+    .menu-item {
+        margin: 0.5rem 0;
+    }
+
     .menu-link {
-        border-radius: 0.425rem;
-        margin: 0 0.85rem;
-        padding-left: 1.15rem !important;
+        display: flex;
+        align-items: center;
+        padding: 0.85rem 1.5rem;
+        color: #ffffff;
+        border-radius: 0.375rem;
+        margin: 0 0.75rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
         position: relative;
-         padding-top: 1rem !important;
-    padding-bottom: 1rem !important;
     }
-  
 
-    .menu-inner .menu-item + .menu-item {
-    margin-top: 0.5rem !important;
-}
+    .menu-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        transform: translateX(3px);
+    }
 
+    .menu-item.active .menu-link {
+        background-color: #ffffff;
+        color: #3c8dbc !important;
+        font-weight: 600;
+    }
 
-    @media (max-width: 727px) {
+    .menu-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+        margin-right: 1rem;
+        object-fit: contain;
+    }
 
-        .app-brand-logo,
-        .app-brand-text {
+    /* Shadow Effect */
+    .menu-inner-shadow {
+        position: absolute;
+        top: 0;
+        height: 60px;
+        width: 100%;
+        pointer-events: none;
+        background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
+    }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 1199.98px) {
+        .layout-menu {
+            transform: translateX(-100%);
+        }
+
+        .layout-menu.show {
+            transform: translateX(0);
+        }
+
+        .layout-page,
+        .layout-navbar {
+            margin-left: 0 !important;
+        }
+
+        .layout-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1049;
             display: none;
-            /* Hide logo and text */
         }
 
-        .layout-menu-toggle {
-            display: block !important;
-            /* Ensure toggle button is visible */
+        .layout-overlay.show {
+            display: block;
         }
     }
 
-    /* Hide toggle button on larger screens */
-    @media (min-width: 728px) {
-        .layout-menu-toggle {
-            display: none !important;
-        }
+    /* Animation and Transitions */
+    .menu-link, .menu-icon, .app-brand-logo .logo-img {
+        transition: all 0.3s ease-in-out;
+    }
+
+    /* Scrollbar Styling */
+    .layout-menu::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .layout-menu::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .layout-menu::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+    }
+
+    .layout-menu::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleBtn = document.querySelector('.layout-menu-toggle');
+        const sidebar = document.getElementById('layout-menu');
+        const body = document.body;
+        
+        // Create overlay element
+        const overlay = document.createElement('div');
+        overlay.className = 'layout-overlay';
+        body.appendChild(overlay);
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+            body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
+        }
+
+        // Toggle sidebar on button click
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', toggleSidebar);
+        }
+
+        // Close sidebar when clicking overlay
+        overlay.addEventListener('click', toggleSidebar);
+
+        // Close sidebar on window resize if in mobile view
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 1200 && sidebar.classList.contains('show')) {
+                toggleSidebar();
+            }
+        });
+
+        // Handle escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && sidebar.classList.contains('show')) {
+                toggleSidebar();
+            }
+        });
+    });
+</script>
