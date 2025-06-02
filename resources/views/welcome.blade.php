@@ -4,7 +4,8 @@
       dir="ltr"
       data-theme="theme-default"
       data-template="vertical-menu-template"
-      data-assets-path="{{ url('public') }}/public/">
+      data-assets-path="{{ url('public') }}/">
+
 
 <head>
     <meta charset="utf-8" />
