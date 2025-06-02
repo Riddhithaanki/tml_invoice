@@ -17,3 +17,6 @@ yarn-error.log
 /.idea
 /.vscode
 /storage/logs
+public/js/config.js
+resources/views/welcome.blade.php
+resources/views/layouts/main.blade.php
