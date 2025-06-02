@@ -86,6 +86,12 @@ TemplateCustomizer.LANGUAGES.fr = { ... };
  * defaultFooterFixed: true, false (For vertical layout only)
  * defaultShowDropdownOnHover : true, false (for horizontal layout only)
  */
-
-console.log('Theme Customizer is disabled.');
+if (typeof TemplateCustomizer !== 'undefined') {
+  window.templateCustomizer = new TemplateCustomizer({
+    cssPath: 'public/vendor/css' + (rtlSupport ? '/rtl' : '') + '/',
+    themesPath: 'public/vendor/css' + (rtlSupport ? '/rtl' : '') + '/',
+  });
+} else {
+  console.warn('TemplateCustomizer is not loaded.');
+}
  
