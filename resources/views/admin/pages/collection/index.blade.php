@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
     <div class="table-container mt-4">
         <!-- Back Button -->
-        <div class="d-flex align-items-center mb-3">
+        <div class="d-flex align-items-center mb-3 mt-2">
             <a href="{{ url()->previous() }}" class="text-decoration-none text-dark">
                 <i class="fas fa-arrow-left me-2"></i>
             </a>
