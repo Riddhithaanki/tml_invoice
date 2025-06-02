@@ -50,9 +50,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 
     <!-- Helpers -->
-    <script src="{{ url('vendor/js/template-customizer.js') }}"></script>
-    <script src="{{ url('vendor/js/helpers.js') }}"></script>
-    <script src="{{ url('js/config.js') }}"></script>
+    <script src="{{ url('public/vendor/js/template-customizer.js') }}"></script>
+    <script src="{{ url('public/vendor/js/helpers.js') }}"></script>
+    <script src="{{ url('public/js/config.js') }}"></script>
     <style>
         .btn-primary {
             background-color: #3c8dbc;
