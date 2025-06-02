@@ -1,4 +1,4 @@
-@extends('customer.layouts.main')
+@extends('customer.Layouts.main')
 
 @section('content')
     <div class="table-container mt-4">
