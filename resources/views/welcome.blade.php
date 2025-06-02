@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" class="light-style layout-wide customizer-hide" dir="ltr" data-theme="theme-default"
-    data-path="{{asset('/')}}" data-template="vertical-menu-template">
+    data-path="{{url('/')}}" data-template="vertical-menu-template">
 
 <head>
     <meta charset="utf-8" />
@@ -11,7 +11,7 @@
     <meta name="description" content="" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{asset('img/favicon.ico')}}" />
+    <link rel="icon" type="image/x-icon" href="{{url('img/favicon.ico')}}" />
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,31 +19,31 @@
         rel="stylesheet" />
 
     <!-- Icons -->
-    <link rel="stylesheet" href="{{ asset('/vendor/fonts/materialdesignicons.css') }}" />
-    <link rel="stylesheet" href="{{ asset('/vendor/fonts/flag-icons.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/fonts/materialdesignicons.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/fonts/flag-icons.css') }}" />
 
     <!-- Menu waves for no-customizer fix -->
-    <link rel="stylesheet" href="{{ asset('/vendor/libs/node-waves/node-waves.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/libs/node-waves/node-waves.css') }}" />
 
     <!-- Core CSS -->
-    <link rel="stylesheet" href="{{ asset('/vendor/css/rtl/core.css') }}" class="template-customizer-core-css" />
-    <link rel="stylesheet" href="{{ asset('/vendor/css/rtl/theme-default.css') }}"
+    <link rel="stylesheet" href="{{ url('public/vendor/css/rtl/core.css') }}" class="template-customizer-core-css" />
+    <link rel="stylesheet" href="{{ url('public/vendor/css/rtl/theme-default.css') }}"
         class="template-customizer-theme-css" />
-    <link rel="stylesheet" href="{{ asset('/css/demo.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/css/demo.css') }}" />
 
     <!-- Vendors CSS -->
-    <link rel="stylesheet" href="{{ asset('/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
-    <link rel="stylesheet" href="{{ asset('/vendor/libs/typeahead-js/typeahead.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/libs/typeahead-js/typeahead.css') }}" />
     <!-- Vendor -->
-    <link rel="stylesheet" href="{{ asset('/vendor/libs/@form-validation/form-validation.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/libs/@form-validation/form-validation.css') }}" />
 
     <!-- Page CSS -->
-    <link rel="stylesheet" href="{{ asset('/vendor/css/pages/page-auth.css') }}" />
+    <link rel="stylesheet" href="{{ url('/vendor/css/pages/page-auth.css') }}" />
 
     <!-- Helpers -->
-    <script src="{{ asset('/vendor/js/helpers.js') }}"></script>
-    <script src="{{ asset('/vendor/js/template-customizer.js') }}"></script>
-    <script src="{{ asset('/js/config.js') }}"></script>
+    <script src="{{ url('public/vendor/js/helpers.js') }}"></script>
+    <script src="{{ url('public/vendor/js/template-customizer.js') }}"></script>
+    <script src="{{ url('public/js/config.js') }}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
 </head>
@@ -60,11 +60,11 @@
         <div class="authentication-inner row m-0">
             <!-- Left Section -->
             <div class="d-none d-lg-flex col-lg-7 col-xl-8 align-items-center justify-content-center p-5 pb-2">
-                <img src="{{asset('/img/illustrations/auth-login-illustration-light.png')}}"
+                <img src="{{url('/img/illustrations/auth-login-illustration-light.png')}}"
                     class="auth-cover-illustration w-100" alt="auth-illustration"
                     data-app-light-img="illustrations/auth-login-illustration-light.png"
                     data-app-dark-img="illustrations/auth-login-illustration-dark.png" />
-                <img src="{{asset('/img/illustrations/auth-cover-login-mask-light.png')}}" class="authentication-image"
+                <img src="{{url('/img/illustrations/auth-cover-login-mask-light.png')}}" class="authentication-image"
                     alt="mask" data-app-light-img="illustrations/auth-cover-login-mask-light.png"
                     data-app-dark-img="illustrations/auth-cover-login-mask-dark.png" />
             </div>
@@ -108,8 +108,8 @@
     <!-- / Content -->
 
     <!-- Core JS -->
-    <script src="{{ asset('/vendor/libs/jquery/jquery.js') }}"></script>
-    <script src="{{ asset('/vendor/js/bootstrap.js') }}"></script>
+    <script src="{{ url('public/vendor/libs/jquery/jquery.js') }}"></script>
+    <script src="{{ url('public/vendor/js/bootstrap.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     

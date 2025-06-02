@@ -86,3 +86,22 @@ TemplateCustomizer.LANGUAGES.fr = { ... };
  * defaultFooterFixed: true, false (For vertical layout only)
  * defaultShowDropdownOnHover : true, false (for horizontal layout only)
  */
+console.log(typeof(TemplateCustomizer));
+if (typeof(TemplateCustomizer) !== 'undefined') {
+  window.templateCustomizer = new TemplateCustomizer({
+    cssPath: 'vendor/css' + (rtlSupport ? '/rtl' : '') + '/',
+    themesPath: 'vendor/css' + (rtlSupport ? '/rtl' : '') + '/',
+    displayCustomizer: true,
+    lang: localStorage.getItem('templateCustomizer-' + templateName + '--Lang') || 'en', // Set default language here
+    // defaultTheme: 2,
+    // defaultStyle: 'system',
+    // defaultTextDir: 'rtl',
+    // defaultContentLayout: 'wide',
+    // defaultHeaderType: 'static',
+    // defaultMenuCollapsed: true,
+    // defaultNavbarType: 'sticky',
+    // defaultFooterFixed: false,
+    // defaultShowDropdownOnHover: false,
+    controls: ['rtl', 'style', 'headerType', 'contentLayout', 'layoutCollapsed', 'layoutNavbarOptions', 'themes']
+  });
+}
