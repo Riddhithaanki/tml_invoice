@@ -1,6 +1,10 @@
 <!doctype html>
-<html lang="en" class="light-style layout-wide customizer-hide" dir="ltr" data-theme="theme-default"
-    data-assets-path="{{ url('public/') }}/" data-template="vertical-menu-template">
+<html lang="en"
+      class="light-style layout-wide customizer-hide"
+      dir="ltr"
+      data-theme="theme-default"
+      data-template="vertical-menu-template"
+      data-assets-path="{{ url('public') }}/public/">
 
 <head>
     <meta charset="utf-8" />
