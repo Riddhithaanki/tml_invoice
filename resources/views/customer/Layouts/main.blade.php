@@ -48,9 +48,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-
-    <!-- Helpers -->
-    <script src="{{ url('public/vendor/js/template-customizer.js') }}"></script>
     <script src="{{ url('public/vendor/js/helpers.js') }}"></script>
     <script src="{{ url('public/js/config.js') }}"></script>
     <style>
