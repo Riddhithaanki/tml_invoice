@@ -139,7 +139,7 @@
 </script>
 
 <style>
-    /* Add these styles for Flatpickr customization */
+    /* Add these styles for Flatpickr customization
     .flatpickr-calendar {
         background: #fff;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -157,7 +157,15 @@
 
     .flatpickr-current-month {
         color: #3c8dbc;
-    }
+    } */
+            /* Make the month name and year color match selected day color */
+.flatpickr-current-month,
+.flatpickr-current-month .cur-month,
+.flatpickr-current-month input.cur-year {
+    color:rgb(0, 0, 0) !important;
+    font-weight: 600;
+}
+
           #globalSearchInput {
     width: 80%;
     height: 40px;

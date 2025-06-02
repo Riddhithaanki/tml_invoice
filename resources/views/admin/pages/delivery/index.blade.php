@@ -197,6 +197,14 @@ $(document).ready(function() {
 
 
     <style>
+               /* Make the month name and year color match selected day color */
+.flatpickr-current-month,
+.flatpickr-current-month .cur-month,
+.flatpickr-current-month input.cur-year {
+    color:rgb(0, 0, 0) !important;
+    font-weight: 600;
+}
+
         #globalSearchInput {
     width: 80%;
     height: 40px;

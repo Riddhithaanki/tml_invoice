@@ -6,10 +6,10 @@
     <div class="table-container mt-4">
         <!-- Back Button -->
         <div class="d-flex align-items-center mb-3">
-            <a href="{{ url()->previous() }}" class="text-decoration-none text-dark">
+            <!-- <a href="{{ url()->previous() }}" class="text-decoration-none text-dark">
                 <i class="fas fa-arrow-left me-2"></i>
-            </a>
-            <h4 class="m-0">Collection Invoices</h4>
+            </a> -->
+            <h4 class="m-2">Collection Invoices</h4>
         </div>
 
         <!-- Tabs with updated styling -->
@@ -17,16 +17,26 @@
             <ul class="nav nav-tabs justify-content-between flex-wrap w-100" id="invoiceTabs">
                 <!-- Left Tabs -->
                 <li class="nav-item">
-                    <a class="nav-link {{ !request()->has('type') || request()->type === 'loads' ? 'active' : '' }}"
+                    <!-- <a class="nav-link {{ !request()->has('type') || request()->type === 'loads' ? 'active' : '' }}"
                         href="{{ route('collection.index', ['type' => 'loads', 'invoice_type' => request()->invoice_type ?? 'preinvoice']) }}">
                         Loads
-                    </a>
+                    </a> -->
+                    <a class="nav-link {{ request()->type === 'loads' || !request()->has('type') ? 'active' : '' }}"
+   href="{{ route('collection.index', ['type' => 'loads', 'invoice_type' => request()->invoice_type ?? 'preinvoice']) }}">
+   Loads
+</a>
+
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->type === 'tonnage' ? 'active' : '' }}"
+                    <!-- <a class="nav-link {{ request()->type === 'tonnage' ? 'active' : '' }}"
                         href="{{ route('collection.index', ['type' => 'tonnage', 'invoice_type' => request()->invoice_type ?? 'preinvoice']) }}">
                         Tonnage
-                    </a>
+                    </a> -->
+                    <a class="nav-link {{ request()->type === 'tonnage' ? 'active' : '' }}"
+   href="{{ route('collection.index', ['type' => 'tonnage', 'invoice_type' => request()->invoice_type ?? 'preinvoice']) }}">
+   Tonnage
+</a>
+
                 </li>
 
                 <!-- Right Tabs (separated visually using ms-auto) -->
@@ -83,14 +93,18 @@
                 margin-right: 0;
             }
             .tab-container {
-                overflow-x: auto;
+                overflow-x: hidden;
                 overflow-y: hidden;
-                white-space: nowrap;
+                /* white-space: nowrap; */
                 padding-bottom: 2px;
             }
 
+.tab-slider {
+    display: none !important;
+}
+
             .nav-tabs {
-            flex-wrap: nowrap !important;
+            flex-wrap: wrap !important;
             overflow: hidden;
             }
 
@@ -272,6 +286,18 @@
 
     <!-- CSS -->
     <style>
+        body {
+    overflow-x: hidden;
+}
+       /* Make the month name and year color match selected day color */
+.flatpickr-current-month,
+.flatpickr-current-month .cur-month,
+.flatpickr-current-month input.cur-year {
+    color:rgb(0, 0, 0) !important;
+    font-weight: 600;
+}
+
+
               #globalSearchInput {
     width: 80%;
     height: 40px;
@@ -304,7 +330,7 @@
             border-radius: 6px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 0;
-            overflow: hidden;
+            overflow-x: hidden;
             margin-bottom: 30px;
         }
 
