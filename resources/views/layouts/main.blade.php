@@ -42,6 +42,8 @@
     <link rel="stylesheet" href="{{ url('public/vendor/css/pages/cards-analytics.css') }}" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
+    <link rel="stylesheet" href="{{ url('public/vendor/css/core.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/css/main.css') }}" />
     <!-- Load Toastr CSS last -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
