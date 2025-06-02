@@ -24,12 +24,7 @@
     <!-- Menu waves for no-customizer fix -->
     <link rel="stylesheet" href="{{ url('public/vendor/libs/node-waves/node-waves.css') }}" />
 
-    <!-- Core CSS -->
-    <link rel="stylesheet" href="{{ url('public/vendor/css/rtl/core.css') }} />
-    <link rel="stylesheet"
-        href="{{ url('public/css/demo.css') }}" class="template-customizer-theme-css" />
-    <link rel="stylesheet" href="{{ url('public/vendor/css/rtl/theme-default.css') }}"
-        class="template-customizer-theme-css" />
+
 
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="{{ url('public/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
