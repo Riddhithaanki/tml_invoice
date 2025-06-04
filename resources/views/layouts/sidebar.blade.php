@@ -140,7 +140,7 @@
     }
 
     .app-brand-text {
-        color: #ffffff;
+        color:rgb(0, 0, 0);
         font-size: 1.2rem;
         font-weight: 600;
         letter-spacing: 0.5px;
@@ -163,7 +163,7 @@
         display: flex;
         align-items: center;
         padding: 0.85rem 1.5rem;
-        color: #ffffff;
+        color:rgb(0, 0, 0);
         border-radius: 0.375rem;
         margin: 0 0.75rem;
         transition: all 0.3s ease;
@@ -173,7 +173,7 @@
 
     .menu-link:hover {
         background-color: rgba(255, 255, 255, 0.1);
-        color: #ffffff;
+        color: #3c8dbc;
         transform: translateX(3px);
     }
 
