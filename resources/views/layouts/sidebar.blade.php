@@ -112,6 +112,7 @@
         z-index: 1050;
         overflow-y: auto;
         overflow-x: hidden;
+        color: black;
     }
 
     /* Main Content Spacing */
@@ -151,6 +152,7 @@
         padding: 0;
         margin: 0;
         list-style: none;
+        color: black;
     }
 
     .menu-item {
