@@ -106,7 +106,7 @@
         bottom: 0;
         left: 0;
         box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
-        background-color: #3c8dbc;
+        background-color:rgb(250, 250, 250);
         transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
         width: 260px;
         z-index: 1050;
