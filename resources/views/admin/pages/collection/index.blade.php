@@ -277,6 +277,12 @@
                 table.ajax.reload();
             });
 
+            
+    // Global search on button click
+    $('#globalSearchBtn').on('click', function () {
+        let searchTerm = $('#globalSearchInput').val();
+        table.search(searchTerm).draw();
+    });
             $('#invoiceTable thead .column-search').on('keyup change', function() {
                 let colIndex = $(this).parent().index();
                 table.column(colIndex).search(this.value).draw();

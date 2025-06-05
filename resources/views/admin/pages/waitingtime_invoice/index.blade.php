@@ -141,6 +141,12 @@
             }
         });
 
+    // Global search on button click
+    $('#globalSearchBtn').on('click', function () {
+        let searchTerm = $('#globalSearchInput').val();
+        table.search(searchTerm).draw();
+    });
+    
         $('.column-search').on('keyup change', function () {
             var colIndex = $(this).closest('th').index();
             table
