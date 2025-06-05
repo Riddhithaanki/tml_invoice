@@ -168,6 +168,17 @@ $(document).ready(function() {
         let searchTerm = $('#globalSearchInput').val();
         table.search(searchTerm).draw();
     });
+    
+    // Trigger global search on input clear (real-time behavior)
+$('#globalSearchInput').on('input', function () {
+    const searchTerm = $(this).val().trim();
+
+    // If input is cleared, reset the DataTable search
+    if (searchTerm === '') {
+        table.search('').draw();
+    }
+});
+
 
     // Filter date range
     $('#filterBtn').click(function() {

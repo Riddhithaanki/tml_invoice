@@ -52,12 +52,13 @@
         bottom: 0;
         left: 0;
         box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
-        background-color: #3c8dbc;
+        background-color:rgb(252, 252, 252);
         transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
         width: 260px;
         z-index: 1050;
         overflow-y: auto;
         overflow-x: hidden;
+        color: black;
     }
 
     /* Main Content Spacing */
@@ -85,7 +86,7 @@
     }
 
     .app-brand-text {
-        color: #ffffff;
+        color:rgb(0, 0, 0);
         font-size: 1.2rem;
         font-weight: 600;
         letter-spacing: 0.5px;
@@ -107,7 +108,7 @@
         display: flex;
         align-items: center;
         padding: 0.85rem 1.5rem;
-        color: #ffffff;
+        color:rgb(0, 0, 0);
         border-radius: 0.375rem;
         margin: 0 0.75rem;
         transition: all 0.3s ease;
@@ -117,7 +118,7 @@
 
     .menu-link:hover {
         background-color: rgba(255, 255, 255, 0.1);
-        color: #ffffff;
+        color: #3c8dbc;
         transform: translateX(3px);
     }
 

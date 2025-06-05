@@ -122,17 +122,33 @@
             lengthMenu: [1, 10, 50, 100],
             responsive: true,
             orderCellsTop: true,
-            searching: false,
+            searching: true,
             lengthChange: false,
         });
 
-        
+          // Column search on input change
+    $('#invoiceTable thead').on('input', '.column-search', function () {
+        var colIndex = $(this).parent().index();
+        var val = $(this).val();
+        table.column(colIndex).search(val).draw();
+    });
     // Global search on button click
     $('#globalSearchBtn').on('click', function () {
         let searchTerm = $('#globalSearchInput').val();
         table.search(searchTerm).draw();
     });
     
+
+    // Trigger global search on input clear (real-time behavior)
+$('#globalSearchInput').on('input', function () {
+    const searchTerm = $(this).val().trim();
+
+    // If input is cleared, reset the DataTable search
+    if (searchTerm === '') {
+        table.search('').draw();
+    }
+});
+
         $('#filterBtn').click(function () {
             table.ajax.reload();
         });

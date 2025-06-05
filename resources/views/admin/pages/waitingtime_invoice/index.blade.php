@@ -146,7 +146,18 @@
         let searchTerm = $('#globalSearchInput').val();
         table.search(searchTerm).draw();
     });
-    
+
+    // Trigger global search on input clear (real-time behavior)
+$('#globalSearchInput').on('input', function () {
+    const searchTerm = $(this).val().trim();
+
+    // If input is cleared, reset the DataTable search
+    if (searchTerm === '') {
+        table.search('').draw();
+    }
+});
+
+
         $('.column-search').on('keyup change', function () {
             var colIndex = $(this).closest('th').index();
             table

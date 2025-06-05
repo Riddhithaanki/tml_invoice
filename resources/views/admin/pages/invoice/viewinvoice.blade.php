@@ -125,49 +125,17 @@
     <!-- Invoice Header -->
     <div class="invoice-header">
         <div class="d-flex justify-content-between align-items-center">
-<<<<<<< HEAD
             <div>
                 <h3 class="m-0 fw-bold">
-                    <a href="{{ url()->previous() }}" class="text-decoration-none text-dark">
+                    <!-- <a href="{{ url()->previous() }}" class="text-decoration-none text-dark">
                         <i class="fas fa-arrow-left me-2"></i>
-                    </a>
+                    </a> -->
                     Invoice #{{ $invoice->InvoiceNumber }}
                 </h3>
                 <h5 class="text-black mb-0 mt-2">
                     <i class="far fa-calendar-alt me-2"></i>{{ \Carbon\Carbon::parse($invoice->InvoiceDate)->format('d-m-Y') }}
                 </h5>
             </div>
-=======
-            <!-- <div class="d-flex align-items-center mb-4">
-                <a href="{{ url()->previous() ?? route('dashboard') }}" class="text-decoration-none text-primary">
-                    <i class="fas fa-arrow-left me-2"></i>
-                </a>
-                <h3 class="m-0 fw-bold">Invoice #{{ $invoice->InvoiceNumber }}</h3><br>
-               <div class="mt-2 ps-4">
-                <p class="text-white-50 mb-0 mt-2"></p>
-                    <i class="far fa-calendar-alt me-2"></i>{{ \Carbon\Carbon::parse($invoice->InvoiceDate)->format('d/m/Y') }}
-                </p></div>
-            </div> -->
-            <div class="mb-4">
-    <!-- First Line: Back Icon + Invoice Number -->
-    <div class="d-flex align-items-center">
-        <a href="{{ url()->previous() ?? route('dashboard') }}" class="text-decoration-none text-primary me-2">
-            <i class="fas fa-arrow-left"></i>
-        </a>
-        <h3 class="m-0 fw-bold">Invoice #{{ $invoice->InvoiceNumber }}</h3>
-    </div>
-
-    <!-- Second Line: Invoice Date -->
-    <div class="ps-4 mt-1">
-        
-            <i class="far fa-calendar-alt me-2"></i>
-            {{ \Carbon\Carbon::parse($invoice->InvoiceDate)->format('d/m/Y') }}
-       
-    </div>
-</div>
-
-
->>>>>>> f8e4778c4c1b1c9c26a2063a8d3179cb8d660e7d
             <div class="text-end">
                 <h4 class="mb-2">Total Amount</h4>
                 <h2 class="mb-0">£{{ number_format($invoice->FinalAmount, 2) }}</h2>

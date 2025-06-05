@@ -283,6 +283,17 @@
         let searchTerm = $('#globalSearchInput').val();
         table.search(searchTerm).draw();
     });
+
+    // Trigger global search on input clear (real-time behavior)
+$('#globalSearchInput').on('input', function () {
+    const searchTerm = $(this).val().trim();
+
+    // If input is cleared, reset the DataTable search
+    if (searchTerm === '') {
+        table.search('').draw();
+    }
+});
+
             $('#invoiceTable thead .column-search').on('keyup change', function() {
                 let colIndex = $(this).parent().index();
                 table.column(colIndex).search(this.value).draw();

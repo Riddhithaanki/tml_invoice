@@ -4,6 +4,14 @@
 
 
 <style>
+                 /* Make the month name and year color match selected day color */
+.flatpickr-current-month,
+.flatpickr-current-month .cur-month,
+.flatpickr-current-month input.cur-year {
+    color:rgb(0, 0, 0) !important;
+    font-weight: 600;
+}
+
           #globalSearchInput {
     width: 80%;
     height: 40px;
@@ -232,6 +240,10 @@
         display: none;
     }
 </style>
+ <!-- Add Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Optional: Add a theme if you want -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -476,7 +488,26 @@
     </div>
 </div>
 
-<script>
+ <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+$(document).ready(function() {
+    // Initialize Flatpickr for date inputs
+    flatpickr("#startDate", {
+        dateFormat: "Y-m-d",
+        allowInput: true,
+        clickOpens: true,
+        enableTime: false,
+        placeholder: "Start Date",
+    });
+
+    flatpickr("#endDate", {
+        dateFormat: "Y-m-d",
+        allowInput: true,
+        clickOpens: true,
+        enableTime: false,
+        placeholder: "End Date",
+    });
+
     $(document).ready(function() {
         var differencesTable = $('#differencesTable').DataTable({
             orderCellsTop: true,
@@ -528,31 +559,55 @@
                 .draw();
         });
         
-    // Global search on button click
-    $('#globalSearchBtn').on('click', function () {
-        let searchTerm = $('#globalSearchInput').val();
-        table.search(searchTerm).draw();
-    });
+        // Global search on button click
+          $('#globalSearchBtn').on('click', function () {
+            let searchTerm = $('#globalSearchInput').val();
+            differencesTable.search(searchTerm).draw();
+            perfectTable.search(searchTerm).draw();
+        });
+        // Trigger global search on input clear (real-time behavior)
+        $('#globalSearchInput').on('input', function () {
+            const searchTerm = $(this).val().trim();
+
+            // If input is cleared, reset the DataTable search
+            if (searchTerm === '') {
+                table.search('').draw();
+            }
+        });
+
+        $('#filterDatePerfect').click(function () {
+           differencesTable.draw();
+           perfectTable.draw();
+        });
+
+        $('#clearFilterPerfect').click(function () {
+            $('#startDate').val('');
+            $('#endDate').val('');
+            differencesTable.draw();
+            perfectTable.draw();
+        });
     
         $('#filterBtn').click(function() {
             differencesTable.draw();
+             perfectTable.draw();
         });
     
         $('#clearFilters').click(function() {
             $('#startDate').val('');
             $('#endDate').val('');
             differencesTable.draw();
+             perfectTable.draw();
         });
     
-        $('#filterDatePerfect').click(function() {
-            perfectTable.draw();
-        });
+        // $('#filterDatePerfect').click(function() {
+        //     perfectTable.draw();
+        // });
     
-        $('#clearFilterPerfect').click(function() {
-            $('#startDatePerfect').val('');
-            $('#endDatePerfect').val('');
-            perfectTable.draw();
-        });
+        // $('#clearFilterPerfect').click(function() {
+        //     $('#startDatePerfect').val('');
+        //     $('#endDatePerfect').val('');
+        //     perfectTable.draw();
+        // });
     
         $('.update-status').click(function() {
             var id = $(this).data('id');
@@ -585,5 +640,6 @@
             });
         });
     });
+});
     </script>
 @endsection

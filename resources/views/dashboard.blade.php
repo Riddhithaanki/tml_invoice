@@ -273,7 +273,7 @@
                     order: [
                         [0, 'desc']
                     ],
-                    searching: false
+                    searching: true,
                 });
 
                 // Apply column search
