@@ -59,4 +59,25 @@
             });
         });
     </script>
+<style>
+      div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+        margin: 15px 0 0;
+    }
+
+    div.dataTables_wrapper div.dataTables_paginate ul.pagination li.paginate_button a {
+        padding: 6px 12px;
+        margin: 0 3px;
+        background-color: white;
+        border: 1px solid #ddd;
+        color: #333;
+        border-radius: 4px;
+    }
+
+    div.dataTables_wrapper div.dataTables_paginate ul.pagination li.paginate_button.active a {
+        background-color: #3c8dbc;
+        border-color: #3c8dbc;
+        color: white;
+    }
+</style>
+    </style>
 @endsection

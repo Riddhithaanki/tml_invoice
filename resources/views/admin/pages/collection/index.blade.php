@@ -99,9 +99,7 @@
                 padding-bottom: 2px;
             }
 
-.tab-slider {
-    display: none !important;
-}
+
 
             .nav-tabs {
             flex-wrap: wrap !important;
@@ -111,6 +109,19 @@
             .nav-tabs .nav-item {
             flex-shrink: 0;
             }
+/* Hide the horizontal slider effect */
+span.tab-slider,
+.nav-tabs .tab-slider,
+ul.nav-tabs > .tab-slider,
+span.moving-tab {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    transform: none !important;
+    transition: none !important;
+}
+
 
         </style>
 
@@ -278,27 +289,43 @@
             });
 
             
-    // Global search on button click
-    $('#globalSearchBtn').on('click', function () {
-        let searchTerm = $('#globalSearchInput').val();
-        table.search(searchTerm).draw();
-    });
-
-    // Trigger global search on input clear (real-time behavior)
-$('#globalSearchInput').on('input', function () {
-    const searchTerm = $(this).val().trim();
-
-    // If input is cleared, reset the DataTable search
-    if (searchTerm === '') {
-        table.search('').draw();
-    }
+      
+        // Global search on button click
+          $('#globalSearchBtn').on('click', function () {
+    let searchTerm = $('#globalSearchInput').val();
+    differencesTable.search(searchTerm).draw();
+    perfectTable.search(searchTerm).draw();
 });
 
+        $('#filterBtn').click(function () {
+           differencesTable.draw();
+           perfectTable.draw();
+        });
+
+        $('#clearFilters').click(function () {
+            $('#startDate').val('');
+            $('#endDate').val('');
+            differencesTable.draw();
+            perfectTable.draw();
+        });
+    
+
+    
             $('#invoiceTable thead .column-search').on('keyup change', function() {
                 let colIndex = $(this).parent().index();
                 table.column(colIndex).search(this.value).draw();
             });
         });
+        document.addEventListener("DOMContentLoaded", function () {
+    const slider = document.querySelector('.tab-slider') || document.querySelector('.moving-tab');
+    if (slider) {
+        slider.style.display = "none";
+        slider.style.visibility = "hidden";
+        slider.style.height = "0px";
+        slider.style.opacity = "0";
+    }
+});
+
     </script>
 
     <!-- CSS -->
@@ -493,5 +520,7 @@ $('#globalSearchInput').on('input', function () {
         .flatpickr-current-month {
             color: #3c8dbc;
         }
+
+        
     </style>
 @endsection

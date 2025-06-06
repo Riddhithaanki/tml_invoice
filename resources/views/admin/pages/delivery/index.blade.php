@@ -138,6 +138,7 @@ $(document).ready(function() {
         lengthChange: false,
         searching: true,
         pageLength: 100,
+        pagingType: "full_numbers",
         ajax: {
             url: "{{ route('delivery.data') }}",
             data: function(d) {
@@ -155,6 +156,7 @@ $(document).ready(function() {
             { data: 'InvoiceHold', name: 'InvoiceHold' },
             { data: 'action', name: 'action', orderable: false, searchable: false }
         ]
+        
     });
 
     // Column-specific search (requires <th><input class="column-search" /></th> in your table head)
@@ -378,11 +380,11 @@ $('#globalSearchInput').on('input', function () {
             border-color: #ddd;
         }
 
-        div.dataTables_wrapper div.dataTables_paginate ul.pagination li.paginate_button.active a:hover {
+        /* div.dataTables_wrapper div.dataTables_paginate ul.pagination li.paginate_button.active a:hover {
             background-color: #3c8dbc;
             border-color: #3c8dbc;
             color: white;
-        }
+        } */
 
         .table-responsive {
             padding: 0 15px 15px;
@@ -413,5 +415,6 @@ $('#globalSearchInput').on('input', function () {
         div.dataTables_filter {
             display: none;
         }
+        
     </style>
 @endsection

@@ -126,6 +126,14 @@
             orderCellsTop: true,
             searching: true,
             lengthChange: false,
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search invoices...",
+                paginate: {
+                    previous: "<i class='fas fa-chevron-left'></i>",
+                    next: "<i class='fas fa-chevron-right'></i>"
+                }
+            }
         });
 
     // Global search on button click
@@ -143,7 +151,7 @@ $('#globalSearchInput').on('input', function () {
         table.search('').draw();
     }
 });
-
+ 
 
         $('#filterBtn').click(function () {
             table.ajax.reload();

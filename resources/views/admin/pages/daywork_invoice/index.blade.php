@@ -124,6 +124,14 @@
             orderCellsTop: true,
             searching: true,
             lengthChange: false,
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search invoices...",
+                paginate: {
+                    previous: "<i class='fas fa-chevron-left'></i>",
+                    next: "<i class='fas fa-chevron-right'></i>"
+                }
+            }
         });
 
           // Column search on input change
@@ -321,5 +329,24 @@ $('#globalSearchInput').on('input', function () {
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
+      div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+        margin: 15px 0 0;
+    }
+
+    div.dataTables_wrapper div.dataTables_paginate ul.pagination li.paginate_button a {
+        padding: 6px 12px;
+        margin: 0 3px;
+        background-color: white;
+        border: 1px solid #ddd;
+        color: #333;
+        border-radius: 4px;
+    }
+
+    div.dataTables_wrapper div.dataTables_paginate ul.pagination li.paginate_button.active a {
+        background-color: #3c8dbc;
+        border-color: #3c8dbc;
+        color: white;
+    }
+
 </style>
 @endsection

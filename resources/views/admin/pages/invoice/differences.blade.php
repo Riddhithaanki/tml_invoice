@@ -516,7 +516,15 @@ $(document).ready(function() {
             order: [[5, 'desc']],
             responsive: true,
             searching: true,
-            lengthChange: false
+            lengthChange: false,
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search invoices...",
+                paginate: {
+                    previous: "<i class='fas fa-chevron-left'></i>",
+                    next: "<i class='fas fa-chevron-right'></i>"
+                }
+            }
         });
     
         var perfectTable = $('#perfectTable').DataTable({
@@ -526,7 +534,15 @@ $(document).ready(function() {
             order: [[3, 'desc']],
             responsive: true,
             searching: true,
-            lengthChange: false
+            lengthChange: false,
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search invoices...",
+                paginate: {
+                    previous: "<i class='fas fa-chevron-left'></i>",
+                    next: "<i class='fas fa-chevron-right'></i>"
+                }
+            }
         });
     
         $('#perfect-tab').click(function(e) {

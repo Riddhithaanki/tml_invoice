@@ -151,6 +151,25 @@
             max-width: 150px;
 
         }
+          div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+        margin: 15px 0 0;
+    }
+
+    div.dataTables_wrapper div.dataTables_paginate ul.pagination li.paginate_button a {
+        padding: 6px 12px;
+        margin: 0 3px;
+        background-color: white;
+        border: 1px solid #ddd;
+        color: #333;
+        border-radius: 4px;
+    }
+
+    div.dataTables_wrapper div.dataTables_paginate ul.pagination li.paginate_button.active a {
+        background-color: #3c8dbc;
+        border-color: #3c8dbc;
+        color: white;
+    }
+</style>
     </style>
 
     <div class="dashboard-container p-0">
@@ -274,6 +293,14 @@
                         [0, 'desc']
                     ],
                     searching: true,
+                    language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search invoices...",
+                paginate: {
+                    previous: "<i class='fas fa-chevron-left'></i>",
+                    next: "<i class='fas fa-chevron-right'></i>"
+                }
+            }
                 });
 
                 // Apply column search
