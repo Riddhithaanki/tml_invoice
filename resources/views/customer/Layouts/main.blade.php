@@ -17,40 +17,40 @@
         rel="stylesheet" />
 
     <!-- Icons -->
-    <link rel="stylesheet" href="{{ url('vendor/fonts/materialdesignicons.css') }}" />
-    <link rel="stylesheet" href="{{ url('vendor/fonts/flag-icons.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/fonts/materialdesignicons.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/fonts/flag-icons.css') }}" />
 
     <!-- Menu waves for no-customizer fix -->
-    <link rel="stylesheet" href="{{ url('vendor/libs/node-waves/node-waves.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/libs/node-waves/node-waves.css') }}" />
 
     <!-- Core CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     {{--
-    <link rel="stylesheet" href="{{ url('vendor/css/rtl/core.css') }}" class="template-customizer-core-css" /> --}}
-    <link rel="stylesheet" href="{{ url('css/demo.css') }}" class="template-customizer-theme-css" />
-    <link rel="stylesheet" href="{{ url('vendor/css/core.css') }}" />
-<link rel="stylesheet" href="{{ url('css/main.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/css/rtl/core.css') }}" class="template-customizer-core-css" /> --}}
+    <link rel="stylesheet" href="{{ url('public/css/demo.css') }}" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="{{ url('public/vendor/css/core.css') }}" />
+<link rel="stylesheet" href="{{ url('public/css/main.css') }}" />
     <!-- Vendors CSS -->
-    <link rel="stylesheet" href="{{ url('vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
-    <link rel="stylesheet" href="{{ url('vendor/libs/typeahead-js/typeahead.css') }}" />
-    <link rel="stylesheet" href="{{ url('vendor/libs/datatables-bs5/datatables.bootstrap5.css') }}" />
-    <link rel="stylesheet" href="{{ url('vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css') }}" />
-    <link rel="stylesheet" href="{{ url('vendor/libs/apex-charts/apex-charts.css') }}" />
-    <link rel="stylesheet" href="{{ url('vendor/libs/swiper/swiper.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/libs/typeahead-js/typeahead.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/libs/datatables-bs5/datatables.bootstrap5.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/libs/apex-charts/apex-charts.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/libs/swiper/swiper.css') }}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.16.1/sweetalert2.css"
         integrity="sha512-fjO3Vy3QodX9c6G9AUmr6WuIaEPdGRxBjD7gjatG5gGylzYyrEq3U0q+smkG6CwIY0L8XALRFHh4KPHig0Q1ug=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Page CSS -->
-    <link rel="stylesheet" href="{{ url('vendor/css/pages/cards-statistics.css') }}" />
-    <link rel="stylesheet" href="{{ url('vendor/css/pages/cards-analytics.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/css/pages/cards-statistics.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor/css/pages/cards-analytics.css') }}" />
 
     <!-- Add Leaflet.js CDN link in the <head> section -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-    <script src="{{ url('vendor/js/helpers.js') }}"></script>
-    <script src="{{ url('js/config.js') }}"></script>
+    <script src="{{ url('public/vendor/js/helpers.js') }}"></script>
+    <script src="{{ url('public/js/config.js') }}"></script>
     <style>
         .btn-primary {
             background-color: #3c8dbc;
@@ -84,28 +84,28 @@
     </div>
 
     {{-- Scripts --}}
-    <script src="{{ url('vendor/libs/popper/popper.js') }}"></script>
-    <script src="{{ url('vendor/js/bootstrap.js') }}"></script>
-    <script src="{{ url('vendor/libs/node-waves/node-waves.js') }}"></script>
-    <script src="{{ url('vendor/libs/perfect-scrollbar/perfect-scrollbar.js') }}"></script>
-    <script src="{{ url('vendor/libs/hammer/hammer.js') }}"></script>
-    <script src="{{ url('vendor/libs/i18n/i18n.js') }}"></script>
-    <script src="{{ url('vendor/libs/typeahead-js/typeahead.js') }}"></script>
-    <script src="{{ url('vendor/js/menu.js') }}"></script>
-    <script src="{{ url('vendor/js/dropdown-hover.js') }}"></script>
-    <script src="{{ url('vendor/js/mega-dropdown.js') }}"></script>
+    <script src="{{ url('public/vendor/libs/popper/popper.js') }}"></script>
+    <script src="{{ url('public/vendor/js/bootstrap.js') }}"></script>
+    <script src="{{ url('public/vendor/libs/node-waves/node-waves.js') }}"></script>
+    <script src="{{ url('public/vendor/libs/perfect-scrollbar/perfect-scrollbar.js') }}"></script>
+    <script src="{{ url('public/vendor/libs/hammer/hammer.js') }}"></script>
+    <script src="{{ url('public/vendor/libs/i18n/i18n.js') }}"></script>
+    <script src="{{ url('public/vendor/libs/typeahead-js/typeahead.js') }}"></script>
+    <script src="{{ url('public/vendor/js/menu.js') }}"></script>
+    <script src="{{ url('public/vendor/js/dropdown-hover.js') }}"></script>
+    <script src="{{ url('public/vendor/js/mega-dropdown.js') }}"></script>
 
     <!-- Vendors JS -->
-    <script src="{{ url('vendor/libs/datatables-bs5/datatables-bootstrap5.js') }}"></script>
-    <script src="{{ url('vendor/libs/apex-charts/apexcharts.js') }}"></script>
-    <script src="{{ url('vendor/libs/swiper/swiper.js') }}"></script>
+    <script src="{{ url('public/vendor/libs/datatables-bs5/datatables-bootstrap5.js') }}"></script>
+    <script src="{{ url('public/vendor/libs/apex-charts/apexcharts.js') }}"></script>
+    <script src="{{ url('public/vendor/libs/swiper/swiper.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.16.1/sweetalert2.min.js"
         integrity="sha512-LGHBR+kJ5jZSIzhhdfytPoEHzgaYuTRifq9g5l6ja6/k9NAOsAi5dQh4zQF6JIRB8cAYxTRedERUF+97/KuivQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <!-- Main JS -->
-    <script src="{{ url('js/main.js') }}"></script>
+    <script src="{{ url('public/js/main.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script>

@@ -24,31 +24,31 @@
         rel="stylesheet" />
 
     <!-- Icons -->
-    <link rel="stylesheet" href="{{ url('vendor/fonts/materialdesignicons.css') }}" />
-    <link rel="stylesheet" href="{{ url('vendor/fonts/flag-icons.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor//fonts/materialdesignicons.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor//fonts/flag-icons.css') }}" />
 
     <!-- Menu waves for no-customizer fix -->
-    <link rel="stylesheet" href="{{ url('vendor/libs/node-waves/node-waves.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor//libs/node-waves/node-waves.css') }}" />
 
     <!-- Core CSS -->
-    <link rel="stylesheet" href="{{ url('vendor/css/rtl/core.css') }}" class="template-customizer-core-css" />
-    <link rel="stylesheet" href="{{ url('vendor/css/rtl/theme-default.css') }}"
+    <link rel="stylesheet" href="{{ url('public/vendor//css/rtl/core.css') }}" class="template-customizer-core-css" />
+    <link rel="stylesheet" href="{{ url('public/vendor//css/rtl/theme-default.css') }}"
         class="template-customizer-theme-css" />
-    <link rel="stylesheet" href="{{ url('css/demo.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/css/demo.css') }}" />
 
-    <!-- Vendors CSS -->
-    <link rel="stylesheet" href="{{ url('vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
-    <link rel="stylesheet" href="{{ url('vendor/libs/typeahead-js/typeahead.css') }}" />
-    <!-- Vendor -->
-    <link rel="stylesheet" href="{{ url('vendor/libs/@form-validation/form-validation.css') }}" />
+    <!-- public/vendor/s CSS -->
+    <link rel="stylesheet" href="{{ url('public/vendor//libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor//libs/typeahead-js/typeahead.css') }}" />
+    <!-- public/vendor/ -->
+    <link rel="stylesheet" href="{{ url('public/vendor//libs/@form-validation/form-validation.css') }}" />
 
     <!-- Page CSS -->
-    <link rel="stylesheet" href="{{ url('vendor/css/pages/page-auth.css') }}" />
+    <link rel="stylesheet" href="{{ url('public/vendor//css/pages/page-auth.css') }}" />
 
     <!-- Helpers -->
-    <script src="{{ url('vendor/js/helpers.js') }}"></script>
-    <script src="{{ url('vendor/js/template-customizer.js') }}"></script>
-    <script src="{{ url('js/config.js') }}"></script>
+    <script src="{{ url('public/vendor//js/helpers.js') }}"></script>
+    <script src="{{ url('public/vendor//js/template-customizer.js') }}"></script>
+    <script src="{{ url('public/js/config.js') }}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
 </head>
@@ -113,8 +113,8 @@
     <!-- / Content -->
 
     <!-- Core JS -->
-    <script src="{{ url('vendor/libs/jquery/jquery.js') }}"></script>
-    <script src="{{ url('vendor/js/bootstrap.js') }}"></script>
+    <script src="{{ url('public/vendor//libs/jquery/jquery.js') }}"></script>
+    <script src="{{ url('public/vendor//js/bootstrap.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     
