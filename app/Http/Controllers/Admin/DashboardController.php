@@ -739,13 +739,6 @@ class DashboardController extends Controller
             $vatAmount = round($subTotal * $taxRate / 100, 2);
             $finalAmount = $subTotal + $vatAmount;
 
-            // Verify calculated amounts match the submitted amounts
-            if (abs($subTotal - $validated['SubTotalAmount']) > 0.01 ||
-                abs($vatAmount - $validated['VatAmount']) > 0.01 ||
-                abs($finalAmount - $validated['FinalAmount']) > 0.01) {
-                throw new \Exception('Calculated amounts do not match submitted amounts');
-            }
-
             $invoice->fill([
                 'BookingRequestID' => $validated['BookingRequestID'],
                 'CompanyID' => $validated['CompanyID'],
