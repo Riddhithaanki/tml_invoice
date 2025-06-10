@@ -5,21 +5,16 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 <div class="table-container mt-4">
 
-    <!-- Tab Header with both tabs on the right -->
     <div class="tab-container mb-3">
-        <!-- <ul class="nav nav-tabs justify-content-end w-100" id="invoiceTabs" style="border-bottom: 1px solid #dee2e6;"> -->
-       <ul class="nav nav-tabs justify-content-end flex-nowrap" id="invoiceTabs">
-        <li class="nav-item">
-                <a class="nav-link {{ !request()->has('invoice_type') || request()->invoice_type === 'preinvoice' ? 'active' : '' }}"
-                   href="{{ route('waitingtime.index', ['invoice_type' => 'preinvoice']) }}">
-                   Pre Invoice
-                </a>
+        <ul class="nav nav-tabs justify-content-end flex-nowrap" id="invoiceTabs">
+            <!-- Right-aligned tabs -->
+            <li class="nav-item">
+                <a class="nav-link {{ !request()->has('invoice_type') || request()->invoice_type === 'preinvoice' ? 'active' : '' }}" id="pre-invoice-tab"
+                    href="{{ route('waitingtime.newindex', ['invoice_type' => 'preinvoice']) }}">Pre Invoice</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->invoice_type === 'readyinvoice' ? 'active' : '' }}"
-                   href="{{ route('waitingtime.index', ['invoice_type' => 'readyinvoice']) }}">
-                   Ready Invoice
-                </a>
+                <a class="nav-link {{ request()->invoice_type === 'readyinvoice' ? 'active' : '' }}" id="ready-invoice-tab"
+                    href="{{ route('waitingtime.newindex', ['invoice_type' => 'readyinvoice']) }}">Ready Invoice</a>
             </li>
         </ul>
     </div>
@@ -27,8 +22,7 @@
     <div class="table-header">
         <h3 class="table-title text-center text-white">Waiting Time Invoices</h3>
     </div>
-
-    <!-- Custom Global Search + Date Range Row -->
+<!-- Custom Global Search + Date Range Row -->
 <div class="row px-3 py-2 bg-light align-items-center">
     <!-- Global Search -->
     <div class="col-md-6 d-flex align-items-center">
@@ -47,7 +41,8 @@
     </div>
 </div>
 
-    <!-- Date Filter -->
+
+    <!-- Compact date filter row -->
     <!-- <div class="date-filter-container p-2 bg-light border-bottom">
         <div class="d-flex align-items-center justify-content-end">
             <div class="date-range-compact d-flex align-items-center">
@@ -61,7 +56,6 @@
         </div>
     </div> -->
 
-    <!-- Table -->
     <div class="table-responsive">
         <table id="invoiceTable" class="table table-hover">
             <thead>
@@ -86,7 +80,6 @@
     </div>
 </div>
 
-<!-- JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     $(document).ready(function () {
@@ -112,7 +105,7 @@
             serverSide: true,
             ajax: {
                 url: "{{ route('waitingtime.data') }}",
-                data: function(d) {
+                data: function (d) {
                     d.invoice_type = '{{ request('invoice_type', 'preinvoice') }}';
                     d.start_date = $('#startDate').val();
                     d.end_date = $('#endDate').val();
@@ -123,11 +116,12 @@
                 { data: 'CreateDateTime', name: 'CreateDateTime' },
                 { data: 'CompanyName', name: 'CompanyName' },
                 { data: 'OpportunityName', name: 'OpportunityName' },
-                 { data: 'InvoiceHold', name: 'InvoiceHold'},
+                { data: 'InvoiceHold', name: 'InvoiceHold'},
                 { data: 'action', name: 'action', orderable: false, searchable: false }
             ],
-            order: [[2, 'desc']],
+            order: [[1, 'desc']],
             pageLength: 100,
+            lengthMenu: [10, 25, 50, 100],
             responsive: true,
             orderCellsTop: true,
             searching: true,
@@ -157,21 +151,13 @@ $('#globalSearchInput').on('input', function () {
         table.search('').draw();
     }
 });
+ 
 
-
-        $('.column-search').on('keyup change', function () {
-            var colIndex = $(this).closest('th').index();
-            table
-                .column(colIndex)
-                .search(this.value)
-                .draw();
-        });
-
-        $('#filterBtn').click(function() {
+        $('#filterBtn').click(function () {
             table.ajax.reload();
         });
 
-        $('#clearFilters').click(function() {
+        $('#clearFilters').click(function () {
             $('#startDate').val('');
             $('#endDate').val('');
             table.ajax.reload();
@@ -179,7 +165,6 @@ $('#globalSearchInput').on('input', function () {
     });
 </script>
 
-<!-- Styles -->
 <style>
     /* Add these styles for Flatpickr customization */
     /* .flatpickr-calendar {
@@ -200,8 +185,7 @@ $('#globalSearchInput').on('input', function () {
     .flatpickr-current-month {
         color: #3c8dbc;
     } */
-
-           /* Make the month name and year color match selected day color */
+       /* Make the month name and year color match selected day color */
 .flatpickr-current-month,
 .flatpickr-current-month .cur-month,
 .flatpickr-current-month input.cur-year {
@@ -248,7 +232,6 @@ $('#globalSearchInput').on('input', function () {
     .table-header {
         background-color: #3c8dbc;
         padding: 12px 15px;
-        position: relative;
     }
 
     .table-title {
@@ -275,12 +258,57 @@ $('#globalSearchInput').on('input', function () {
         padding: 0.25rem 0.75rem;
     }
 
-    #invoiceTable thead tr.filters th {
-        background-color: #f5f5f5;
-        color: #333;
-        font-weight: 600;
-        padding: 12px 10px;
-        border-bottom: 2px solid #e0e0e0;
+    .table-responsive {
+        padding: 0 15px 15px;
+    }
+
+    #invoiceTabs {
+        overflow-x: hidden;
+        overflow-y: hidden;
+        display: flex;
+        flex-wrap: nowrap;
+        width: 100%;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    #invoiceTabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    #invoiceTabs {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    #invoiceTabs .nav-item {
+        flex-shrink: 1;
+        min-width: 0;
+    }
+
+    #invoiceTabs .nav-link {
+        white-space: nowrap;
+        padding: 0.5rem 1rem;
+        border: none;
+        color: #555;
+    }
+
+    #invoiceTabs .nav-link.active {
+        color: #3c8dbc;
+        border-bottom: 2px solid #3c8dbc;
+        background-color: transparent;
+    }
+
+    .search-row input {
+        width: 100%;
+        padding: 6px 8px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+
+    .search-row input:focus {
+        border-color: #3c8dbc;
+        box-shadow: 0 0 0 0.2rem rgba(60, 141, 188, 0.25);
+        outline: none;
     }
 
     .search-row th {
@@ -290,18 +318,12 @@ $('#globalSearchInput').on('input', function () {
         border-bottom: 1px solid #e0e0e0;
     }
 
-    .search-row input {
-        width: 100%;
-        padding: 6px 8px;
-        border-radius: 4px;
-        border: 1px solid #ddd;
-        transition: all 0.2s ease;
-    }
-
-    .search-row input:focus {
-        border-color: #3c8dbc;
-        box-shadow: 0 0 0 0.2rem rgba(60, 141, 188, 0.25);
-        outline: none;
+    #invoiceTable thead tr.filters th {
+        background-color: #f5f5f5;
+        color: #333;
+        font-weight: 600;
+        padding: 12px 10px;
+        border-bottom: 2px solid #e0e0e0;
     }
 
     #invoiceTable tbody tr:hover {
@@ -313,14 +335,6 @@ $('#globalSearchInput').on('input', function () {
         vertical-align: middle;
         color: #333;
         border-color: #f0f0f0;
-    }
-
-    .table-responsive {
-        padding: 0 15px 15px;
-    }
-
-    div.dataTables_filter {
-        display: none;
     }
 
     div.dataTables_wrapper div.dataTables_paginate ul.pagination {
@@ -341,11 +355,26 @@ $('#globalSearchInput').on('input', function () {
         border-color: #3c8dbc;
         color: white;
     }
-  .tab-slider {
-    overflow: hidden;
-    max-width: 100%;
-}
 
+    div.dataTables_wrapper div.dataTables_paginate ul.pagination li.paginate_button a:hover {
+        background-color: #f0f0f0;
+        border-color: #ddd;
+    }
 
+    #clearFilters:hover {
+        background-color: white;
+        color: #3c8dbc;
+    }
+
+    div.dataTables_filter {
+        display: none;
+    }
+
+    div.dataTables_processing {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
 </style>
 @endsection

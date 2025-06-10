@@ -2,168 +2,50 @@
 @section('content')
     <!-- Add Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Optional: Add a theme if you want -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
-    <div class="table-container mt-4">
-        <!-- Back Button -->
-        <div class="d-flex align-items-center mb-3">
-            <!-- <a href="{{ url()->previous() }}" class="text-decoration-none text-dark">
-                <i class="fas fa-arrow-left me-2"></i>
-            </a> -->
-            <h4 class="m-2">Collection Invoices</h4>
-        </div>
-
-        <!-- Tabs with updated styling -->
+    <div class="table-container container-fluid mt-4">
         <div class="tab-container mb-3">
-            <ul class="nav nav-tabs justify-content-between flex-wrap w-100" id="invoiceTabs">
-                <!-- Left Tabs -->
-                <li class="nav-item">
-                    <!-- <a class="nav-link {{ !request()->has('type') || request()->type === 'loads' ? 'active' : '' }}"
-                        href="{{ route('collection.index', ['type' => 'loads', 'invoice_type' => request()->invoice_type ?? 'preinvoice']) }}">
-                        Loads
-                    </a> -->
-                    <!-- <a class="nav-link {{ request()->type === 'loads' || !request()->has('type') ? 'active' : '' }}" -->
-                     <a class="nav-link {{ request()->type === 'loads'  ? 'active' : '' }}"
-                        href="{{ route('collection.index', ['type' => 'loads', 'invoice_type' => request()->invoice_type ?? 'preinvoice']) }}">
+            <ul class="nav nav-tabs d-flex justify-content-between" id="invoiceTabs"
+                style="
+            overflow-y: unset;
+            overflow-x: unset !important;!i;!;
+        ">
+                <div class="d-flex">
+                    <!-- Left side tabs -->
+                    <li class="nav-item">
+                         <a class="nav-link {{ request()->type === 'loads'  ? 'active' : '' }}"
+                        href="{{ route('collection.newindex', ['type' => 'loads', 'invoice_type' => request()->invoice_type ?? 'preinvoice']) }}">
    Loads
 </a>
-
-                </li>
-                <li class="nav-item">
-                    <!-- <a class="nav-link {{ request()->type === 'tonnage' ? 'active' : '' }}"
-                        href="{{ route('collection.index', ['type' => 'tonnage', 'invoice_type' => request()->invoice_type ?? 'preinvoice']) }}">
-                        Tonnage
-                    </a> -->
-                    <a class="nav-link {{ request()->type === 'tonnage' ? 'active' : '' }}"
-   href="{{ route('collection.index', ['type' => 'tonnage', 'invoice_type' => request()->invoice_type ?? 'preinvoice']) }}">
+                    </li>
+                    <li class="nav-item">
+                         <a class="nav-link {{ request()->type === 'tonnage' ? 'active' : '' }}"
+   href="{{ route('collection.newindex', ['type' => 'tonnage', 'invoice_type' => request()->invoice_type ?? 'preinvoice']) }}">
    Tonnage
 </a>
+                    </li>
+                </div>
 
-                </li>
-
-                <!-- Right Tabs (separated visually using ms-auto) -->
-                <li class="nav-item ms-auto">
-              <!-- <li class="nav-item tab-separator"> -->
-
-                <a class="nav-link {{ !request()->has('invoice_type') || request()->invoice_type === 'preinvoice' ? 'active' : '' }}"
-                        href="{{ route('collection.index', ['type' => request()->type ?? 'loads', 'invoice_type' => 'preinvoice']) }}">
+                <div class="d-flex">
+                    <!-- Right side tabs -->
+                    <li class="nav-item">
+                          <a class="nav-link {{ !request()->has('invoice_type') || request()->invoice_type === 'preinvoice' ? 'active' : '' }}"
+                        href="{{ route('collection.newindex', ['type' => request()->type ?? 'loads', 'invoice_type' => 'preinvoice']) }}">
                         Pre Invoice
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->invoice_type === 'readyinvoice' ? 'active' : '' }}"
-                        href="{{ route('collection.index', ['type' => request()->type ?? 'loads', 'invoice_type' => 'readyinvoice']) }}">
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->invoice_type === 'readyinvoice' ? 'active' : '' }}"
+                        href="{{ route('collection.newindex', ['type' => request()->type ?? 'loads', 'invoice_type' => 'readyinvoice']) }}">
                         Ready Invoice
                     </a>
-                </li>
+                    </li>
+                </div>
             </ul>
+
         </div>
 
-        <style>
-              body {
-        overflow-x: hidden;
-    }
-
-    .table-container {
-        overflow-x: hidden;
-    }
-            .nav-tabs {
-                border-bottom: none;
-                width: auto;
-            }
-            .nav-tabs .nav-link {
-                color: #495057;
-                background: none;
-                border: none;
-                margin-right: 4px;
-                padding: 8px 16px;
-                position: relative;
-                transition: all 0.2s ease-in-out;
-            }
-            
-/* Active tab color for LEFT tabs (Loads/Tonnage) */
-.nav-tabs .tab-left .nav-link.active {
-    color: #004085; /* dark blue */
-    font-weight: bold;
-}
-
-/* Active tab color for RIGHT tabs (Pre/Ready Invoice) */
-.nav-tabs .tab-right .nav-link.active {
-    color: #3c8dbc; /* existing blue */
-    font-weight: bold;
-}
-            .nav-tabs .nav-link:hover {
-                border: none;
-                color: #3c8dbc;
-            }
-            .nav-tabs .nav-link.active {
-                color: #3c8dbc;
-                background: none;
-                border: none;
-                font-weight: 500;
-            }
-            .nav-tabs .nav-link.active::after {
-                content: '';
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                height: 2px;
-                background-color: #3c8dbc;
-                display: none;
-            }
-            .nav-tabs .nav-item.ms-auto .nav-link {
-                margin-left: 20px;
-                margin-right: 0;
-            }
-            .tab-container {
-                overflow-x: hidden !important;
-                overflow-y: hidden;
-                /* white-space: nowrap; */
-                padding-bottom: 2px;
-            }
-
-
-
-            .nav-tabs {
-            flex-wrap: wrap !important;
-            overflow-x: auto;
-    width: 100%;
-            }
-
-            .nav-tabs .nav-item {
-                  white-space: nowrap;
-    flex: 0 0 auto;
-            flex-shrink: 0;
-            }
-/* Hide the horizontal slider effect */
-/* span.tab-slider,
-.nav-tabs .tab-slider,
-ul.nav-tabs > .tab-slider,
-span.moving-tab {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    opacity: 0 !important;
-    transform: none !important;
-    transition: none !important;
-} */
-.tab-container .tab-slider,
-.tab-slider {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-    opacity: 0 !important;
-    transform: none !important;
-    transition: none !important;
-    pointer-events: none !important;
-    position: static !important;
-}
-
-
-
-        </style>
-
-        <!-- Header -->
         <div class="table-header">
             <h3 class="table-title text-center text-white">Collection Invoices</h3>
         </div>
@@ -187,8 +69,8 @@ span.moving-tab {
     </div>
 </div>
 
-        <!-- Filters -->
-        <!-- <div class="date-filter-container p-2 bg-light border-bottom">
+        <!-- Compact date filter row
+        <div class="date-filter-container p-2 bg-light border-bottom">
             <div class="d-flex align-items-center justify-content-end">
                 <div class="date-range-compact d-flex align-items-center">
                     <span class="mr-2">Date: &nbsp;</span>
@@ -201,7 +83,6 @@ span.moving-tab {
             </div>
         </div> -->
 
-        <!-- Table -->
         <div class="table-responsive">
             <table id="invoiceTable" class="table table-hover">
                 <thead>
@@ -217,12 +98,14 @@ span.moving-tab {
                         <th><input type="text" class="form-control form-control-sm column-search"
                                 placeholder="Search Booking ID"></th>
                         <th><input type="text" class="form-control form-control-sm column-search"
-                                placeholder="Search Date"></th>
+                                placeholder="Search Date">
+                        </th>
                         <th><input type="text" class="form-control form-control-sm column-search"
                                 placeholder="Search Company"></th>
                         <th><input type="text" class="form-control form-control-sm column-search"
-                                placeholder="Search Site"></th>
-                         <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search hold" /></th>
+                                placeholder="Search Site">
+                        </th>
+                        <th><input type="text" class="column-ntrol form-control-sm column-search" placeholder="Search hold" /></th>
                         <th></th>
                     </tr>
                 </thead>
@@ -364,12 +247,111 @@ span.moving-tab {
         
     </script>
 
-    <!-- CSS -->
-    <style>
-        body {
-    overflow-x: hidden;
+
+    <style>  <style>
+              body {
+        overflow-x: hidden;
+    }
+
+    .table-container {
+        overflow-x: hidden;
+    }
+            .nav-tabs {
+                border-bottom: none;
+                width: auto;
+            }
+            .nav-tabs .nav-link {
+                color: #495057;
+                background: none;
+                border: none;
+                margin-right: 4px;
+                padding: 8px 16px;
+                position: relative;
+                transition: all 0.2s ease-in-out;
+            }
+            
+/* Active tab color for LEFT tabs (Loads/Tonnage) */
+.nav-tabs .tab-left .nav-link.active {
+    color: #004085; /* dark blue */
+    font-weight: bold;
 }
-       /* Make the month name and year color match selected day color */
+
+/* Active tab color for RIGHT tabs (Pre/Ready Invoice) */
+.nav-tabs .tab-right .nav-link.active {
+    color: #3c8dbc; /* existing blue */
+    font-weight: bold;
+}
+            .nav-tabs .nav-link:hover {
+                border: none;
+                color: #3c8dbc;
+            }
+            .nav-tabs .nav-link.active {
+                color: #3c8dbc;
+                background: none;
+                border: none;
+                font-weight: 500;
+            }
+            .nav-tabs .nav-link.active::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 2px;
+                background-color: #3c8dbc;
+                display: none;
+            }
+            .nav-tabs .nav-item.ms-auto .nav-link {
+                margin-left: 20px;
+                margin-right: 0;
+            }
+            .tab-container {
+                overflow-x: hidden !important;
+                overflow-y: hidden;
+                /* white-space: nowrap; */
+                padding-bottom: 2px;
+            }
+
+
+
+            .nav-tabs {
+            flex-wrap: wrap !important;
+            overflow-x: auto;
+    width: 100%;
+            }
+
+            .nav-tabs .nav-item {
+                  white-space: nowrap;
+    flex: 0 0 auto;
+            flex-shrink: 0;
+            }
+/* Hide the horizontal slider effect */
+/* span.tab-slider,
+.nav-tabs .tab-slider,
+ul.nav-tabs > .tab-slider,
+span.moving-tab {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    transform: none !important;
+    transition: none !important;
+} */
+.tab-container .tab-slider,
+.tab-slider {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    transform: none !important;
+    transition: none !important;
+    pointer-events: none !important;
+    position: static !important;
+}
+
+
+
+               /* Make the month name and year color match selected day color */
 .flatpickr-current-month,
 .flatpickr-current-month .cur-month,
 .flatpickr-current-month input.cur-year {
@@ -377,8 +359,7 @@ span.moving-tab {
     font-weight: 600;
 }
 
-
-              #globalSearchInput {
+        #globalSearchInput {
     width: 80%;
     height: 40px;
 }
@@ -410,13 +391,14 @@ span.moving-tab {
             border-radius: 6px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 0;
-            overflow-x: hidden;
+            overflow: hidden;
             margin-bottom: 30px;
         }
 
         .table-header {
             background-color: #3c8dbc;
             padding: 12px 15px;
+            position: relative;
         }
 
         .table-title {
@@ -426,6 +408,7 @@ span.moving-tab {
             color: white;
         }
 
+        /* Compact date filter styling */
         .date-filter-container {
             background-color: #f8f9fa;
             border-bottom: 1px solid #dee2e6;
@@ -467,12 +450,17 @@ span.moving-tab {
             padding: 6px 8px;
             border-radius: 4px;
             border: 1px solid #ddd;
+            transition: all 0.2s ease;
         }
 
         .search-row input:focus {
             border-color: #3c8dbc;
             box-shadow: 0 0 0 0.2rem rgba(60, 141, 188, 0.25);
             outline: none;
+        }
+
+        #invoiceTable tbody tr {
+            transition: background-color 0.2s ease;
         }
 
         #invoiceTable tbody tr:hover {
@@ -486,10 +474,27 @@ span.moving-tab {
             border-color: #f0f0f0;
         }
 
-        .table-responsive {
-            padding: 0 15px 15px;
-              width: 100%;
-    overflow-x: auto;
+        /* DataTables styling */
+        div.dataTables_wrapper div.dataTables_length select {
+            width: auto;
+            padding: 4px 24px 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        div.dataTables_wrapper div.dataTables_filter input {
+            margin-left: 8px;
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+
+        div.dataTables_wrapper div.dataTables_filter input:focus,
+        div.dataTables_wrapper div.dataTables_length select:focus {
+            border-color: #3c8dbc;
+            box-shadow: 0 0 0 0.2rem rgba(60, 141, 188, 0.25);
+            outline: none;
         }
 
         div.dataTables_wrapper div.dataTables_paginate ul.pagination {
@@ -516,6 +521,33 @@ span.moving-tab {
             border-color: #ddd;
         }
 
+        /* div.dataTables_wrapper div.dataTables_paginate ul.pagination li.paginate_button.active a:hover {
+            background-color: #3c8dbc;
+            border-color: #3c8dbc;
+            color: white;
+        } */
+
+        .table-responsive {
+            padding: 0 15px 15px;
+        }
+
+        /* Processing indicator */
+        div.dataTables_processing {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Action buttons styling */
+        .action-btn {
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin: 0 2px;
+            font-size: 0.85rem;
+        }
+
+        /* Clear button hover effect */
         #clearFilters:hover {
             background-color: white;
             color: #3c8dbc;
@@ -524,41 +556,6 @@ span.moving-tab {
         div.dataTables_filter {
             display: none;
         }
-
-        div.dataTables_processing {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .action-btn {
-            padding: 4px 8px;
-            border-radius: 4px;
-            margin: 0 2px;
-            font-size: 0.85rem;
-        }
-
-        /* Add these styles for Flatpickr customization */
-        .flatpickr-calendar {
-            background: #fff;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        .flatpickr-day.selected {
-            background: #3c8dbc !important;
-            border-color: #3c8dbc !important;
-        }
-
-        .flatpickr-day:hover {
-            background: #e6f3f9;
-        }
-
-        .flatpickr-current-month {
-            color: #3c8dbc;
-        }
-
-       
+        
     </style>
 @endsection

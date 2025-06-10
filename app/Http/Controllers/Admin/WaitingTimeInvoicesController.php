@@ -18,6 +18,11 @@ class WaitingTimeInvoicesController extends Controller
         $invoice_type = $request->query('invoice_type', 'preinvoice'); // Default: 'preinvoice'
         return view('admin.pages.waitingtime_invoice.index', compact('invoice_type'));
     }
+     public function newindex(Request $request)
+    {
+        $invoice_type = $request->query('invoice_type', 'preinvoice'); // Default: 'preinvoice'
+        return view('admin.pages.waitingtime_invoice.newindex', compact('invoice_type'));
+    }
 
     public function getDeliveryInvoiceData(Request $request)
     {

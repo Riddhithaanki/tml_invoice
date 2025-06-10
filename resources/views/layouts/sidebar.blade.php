@@ -33,7 +33,7 @@
         </li>
 
         <li class="menu-item {{ Request::routeIs('collection.*') ? 'active' : '' }}">
-            <a href="{{ route('collection.index') }}" class="menu-link">
+            <a href="{{ route('collection.newindex') }}" class="menu-link">
                 <div class="d-flex align-items-center">
                     <img src="{{ asset('svg/sidebar/collection.png') }}" alt="Collection" class="menu-icon">
                 </div>
@@ -60,7 +60,7 @@
         </li>
 
         <li class="menu-item {{ Request::routeIs('waitingtime.*') ? 'active' : '' }}">
-            <a href="{{ route('waitingtime.index') }}" class="menu-link">
+            <a href="{{ route('waitingtime.newindex') }}" class="menu-link">
                 <div class="d-flex align-items-center">
                     <img src="{{ asset('svg/sidebar/waitime.png') }}" alt="Waiting Time" class="menu-icon">
                 </div>

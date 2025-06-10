@@ -19,7 +19,13 @@ class CollectionController extends Controller
 
         return view('admin.pages.collection.index', compact('type', 'invoice_type'));
     }
+public function newindex(Request $request)
+    {
+        $type = $request->query('type', 'loads');
+        $invoice_type = $request->query('invoice_type', 'preinvoice'); // Default: 'preinvoice'
 
+        return view('admin.pages.collection.newindex', compact('type', 'invoice_type'));
+    }
     public function getCollectionInvoiceData(Request $request, $type = 'loads')
     {
         $type = $request->input('type', 'loads');

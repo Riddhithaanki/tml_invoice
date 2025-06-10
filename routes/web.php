@@ -77,6 +77,7 @@ Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->g
     // Collection
     Route::get('collection-invoice-list/{type?}', [CollectionController::class, 'index'])->name('collection.index');
     Route::get('collection-invoice-data', [CollectionController::class, 'getCollectionInvoiceData'])->name('collection.data');
+    Route::get('collection-newinvoice-list/{type?}', [CollectionController::class, 'newindex'])->name('collection.newindex');
 
     //Daywork Invoice
     Route::get('daywork-invoice-list', [DayworkInvoiceController::class, 'index'])->name('daywork.index');
@@ -89,6 +90,7 @@ Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->g
     //waitingtime Invoice
     Route::get('waitingtime-invoice-list', [WaitingTimeInvoicesController::class, 'index'])->name('waitingtime.index');
     Route::get('waitingtime-invoice-data', [WaitingTimeInvoicesController::class, 'getWaitingtimeInvoiceData'])->name('waitingtime.data');
+    Route::get('waitingtime-newinvoice-list', [WaitingTimeInvoicesController::class, 'newindex'])->name('waitingtime.newindex');
 
     //System logs
     Route::get('systemlogs-list', [SystemLogsController::class, 'index'])->name('systemlogs.list');
