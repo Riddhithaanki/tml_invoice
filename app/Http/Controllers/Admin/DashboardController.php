@@ -23,9 +23,20 @@ use App\Models\BookingRelationship;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+         $type = $request->route('type');
         $recentInvoice = ReadyInvoice::with('booking')->orderBy('CreateDateTime', "DESC")->limit(20)->get();
+        if ($type === 'invoicehold' ) {
+          
+            $recentInvoice = BookingRequest::with('booking')->where('InvoiceHold', '1')->orderBy('CreateDateTime', "DESC")->limit(30)->get();
+        }elseif($type === 'readyinvoice') {
+          
+            $recentInvoice = ReadyInvoice::with('booking')->orderBy('CreateDateTime', "DESC")->get();
+        }elseif($type === 'booking') {
+            $recentInvoice = Booking::with('bookingRequest')->orderBy('CreateDateTime', "DESC")->limit(100)->get();
+           
+        }
 
         $readyHoldInvoiceCount = BookingRequest::where('InvoiceHold', '1')->count();
         $readyInvoiceCount = ReadyInvoice::count();
@@ -34,11 +45,11 @@ class DashboardController extends Controller
         return view('dashboard', compact('recentInvoice', 'bookingCount','readyHoldInvoiceCount', 'completedInvoice','readyInvoiceCount'));
     }
 
-    public function getInvoiceData($id)
+    public function getInvoiceData($id, $material = null)
     {
         try {
             $id = Crypt::decrypt($id);
-
+            $reqMaterial = Crypt::decrypt($material);
             // First try to find the booking
             $booking = Booking::where('BookingRequestID', $id)
                 ->first();
@@ -107,7 +118,7 @@ class DashboardController extends Controller
                     $booking->Price = $pricePerLoad;
                 });
 
-            return view('admin.pages.invoice.invoice_details', compact('invoice', 'bookings', 'booking', 'isSplitInvoice'));
+            return view('admin.pages.invoice.invoice_details', compact('invoice', 'bookings', 'booking', 'isSplitInvoice','reqMaterial'));
 
         } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
             return abort(404, 'Invalid ID');
@@ -117,22 +128,47 @@ class DashboardController extends Controller
     public function getInvoiceItems(Request $request)
     {
         try {
+           
             $bookingId = $request->booking_id;
             
             \Log::info('Fetching invoice items for booking ID: ' . $bookingId);
 
-            // Get the booking with its loads - removing most restrictions
+            // Get the booking with its loads, including invoice number and invoice date from tbl_booking_invoice
+            // $booking = Booking::with(['loads' => function($query) use ($bookingId) {
+            //     $query->select('tbl_booking_loads1.*', 'tbl_booking_invoice.InvoiceNumber', 'tbl_booking_invoice.InvoiceDate','tbl_tickets.pdf_name')
+            //          ->leftJoin('tbl_booking_invoice', 'tbl_booking_loads1.BookingRequestID', '=', 'tbl_booking_invoice.BookingRequestID')
+            //         ->leftJoin('tbl_tickets', 'tbl_booking_loads1.LoadID', '=', 'tbl_tickets.LoadID')
+            //         ->where(function($q) {
+            //             $q->where('tbl_booking_loads1.Status', '=', 4)
+            //               ->orWhereNull('tbl_booking_loads1.Status');
+            //         });
+            // }])
+            // ->where('BookingID', $bookingId)
+            // ->first();
             $booking = Booking::with(['loads' => function($query) use ($bookingId) {
-                $query->select('tbl_booking_loads1.*')
-                      ->where(function($q) {
-                          $q->where('Status', '!=', 5) // Only exclude cancelled loads
-                            ->orWhereNull('Status'); // Include loads with null status
-                      });
-            }])
-            ->where('BookingID', $bookingId)
-            ->first();
-
-            if (!$booking) {
+                    $query->select(
+                            'tbl_booking_loads1.*',
+                            'tbl_booking_invoice.InvoiceNumber',
+                            'tbl_booking_invoice.InvoiceDate',
+                            'tbl_tickets.pdf_name'
+                        )
+                        ->leftJoin('tbl_booking_invoice', 'tbl_booking_loads1.BookingRequestID', '=', 'tbl_booking_invoice.BookingRequestID')
+                        ->leftJoin('tbl_tickets', 'tbl_booking_loads1.LoadID', '=', 'tbl_tickets.LoadID')
+                        ->where(function($q) {
+                            $q->where('tbl_booking_loads1.Status', 4)
+                            ->orWhereNull('tbl_booking_loads1.Status');
+                        });
+                       
+                }])
+                ->where('BookingID', $bookingId)
+                ->first();
+          
+//              dd(
+//      $booking->toSql(),      
+//      $booking->getBindings()  
+//  );
+     
+         if (!$booking) {
                 \Log::warning('No booking found for ID: ' . $bookingId);
                 return response()->json(['error' => 'Booking not found'], 404);
             }
@@ -145,7 +181,6 @@ class DashboardController extends Controller
 
             foreach ($groupedLoads as $materialName => $loads) {
                 \Log::info("Processing material: {$materialName} with " . $loads->count() . " loads");
-
                 // Calculate totals for this material
                 $totalLoads = $loads->sum('Loads');
                 $totalAmount = $loads->sum(function($load) {
@@ -154,7 +189,7 @@ class DashboardController extends Controller
                     \Log::info("Load ID: {$load->LoadID}, Price: {$price}, Quantity: {$quantity}");
                     return $price * $quantity;
                 });
-
+                // Tip Ticket invoiuce
                 // Include all load details regardless of price
                 $loadDetails = $loads->map(function($load) {
                     return [
@@ -171,7 +206,11 @@ class DashboardController extends Controller
                         'SiteOutDateTime' => $load->SiteOutDateTime,
                         'Status' => $load->Status,
                         'LoadPrice' => $load->LoadPrice ?? 0,
-                        'Loads' => $load->Loads ?? 1
+                        'Loads' => $load->Loads ?? 1,
+                        'InvoiceNumber'=> $load->InvoiceNumber,
+                        'InvoiceDate'=> $load->InvoiceDate,
+                        'ReceiptName'=>$load->ReceiptName
+
                     ];
                 });
 
@@ -1003,13 +1042,12 @@ class DashboardController extends Controller
     {
         // Get invoices with differences
         $differences = InvoiceDifference::orderBy('created_at', 'desc')->get();
-
+            // dd($differences);
         // Get perfect invoices (those not in the differences table)
         $perfectInvoices = ReadyInvoice::whereNotIn('InvoiceNumber', function ($query) {
             $query->select('invoice_number')->from('invoice_differences');
         })->orderBy('InvoiceDate', 'desc')->get();
-
-        return view('admin.pages.invoice.differences', compact('differences', 'perfectInvoices'));
+       return view('admin.pages.invoice.differences', compact('differences', 'perfectInvoices'));
     }
 
     public function updateDifferenceStatus(Request $request, $id)

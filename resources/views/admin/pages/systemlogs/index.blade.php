@@ -23,7 +23,7 @@
                             <td>{{$log->email}}</td>
                             <td>{{$log->name}}</td>
                             <td>{{$log->activity}}</td>
-                            <td>{{$log->created_at}}</td>
+                        <td>{{ \Carbon\Carbon::parse($log->created_at)->format('d-m-Y') }}</td>
                             <td><a href="{{ route('systemlogs.details', $log->user_id ) }}" class="btn btn-sm btn-primary">View</a></td>
                         </tr>
                     @endforeach

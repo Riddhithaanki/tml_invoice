@@ -30,7 +30,8 @@ class LogRequests
 
         // Log the response
         Log::channel('daily')->info('Response:', [
-            'status' => $response->status(),
+            //'status' => $response->status(),
+            'status' => method_exists($response, 'getStatusCode') ? $response->getStatusCode() : null,
             'headers' => $response->headers->all(),
             'body' => $response->getContent()
         ]);

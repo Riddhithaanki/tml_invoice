@@ -31,5 +31,9 @@ class Booking extends Model
     public function invoice_items(){
         return $this->hasMany(BookingInvoiceItem::class,'BookingID','BookingID');
     }
+
+     public function invoice(){
+        return $this->belongsTo(BookingInvoice::class,'BookingRequestID','BookingRequestID');
+    }
 }
    

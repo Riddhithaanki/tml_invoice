@@ -23,6 +23,15 @@
             </a>
         </li>
 
+          <li class="menu-item {{ Request::routeIs('collection.*') ? 'active' : '' }}">
+            <a href="{{ route('collection.newindex') }}" class="menu-link">
+                <div class="d-flex align-items-center">
+                    <img src="{{ asset('svg/sidebar/collection.png') }}" alt="Collection" class="menu-icon">
+                </div>
+                <div>Collection Invoice</div>
+            </a>
+        </li>
+        
         <li class="menu-item {{ Request::routeIs('delivery.*') ? 'active' : '' }}">
             <a href="{{ route('delivery.index') }}" class="menu-link">
                 <div class="d-flex align-items-center">
@@ -32,14 +41,7 @@
             </a>
         </li>
 
-        <li class="menu-item {{ Request::routeIs('collection.*') ? 'active' : '' }}">
-            <a href="{{ route('collection.newindex') }}" class="menu-link">
-                <div class="d-flex align-items-center">
-                    <img src="{{ asset('svg/sidebar/collection.png') }}" alt="Collection" class="menu-icon">
-                </div>
-                <div>Collection Invoice</div>
-            </a>
-        </li>
+      
 
         <li class="menu-item {{ Request::routeIs('daywork.*') ? 'active' : '' }}">
             <a href="{{ route('daywork.index') }}" class="menu-link">

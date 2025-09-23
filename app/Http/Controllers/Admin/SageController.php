@@ -37,6 +37,8 @@ class SageController extends Controller
             }
 
             $invoiceData = json_decode($rawInvoices, true);
+
+           
             if (!isset($invoiceData['$resources'])) {
                 throw new \Exception('Invoice response missing $resources');
             }
@@ -121,7 +123,7 @@ class SageController extends Controller
                     'billing_address' => $billingAddress,
                     'shipping_address' => $shippingAddress,
                 ]);
-
+               // dd($invoice['$uuid']);
                 // Fetch invoice lines for this invoice using its Sage UUID
                 if (isset($invoice['$uuid'])) {
                     // Adjust endpoint if necessary:
@@ -190,7 +192,6 @@ class SageController extends Controller
             // Step 1: Get invoice by reference - Properly encode the filter and limit to 1 record
             $filter = urlencode("reference eq '$reference'");
             $invoiceUrl = $baseUrl . "/salesInvoices?\$filter=" . $filter . "&count=1&format=json";
-
             $invoiceResponse = Http::withBasicAuth($username, $password)
                 ->accept('application/json')
                 ->timeout(90) // Increase timeout to 90 seconds
@@ -201,17 +202,22 @@ class SageController extends Controller
             }
 
             $invoiceData = json_decode(preg_replace('/^\xEF\xBB\xBF/', '', $invoiceResponse->body()), true);
-
+           
+          if (isset($invoiceData['$resources'])) {
+                $invoiceData['$resources'] = array_values(array_filter($invoiceData['$resources'], function ($item) {
+                    return isset($item['netTotal']) && $item['netTotal'] != 0.0;
+                }));
+            }
             if (!isset($invoiceData['$resources'][0])) {
                 throw new \Exception("No invoice found with reference $reference");
             }
-
-            $uuid = $invoiceData['$resources'][0]['$uuid'];
-
+            foreach ($invoiceData['$resources'] as $invoice) {
+                // Parse Sage dates using your parseSageDate() method
+                 $uuid = $invoice['$uuid'] ?? null;
+                 
             // Step 2: Fetch invoice items using UUID - Limit to 1 record
             $itemsUrl = $baseUrl . "/salesInvoices($uuid)/salesInvoiceLines?count=1&format=json";
-
-            $itemsResponse = Http::withBasicAuth($username, $password)
+             $itemsResponse = Http::withBasicAuth($username, $password)
                 ->accept('application/json')
                 ->timeout(90) // Increase timeout to 90 seconds
                 ->get($itemsUrl);
@@ -221,19 +227,22 @@ class SageController extends Controller
             }
 
             $itemsData = json_decode(preg_replace('/^\xEF\xBB\xBF/', '', $itemsResponse->body()), true);
-
+            
             $items = collect($itemsData['$resources'] ?? [])->map(function ($item) {
                 return [
                     'uuid' => $item['$uuid'] ?? null,
                     'description' => $item['text'] ?? null,
                     'quantity' => $item['quantity'] ?? 0,
-                    'netAmount' => $item['netAmount'] ?? 0,
-                    'taxAmount' => $item['taxAmount'] ?? 0,
-                    'grossAmount' => $item['grossAmount'] ?? 0,
+                    'netAmount' => $item['netTotal'] ?? 0,
+                    'taxAmount' => $item['taxTotal'] ?? 0,
+                    'grossAmount' => $item['grossTotal'] ?? 0,
                     'product' => $item['product']['reference'] ?? null,
+                    'reference' => $item['reference'] ?? null,
                 ];
             });
-
+            }
+          
+          
             return response()->json([
                 'success' => true,
                 'message' => 'Invoice items fetched successfully.',

@@ -226,14 +226,27 @@
 <script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>
 
 @section('content')
-    <div class="container-fluid p-0">
-        <div class="booking-section bg-light rounded shadow-sm">
-            <div class="d-flex align-items-center p-3">
-                <a href="{{ url()->previous() ?? route('dashboard') }}" class="text-decoration-none text-primary">
-                    <i class="fas fa-arrow-left me-2"></i>
-                </a>
-                <h4 class="m-0 fw-bold">Booking No. : {{ $booking->BookingID }}</h4>
-            </div>
+@php
+    use Illuminate\Support\Facades\DB;
+
+    $invoices = DB::table('tbl_booking_invoice')
+        ->where('BookingRequestID', $booking->BookingRequestID)
+        ->first();
+    @endphp
+    <div class="d-flex align-items-center justify-content-between p-3">
+    <div class="d-flex align-items-center">
+        <a href="{{ url()->previous() ?? route('dashboard') }}" class="text-decoration-none text-primary me-2">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h4 class="m-0 fw-bold">Invoice No.: #{{ $invoices->InvoiceNumber ?? 'N/A' }}</h4>
+    </div>
+
+    <div>
+        <h4 class="m-0 fw-bold">
+            Invoice Date: {{ $invoices->InvoiceDate ?? 'N/A'  }}
+        </h4>
+    </div>
+</div>
 
             <div class="row g-4 mx-0 px-3">
                 <!-- Company Information -->
@@ -300,9 +313,19 @@
 
             <!-- Booking Loads List -->
             <div class="loads-section mt-4 mx-3">
-                <h5 class="text-white p-3 rounded-top mb-0" style="background: #3c8dbc">
+                <!-- <h5 class="text-white p-3 rounded-top mb-0" style="background: #3c8dbc">
                     <i class="fas fa-truck me-2"></i> Booking Loads List
-                </h5>
+                </h5> -->
+                <div class="d-flex justify-content-between align-items-center p-3 rounded-top mb-0" style="background: #3c8dbc;">
+                    <h5 class="text-white mb-0">
+                        <i class="fas fa-truck me-2"></i> Booking Loads List
+                    </h5>
+                  <a href="#" id="splitExcelBtn" class="btn btn-success btn-sm">
+                
+                    <input type="hidden" id="booking_id" value="{{ $booking->BookingID }}">
+                     <i class="fas fa-file-excel me-2"></i> Export to Excel
+                   </a>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover bg-white">
                         <thead class="table">
@@ -322,6 +345,7 @@
                         <tbody>
                             @php
                                 $subtotal = 0;
+                                
                             @endphp
                             @foreach ($bookings as $booking)
                                 @php
@@ -354,6 +378,8 @@
 
                                     $subtotal += $totalAmount;
                                 @endphp
+                               
+                              @if ($reqMaterial === $booking->MaterialName)
                                 <tr>
                                     <td class="text-center">
                                         <button class="btn btn-sm btn-outline-primary toggle-invoice"
@@ -361,7 +387,7 @@
                                             <i class="fas fa-chevron-down"></i>
                                         </button>
                                     </td>
-                                    <td>{{ \Carbon\Carbon::parse($booking->RequestedDate)->format('d-m-Y H:i') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($booking->RequestedDate)->format('d-m-Y') }}</td>
                                     <td><span class="badge bg-primary">{{ $booking->BookingType }}</span></td>
                                     <td>{{ $booking->MaterialName }}</td>
                                     <td>
@@ -404,6 +430,7 @@
                                         </div>
                                     </td>
                                 </tr>
+                                @endif
                             @endforeach
                         </tbody>
                         <tfoot>
@@ -578,6 +605,44 @@
             </div>
         </div>
     </div>
+<script>
+   $('#splitExcelBtn').on('click', function(e) {
+    e.preventDefault();
+
+    const bookingId = $('#booking_id').val(); // Make sure this exists!
+
+    $.ajax({
+        url: "{{ route('export.split.excel') }}",
+        type: "POST",
+        data: {
+            booking_id: bookingId,
+            _token: "{{ csrf_token() }}"
+        },
+        xhrFields: {
+            responseType: 'blob' // ⬅️ This is crucial
+        },
+        success: function(blob, status, xhr) {
+            const filename = xhr.getResponseHeader('Content-Disposition')
+                ?.split('filename=')[1]
+                ?.replaceAll('"', '') || `split_excel_booking_${bookingId}.xlsx`;
+
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        },
+        error: function(xhr) {
+            alert("Excel download failed.");
+            console.log(xhr.responseText);
+        }
+    });
+});
+
+</script>
 
 
     <script>
@@ -795,17 +860,18 @@
                                 <table class="table table-bordered table-striped table-hover">
                                     <thead class="table-primary">
                                         <tr>
-                                            <th>Action</th>
+                                            <!-- <th>Action</th> -->
+                                            <!--<th>Invoice Number</th>-->
+                                             <!-- <th>Invoice Date</th>-->
                                             <th>Conveyance No</th>
-                                            <th>Ticket ID</th>
+                                            <th>Tip Ticket ID</th>
                                             <th>Date Time</th>
                                             <th>Driver Name</th>
                                             <th>Vehicle Reg</th>
                                             <th>Gross (kg)</th>
                                             <th>Tare (kg)</th>
                                             <th>Net (kg)</th>
-                                            <th>Material</th>
-                                            <th>Wait Time</th>
+                                             <th>Wait Time</th>
                                             <th>Status</th>
                                             <th>Price</th>
                                         </tr>
@@ -825,7 +891,7 @@
                                         let statusClass = getStatusClass(load.Status);
 
                                         html += `<tr>
-                                            <td>
+                                            <!--<td>
                                                 <button class="btn btn-sm btn-danger delete-load" 
                                                     data-load-id="${load.LoadID}"
                                                     data-conveyance="${load.ConveyanceNo || ''}"
@@ -833,8 +899,12 @@
                                                     data-material="${item.MaterialName}">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
-                                            </td>
-                                            <td>${load.ConveyanceNo || ''}</td>
+                                            </td>-->
+                                            <!--<td>${load.InvoiceNumber || ''}</td>-->
+                                           <!-- <td>${load.InvoiceDate || ''}</td>-->
+                                 <td>   <a href="${conveyanceBaseUrl}${load.ReceiptName}" class="btn btn-sm btn-outline-danger mb-1 pdf-btn" 
+                                                        data-ticket-id="${load.LoadID}" 
+                                                        title="Download PDF" target="_blank">${load.ConveyanceNo || ''}</a></td>
                                             <td><span class="badge bg-dark">${load.TicketID || ''}</span></td>
                                             <td>${formatDateTime(load.JobStartDateTime)}</td>
                                             <td>${load.DriverName || ''}</td>
@@ -842,7 +912,6 @@
                                             <td class="text-end">${formatWeight(load.GrossWeight)}</td>
                                             <td class="text-end">${formatWeight(load.Tare)}</td>
                                             <td class="text-end fw-bold">${formatWeight(load.Net)}</td>
-                                            <td>${item.MaterialName}</td>
                                             <td>${waitTime}</td>
                                             <td><span class="badge ${statusClass}">${statusText}</span></td>
                                             <td class="text-end fw-bold">
@@ -853,6 +922,11 @@
                                                         data-old-price="${load.LoadPrice || 0}"
                                                         data-loads="${load.Loads || 1}"
                                                         value="${load.LoadPrice || 0}">
+                                                      <a href="https://tml.snsitltd.co.uk/assets/conveyance/${load.ReceiptName}" class="btn btn-sm btn-outline-danger mb-1 pdf-btn" 
+                                                        data-ticket-id="${load.LoadID}" 
+                                                        title="Download PDF" target="_blank">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                </a>
                                                     <button class="btn btn-sm btn-outline-primary price-history-btn"
                                                             data-ticket-id="${load.LoadID}"
                                                             title="View Price History">
@@ -864,6 +938,7 @@
                                     });
                                 }
                             });
+                                
 
                             // Add delete load handler
                             $(document).on('click', '.delete-load', function(e) {
@@ -1571,4 +1646,8 @@
             });
         });
     </script>
+<script>
+    const conveyanceBaseUrl = "{{ config('app.urls.conveyance') }}";
+</script>
+              
 @endsection

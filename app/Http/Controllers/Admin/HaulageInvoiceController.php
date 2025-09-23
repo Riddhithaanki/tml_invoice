@@ -14,12 +14,17 @@ class HaulageInvoiceController extends Controller
 {
     public function index(Request $request)
     {
-        $invoice_type = $request->query('invoice_type', 'preinvoice'); // Default: 'preinvoice'
-        return view('admin.pages.haulage.index', compact('invoice_type'));
+        // $invoice_type = $request->query('invoice_type', 'preinvoice'); // Default: 'preinvoice'
+        $type = $request->query('type', 'loads');
+        // $type = $request->query('type', 'withtipticket'); 
+        $invoice_type = $request->query('invoice_type', 'preinvoice'); 
+        return view('admin.pages.haulage.index',  compact('type', 'invoice_type'));
     }
 
     public function getHaulageInvoiceData(Request $request)
     {
+       // $type = $request->input('type', 'withtipticket');
+        $type = $request->input('type', 'loads');
         $invoiceType = $request->input('invoice_type', 'preinvoice');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
@@ -31,6 +36,7 @@ class HaulageInvoiceController extends Controller
             'tbl_booking_request.CompanyName',
             'tbl_booking_request.OpportunityName',
             'tbl_booking_request.InvoiceHold',
+             'tbl_booking1.MaterialName',
             \DB::raw('MAX(tbl_booking1.BookingID) as BookingID'),
             \DB::raw('MAX(tbl_booking1.BookingType) as BookingType')
         ])
@@ -41,7 +47,8 @@ class HaulageInvoiceController extends Controller
                 'tbl_booking_request.CreateDateTime',
                 'tbl_booking_request.CompanyName',
                 'tbl_booking_request.OpportunityName',
-                'tbl_booking_request.InvoiceHold'
+                'tbl_booking_request.InvoiceHold',
+                'tbl_booking1.MaterialName'
             ])
             ->orderBy('tbl_booking_request.CreateDateTime', 'desc');
 
@@ -66,7 +73,50 @@ class HaulageInvoiceController extends Controller
                   ->from('ready_invoices')
                   ->whereRaw('ready_invoices.BookingRequestID = tbl_booking1.BookingRequestID');
             });
+        }elseif ($invoiceType === 'holdinvoice') {
+            $query->where('tbl_booking_request.InvoiceHold', 1)
+                ->whereNotExists(function ($q) {
+                    $q->select(\DB::raw(1))
+                        ->from('ready_invoices')
+                        ->where('is_hold', 1)
+                        ->whereRaw('ready_invoices.BookingRequestID = tbl_booking1.BookingRequestID');
+                });
         }
+        //  if ($type === 'withtipticket') {
+        //     $query->whereExists(function ($q) {
+        //         $q->select(\DB::raw(1))
+        //             ->from('tbl_booking_loads1')
+        //             ->join('tbl_materials', 'tbl_materials.MaterialID', '=', 'tbl_booking_loads1.MaterialID')
+        //             ->where('tbl_materials.Type', '=', 1)
+        //             ->whereRaw('tbl_booking_loads1.BookingRequestID = tbl_booking1.BookingRequestID');
+        //     });
+        // } elseif ($type === 'withouttipticket') {
+        //     $query->whereNotExists(function ($q) {
+        //         $q->select(\DB::raw(1))
+        //             ->from('tbl_booking_loads1')
+        //             ->join('tbl_materials', 'tbl_materials.MaterialID', '=', 'tbl_booking_loads1.MaterialID')
+        //             ->where('tbl_materials.Type', '=', 0)
+        //             ->whereRaw('tbl_booking_loads1.BookingRequestID = tbl_booking1.BookingRequestID');
+        //     });
+        // }elseif($type === 'missingtipticket')
+        // {
+        //     $query->whereNotExists(function ($q) {
+        //         $q->select(\DB::raw(1))
+        //             ->from('tbl_booking_loads1')
+        //             ->join('tbl_materials', 'tbl_materials.MaterialID', '=', 'tbl_booking_loads1.MaterialID')
+        //             ->where('tbl_booking_loads1.Status', '=', 0)
+        //             ->whereRaw('tbl_booking_loads1.BookingRequestID = tbl_booking1.BookingRequestID');
+        //     });
+        // }
+         if ($type === 'tonnage') {
+            $query->where('tbl_booking1.TonBook', 0);
+        } elseif ($type === 'loads') {
+            $query->where(function ($q) {
+                $q->whereNull('tbl_booking1.TonBook')
+                    ->orWhere('tbl_booking1.TonBook', '!=', 0);
+            });
+        }
+    
 
         return DataTables::of($query)
             ->addIndexColumn()
@@ -78,13 +128,16 @@ class HaulageInvoiceController extends Controller
                 });
             })
             ->editColumn('CreateDateTime', function ($row) {
-                return Carbon::parse($row->CreateDateTime)->format('d-m-Y H:i');
+                return Carbon::parse($row->CreateDateTime)->format('d-m-Y');
             })
             ->filterColumn('CompanyName', function ($query, $keyword) {
                 $query->where('tbl_booking_request.CompanyName', 'like', "%$keyword%");
             })
             ->filterColumn('OpportunityName', function ($query, $keyword) {
                 $query->where('tbl_booking_request.OpportunityName', 'like', "%$keyword%");
+            })
+            ->filterColumn('MaterialName', function ($query, $keyword) {
+                $query->where('tbl_booking1.MaterialName', 'like', "%$keyword%");
             })
             ->addColumn('CompanyName', function ($booking) {
                 return $booking->CompanyName ?? 'N/A';
@@ -94,6 +147,9 @@ class HaulageInvoiceController extends Controller
             })
             ->addColumn('CreateDateTime', function ($booking) {
                 return $booking->CreateDateTime ?? 'N/A';
+            })
+            ->addColumn('MaterialName', function ($booking) {
+                return $booking->MaterialName ?? 'N/A';
             })
             ->filterColumn('InvoiceHold', function($query, $keyword) {
                 if (stripos($keyword, 'yes') !== false) {
@@ -107,8 +163,9 @@ class HaulageInvoiceController extends Controller
             })
             ->addColumn('action', function ($booking) {
                 if ($booking->BookingRequestID) {
-                    return '<a href="' . route('invoice.show', Crypt::encrypt($booking->BookingRequestID)) . '"
-                        class="btn btn-sm btn-primary">View</a>';
+                     return '<a href="' . route('invoice.show', [Crypt::encrypt($booking->BookingRequestID), Crypt::encrypt($booking->MaterialName)]) . '" class="btn btn-sm btn-primary">View</a>';
+                    // return '<a href="' . route('invoice.show', Crypt::encrypt($booking->BookingRequestID)) . '"
+                    //     class="btn btn-sm btn-primary">View</a>';
                 }
                 return 'No Booking Found';
             })

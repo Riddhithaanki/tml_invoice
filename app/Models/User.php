@@ -20,6 +20,10 @@ class User extends Authenticatable
         'email', 'password', 'roleId', // add other fields you use
     ];
 
+
+    const CREATED_AT = 'createdDtm';
+    const UPDATED_AT = 'updatedDtm';
+
     protected $hidden = [
         'password', 'remember_token',
     ];

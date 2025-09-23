@@ -50,17 +50,18 @@ class UserActivityLog
 
             // Handle CREATE operations (POST)
             if ($request->method() === 'POST') {
+                
                 // Get new data from the request (excluding sensitive fields)
                 $newData = $request->except(['password', 'password_confirmation', '_token']);
                 $details['new_data'] = $newData;
             }
 
             // Log the activity
-            SystemLog::create([
-                'user_id'   => $userId,
-                'activity'  => $activity,
-                'details'   => json_encode($details), // Store details as JSON
-            ]);
+            // SystemLog::create([
+            //     'user_id'   => $userId,
+            //     'activity'  => $activity,
+            //     'details'   => json_encode($details), // Store details as JSON
+            // ]);
         }
 
         return $response;

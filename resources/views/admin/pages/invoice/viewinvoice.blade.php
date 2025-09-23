@@ -158,7 +158,7 @@
                     <div class="mb-4">
                         <div class="info-label">Invoice Date</div>
                         
-                        <div class="info-value">{{ \Carbon\Carbon::parse($invoice->InvoiceDate)->format('d/m/Y') }}</div>
+                        <div class="info-value">{{ \Carbon\Carbon::parse($invoice->InvoiceDate)->format('d-m-Y') }}</div>
                     </div>
                     <div class="mb-4">
                         <div class="info-label">Status</div>
@@ -350,15 +350,15 @@
                     </div>
                     <div class="mb-4">
                         <div class="info-label">Created At</div>
-                        <div class="info-value">{{ \Carbon\Carbon::parse($invoice->CreateDateTime)->format('d/m/Y H:i') }}</div>
+                        <div class="info-value">{{ \Carbon\Carbon::parse($invoice->CreateDateTime)->format('d-m-Y') }}</div>
                     </div>
                     <div class="mb-4">
                         <div class="info-label">Last Updated</div>
                         <div class="info-value">
                             @if($invoice->UpdateDateTime && $invoice->UpdateDateTime != '0000-00-00 00:00:00')
-                                {{ \Carbon\Carbon::parse($invoice->UpdateDateTime)->format('d/m/Y H:i') }}
+                                {{ \Carbon\Carbon::parse($invoice->UpdateDateTime)->format('d-m-Y') }}
                             @else
-                                {{ \Carbon\Carbon::parse($invoice->UpdateDateTime)->format('d/m/Y H:i') }}
+                                {{ \Carbon\Carbon::parse($invoice->UpdateDateTime)->format('d-m-Y') }}
                             @endif
                         </div>
                     </div>

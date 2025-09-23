@@ -14,13 +14,15 @@ class Authenticate extends Middleware
     {
         // Debugging: Check if Laravel recognizes the user
         if (!auth()->check()) {
-            dd('Auth check failed! User is not authenticated.');
+           // dd('Auth check failed! User is not authenticated.');
+             return route('admin.loginView');
         } else {
             dd(auth()->user()); // Should show user data
         }
 
         if (!$request->expectsJson()) {
-            return route('unauthorized_user');
+             return route('admin.loginView');
+          //  return route('unauthorized_user');
         }
     }
 

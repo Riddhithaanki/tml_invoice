@@ -199,6 +199,11 @@ return [
 
     ],
 
+
+    'urls' => [
+    'conveyance' => 'https://tml.snsitltd.co.uk/assets/conveyance/',
+     ],
+
     /*
     |--------------------------------------------------------------------------
     | Class Aliases

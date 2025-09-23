@@ -14,4 +14,41 @@ class BookingLoad extends Model
     protected $primaryKey = "LoadID";
 
     public $timestamps = false;
+
+    protected $fillable = [
+        'InvoiceType',
+        'BookingRequestID',
+        'BookingID',
+        'InvoiceDate',
+        'InvoiceNumber',
+        'CompanyID',
+        'CompanyName',
+        'OpportunityID',
+        'OpportunityName',
+        'ContactID',
+        'ContactName',
+        'ContactMobile',
+        'SubTotalAmount',
+        'VatAmount',
+        'FinalAmount',
+        'TaxRate',
+        'Status',
+        'CreatedUserID',
+        'CreateDateTime',
+        'UpdateDateTime',
+        'is_split',
+        'parent_invoice_id',
+    ];
+
+    public function parentInvoice()
+    {
+        return $this->belongsTo(BookingLoad::class, 'parent_invoice_id', 'LoadID');
+    }
+
+    public function childInvoices()
+    {
+        return $this->hasMany(BookingLoad::class, 'parent_invoice_id', 'LoadID');
+    }
+
+
 }

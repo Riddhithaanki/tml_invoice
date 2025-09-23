@@ -22,10 +22,13 @@
                         Loads
                     </a> -->
                     <!-- <a class="nav-link {{ request()->type === 'loads' || !request()->has('type') ? 'active' : '' }}" -->
-                     <a class="nav-link {{ request()->type === 'loads'  ? 'active' : '' }}"
+                     <!-- <a class="nav-link {{ request()->type === 'loads'  ? 'active' : '' }}"
                         href="{{ route('collection.index', ['type' => 'loads', 'invoice_type' => request()->invoice_type ?? 'preinvoice']) }}">
    Loads
-</a>
+</a> -->
+                 <a class="nav-link {{ $type === 'withtipticket' ? 'active' : '' }}" id="with-tip-tab" data-toggle="tab"
+                            href="{{ route('delivery.index', ['type' => 'withtipticket', 'invoice_type' => $invoice_type]) }}"
+                            role="tab">With Tip Ticket</a>
 
                 </li>
                 <li class="nav-item">
@@ -33,11 +36,14 @@
                         href="{{ route('collection.index', ['type' => 'tonnage', 'invoice_type' => request()->invoice_type ?? 'preinvoice']) }}">
                         Tonnage
                     </a> -->
-                    <a class="nav-link {{ request()->type === 'tonnage' ? 'active' : '' }}"
+                    <!-- <a class="nav-link {{ request()->type === 'tonnage' ? 'active' : '' }}"
    href="{{ route('collection.index', ['type' => 'tonnage', 'invoice_type' => request()->invoice_type ?? 'preinvoice']) }}">
    Tonnage
-</a>
-
+</a> -->
+<a class="nav-link {{ $type === 'withouttipticket' ? 'active' : '' }}" id="without-tip-tab"
+                            data-toggle="tab"
+                            href="{{ route('delivery.index', ['type' => 'withouttipticket', 'invoice_type' => $invoice_type]) }}"
+                            role="tab">Without Tip Ticket</a> 
                 </li>
 
                 <!-- Right Tabs (separated visually using ms-auto) -->

@@ -195,31 +195,43 @@
 
                 <!-- Invoices on Hold -->
                 <div class="col-md-3 col-sm-6 mb-4">
+                     <a class="nav-link {{ request('type') === 'invoicehold' ? 'active' : '' }} waves-effect"
+                                href="{{ url('dashboard') }}/invoicehold"
+                            style="text-decoration: none; color: inherit;">
                     <div class="stat-card">
                         <div class="card-body">
-                            <div class="card-title">Invoices on Hold</div>
+                           <div class="card-title">Invoices on Hold</div>
                             <div class="card-value">{{ $readyHoldInvoiceCount }}</div>
                         </div>
                     </div>
+                    </a>
                 </div>
 
                 <!-- Ready Invoice -->
                 <div class="col-md-3 col-sm-6 mb-4">
+                    <a class="nav-link {{ request('type') === 'readyinvoice' ? 'active' : '' }} waves-effect"
+                                href="{{ url('dashboard') }}/readyinvoice"
+                            style="text-decoration: none; color: inherit;">
                     <div class="stat-card">
                         <div class="card-body">
                             <div class="card-title">Ready Invoice</div>
                             <div class="card-value">{{ $readyInvoiceCount }}</div>
                         </div>
                     </div>
+                    </a>
                 </div>
 
                 <div class="col-md-3 col-sm-6 mb-4">
+                    <a class="nav-link {{ request('type') === 'booking' ? 'active' : '' }} waves-effect"
+                                href="{{ url('dashboard') }}/booking"
+                            style="text-decoration: none; color: inherit;">
                     <div class="stat-card">
                         <div class="card-body">
                             <div class="card-title">Bookings</div>
                             <div class="card-value">{{ $bookingCount }}</div>
                         </div>
                     </div>
+                    </a>
                 </div>
             </div>
 
@@ -234,35 +246,68 @@
                     <table id="invoiceTable" class="table table-hover">
                         <thead>
                             <tr>
-                                <th>Booking Request ID</th>
-                                <th>Date</th>
-                                <th>Company</th>
-                                <th>Site</th>
-                                <th>Action</th>
-                            </tr>
-                            <tr class="search-row">
-                                <th><input type="text" class="form-control form-control-sm column-search"
-                                        placeholder="Search Booking ID"></th>
-                                <th><input type="text" class="form-control form-control-sm column-search"
-                                        placeholder="Search Date"></th>
-                                <th><input type="text" class="form-control form-control-sm column-search"
-                                        placeholder="Search Company"></th>
-                                <th><input type="text" class="form-control form-control-sm column-search"
-                                        placeholder="Search Site"></th>
-                                <th></th>
-                            </tr>
+                                <!-- <th>Booking Request ID</th>
+                                <th>Date</th> -->
+                        <th>Company Name</th>
+                        <th>Site Name</th>
+                        <th>Material name</th>
+                         <th>Invoice type</th>
+                        <th>Action</th>
+                         </tr>
+                           <tr class="search-row">
+                       <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Search Company"></th>
+                        <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Search Site">
+                        </th>
+                        <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Material Name">
+                        </th>
+                         <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Invoice Type">
+                        </th>
+                       <th></th>
+                    </tr>
                         </thead>
                         <tbody>
                             @foreach ($recentInvoice as $key => $invoice)
-                                <tr>
-                                    <td>{{ $invoice->BookingRequestID ?? 'N/A' }}</td>
+                            @php  
+                         
+                            $materialName = optional($invoice->booking?->first())->MaterialName ?? $invoice->MaterialName ?? 'N/A';
+                            $CompanyName = $invoice->CompanyName ?? optional($invoice->bookingRequest)->CompanyName;
+                            $OpportunityName = $invoice->OpportunityName ?? optional($invoice->bookingRequest)->OpportunityName
+                            @endphp
+                            <tr>
+                                   
+                                    <td>{{ $invoice->CompanyName ??  $CompanyName }}</td>
+                                    <td>{{ $invoice->OpportunityName ?? $OpportunityName }}</td>
+                                     <td>{{ $materialName ?? 'N/A' }}</td>
+                                     <td>
+                                        @php 
+                                        $firstBooking = $invoice->booking?->first(); 
+                                        @endphp
+                                        @if( isset($firstBooking) ||  isset($invoice->BookingType))
+                                            @if(isset($firstBooking->BookingType) && $firstBooking->BookingType == 1 || $invoice->BookingType == 1)
+                                                <span class="badge bg-success">Collection</span>
+                                            @elseif(isset($firstBooking->BookingType) && $firstBooking->BookingType == 2 || $invoice->BookingType == 2)
+                                                <span class="badge bg-warning">Delivery</span>
+                                            @elseif(isset($firstBooking->BookingType) && $firstBooking->BookingType == 3 || $invoice->BookingType == 3)
+                                                <span class="badge bg-warning">Daywork</span>
+                                            @elseif(isset($firstBooking->BookingType) && $firstBooking->BookingType == 4 || $invoice->BookingType == 4)
+                                                <span class="badge bg-warning">Haulage</span>
+                                            @else
+                                                <span class="badge bg-secondary">Unknown</span>
+                                            @endif
+                                        @else
+                                            <span class="badge bg-secondary">Unknown</span>
+                                        @endif
+
+                                     </td>
                                     <td>
-                                        {{ $invoice->CreateDateTime ? \Carbon\Carbon::parse($invoice->CreateDateTime)->format('d/m/Y H:i') : 'N/A' }}
-                                    </td>
-                                    <td>{{ $invoice->CompanyName ?? 'N/A' }}</td>
-                                    <td>{{ $invoice->OpportunityName ?? 'N/A' }}</td>
-                                    <td>
-                                        <a href="{{ route('invoice.show', Crypt::encrypt($invoice->BookingRequestID)) }}"
+                                      
+                                        <!-- <a href="{{ route('invoice.show', Crypt::encrypt($invoice->BookingRequestID)) }}"
+                                            class="btn btn-xs btn-primary">View</a> -->
+                                        <a href="{{ route('invoice.show', [Crypt::encrypt($invoice->BookingRequestID),Crypt::encrypt( $materialName) ]) }}"
                                             class="btn btn-xs btn-primary">View</a>
                                     </td>
                                 </tr>

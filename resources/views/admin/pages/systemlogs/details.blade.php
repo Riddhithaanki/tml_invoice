@@ -31,8 +31,7 @@
                             <td>
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#logDetailsModal{{$key}}">View Details</button>
                             </td>
-                                
-                            <td>{{$log->created_at}}</td>
+                            <td>{{ \Carbon\Carbon::parse($log->created_at)->format('d-m-Y') }}</td>    
                         </tr>
                         <!-- Modal for each log entry -->
                         <div class="modal fade" id="logDetailsModal{{$key}}" tabindex="-1" aria-hidden="true">

@@ -353,11 +353,15 @@
                                             <td>
                                                 @if($difference->items_differences)
                                                     <ul class="list-unstyled mb-0">
-                                                        @foreach($difference->items_differences as $description => $values)
+                                                        @foreach($difference->items_differences as $description => $fields)
                                                             <li>
                                                                 <strong>{{ $description }}:</strong><br>
-                                                                <span class="text-primary">Our: {{ $values['our_system'] }}</span><br>
-                                                                <span class="text-danger">Sage: {{ $values['sage'] }}</span>
+                                                                @foreach(['quantity', 'netAmount', 'taxAmount', 'grossAmount'] as $field)
+                                                                    @if(isset($fields[$field]) && is_array($fields[$field]) && array_key_exists('our_system', $fields[$field]) && array_key_exists('sage', $fields[$field]))
+                                                                        <span class="text-primary">Our {{ ucfirst($field) }}: {{ $fields[$field]['our_system'] }}</span><br>
+                                                                        <span class="text-danger">Sage {{ ucfirst($field) }}: {{ $fields[$field]['sage'] }}</span><br>
+                                                                    @endif
+                                                                @endforeach
                                                             </li>
                                                         @endforeach
                                                     </ul>
@@ -371,13 +375,15 @@
                                                         <i class="fas fa-clock"></i> Pending
                                                     @elseif($difference->status === 'reviewed')
                                                         <i class="fas fa-eye"></i> Reviewed
+                                                     @elseif($difference->status === 'Not avaible in Sage')
+                                                        <i class="fas fa-check"></i> Not avaible in Sage
                                                     @else
                                                         <i class="fas fa-check-circle"></i> Resolved
                                                     @endif
                                                 </span>
                                             </td>
                                             <td>{{ $difference->resolution_notes }}</td>
-                                            <td>{{ $difference->created_at->format('d-m-Y H:i') }}</td>
+                                            <td>{{ $difference->created_at->format('d-m-Y') }}</td>
                                             <td>
                                                 <button class="btn btn-sm btn-primary update-status"
                                                         data-id="{{ $difference->id }}"
@@ -437,7 +443,7 @@
                                             <td class="font-weight-bold">{{ $invoice->InvoiceNumber }}</td>
                                             <td>{{ $invoice->CompanyName }}</td>
                                             <td class="text-right">{{ number_format($invoice->FinalAmount, 2) }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($invoice->InvoiceDate)->format('d-m-Y H:i') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($invoice->InvoiceDate)->format('d-m-Y') }}</td>
                                             <td>
                                                 <span class="status-badge perfect">
                                                     <i class="fas fa-check-circle"></i> Approved

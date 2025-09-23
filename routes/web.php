@@ -29,7 +29,19 @@ use App\Http\Controllers\Admin\SageController;
 |
 */
 
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
+Route::get('/test-login-event', function () {
+    event(new Login('web', Auth::user(), false));
+    return 'Fired login event';
+});
+Route::get('/test-logout-event', function () {
+    event(new Logout('web' ,Auth::user()));
+    return 'Fired logout event';
+});
 Route::get('/', function () {
     return view('welcome');
 })->name('admin.loginView');
@@ -51,14 +63,16 @@ Route::get('/php-check', function () {
 
 Route::get('/check-sql-connection', [FdController::class, 'checkConnection']);
 Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/{type?}', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/invoices/data', [DashboardController::class, 'getInvoices'])->name('invoices.data');
-    Route::get('invoice-data/{id}', [DashboardController::class, 'getInvoiceData'])->name('invoice.show');
+    // Route::get('invoice-data/{id}', [DashboardController::class, 'getInvoiceData'])->name('invoice.show'); <= old route
+     Route::get('invoice-data/{id}/{material?}', [DashboardController::class, 'getInvoiceData'])->name('invoice.show');
     Route::get('/get-invoice-items', [DashboardController::class, 'getInvoiceItems'])->name('get.invoice.items');
     Route::get('/get-split-invoice-items', [DashboardController::class, 'getSplitInvoiceItems'])->name('get.splitinvoice.items');
     Route::get('/get-merge-booking-items', [DashboardController::class, 'getMergeBookingItems'])->name('get.mergebookings.items');
     Route::post('/split-invoice', [DashboardController::class, 'splitInvoice'])->name('split.invoice');
     Route::post('/merge-booking', [DashboardController::class, 'mergeBooking'])->name('merge.booking');
+  
 
     // Price Routes
 
@@ -68,29 +82,33 @@ Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->g
     // User List Route
 
     Route::get('user-list', [UsersController::class, 'index'])->name('users.list');
+    Route::get('user-edit/{id}', [UsersController::class, 'edit'])->name('users.edit');
+    Route::post('user-update/{id}', [UsersController::class, 'updateUser'])->name('users.update');
     Route::get('users-data', [UsersController::class, 'getUsersData'])->name('users.data');
 
     // Delivery Data
-    Route::get('/delivery-invoice-list', [DeliveryController::class, 'index'])->name('delivery.index');
+    Route::get('/delivery-invoice-list/{type?}', [DeliveryController::class, 'index'])->name('delivery.index');
     Route::get('delivery-invoice-data', [DeliveryController::class, 'getDeliveryInvoiceData'])->name('delivery.data');
 
     // Collection
     Route::get('collection-invoice-list/{type?}', [CollectionController::class, 'index'])->name('collection.index');
     Route::get('collection-invoice-data', [CollectionController::class, 'getCollectionInvoiceData'])->name('collection.data');
     Route::get('collection-newinvoice-list/{type?}', [CollectionController::class, 'newindex'])->name('collection.newindex');
+    Route::post('/export/split-excel', [CollectionController::class, 'exportSplitExcel'])->name('export.split.excel');
+
 
     //Daywork Invoice
-    Route::get('daywork-invoice-list', [DayworkInvoiceController::class, 'index'])->name('daywork.index');
+    Route::get('daywork-invoice-list/{type?}', [DayworkInvoiceController::class, 'index'])->name('daywork.index');
     Route::get('daywork-invoice-data', [DayworkInvoiceController::class, 'getDayworkInvoiceData'])->name('daywork.data');
 
     //haulage Invoice
-    Route::get('haulage-invoice-list', [HaulageInvoiceController::class, 'index'])->name('haulage.index');
+    Route::get('haulage-invoice-list/{type?}', [HaulageInvoiceController::class, 'index'])->name('haulage.index');
     Route::get('haulage-invoice-data', [HaulageInvoiceController::class, 'getHaulageInvoiceData'])->name('haulage.data');
 
     //waitingtime Invoice
     Route::get('waitingtime-invoice-list', [WaitingTimeInvoicesController::class, 'index'])->name('waitingtime.index');
     Route::get('waitingtime-invoice-data', [WaitingTimeInvoicesController::class, 'getWaitingtimeInvoiceData'])->name('waitingtime.data');
-    Route::get('waitingtime-newinvoice-list', [WaitingTimeInvoicesController::class, 'newindex'])->name('waitingtime.newindex');
+    Route::get('waitingtime-newinvoice-list/{type?}', [WaitingTimeInvoicesController::class, 'newindex'])->name('waitingtime.newindex');
 
     //System logs
     Route::get('systemlogs-list', [SystemLogsController::class, 'index'])->name('systemlogs.list');

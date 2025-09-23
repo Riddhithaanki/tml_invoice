@@ -20,8 +20,10 @@ class WaitingTimeInvoicesController extends Controller
     }
      public function newindex(Request $request)
     {
-        $invoice_type = $request->query('invoice_type', 'preinvoice'); // Default: 'preinvoice'
-        return view('admin.pages.waitingtime_invoice.newindex', compact('invoice_type'));
+        $type = $request->query('type', 'loads');
+        //$type = $request->query('type', 'withtipticket'); 
+        $invoice_type = $request->query('invoice_type', 'preinvoice'); 
+        return view('admin.pages.waitingtime_invoice.newindex', compact('type', 'invoice_type'));
     }
 
     public function getDeliveryInvoiceData(Request $request)
@@ -61,6 +63,11 @@ class WaitingTimeInvoicesController extends Controller
 
     public function getWaitingtimeInvoiceData(Request $request)
     {
+        // $invoiceType = $request->input('invoice_type', 'preinvoice');
+        // $startDate = $request->input('start_date');
+        // $endDate = $request->input('end_date');
+         $type = $request->input('type', 'loads');
+        //$update_type = $request->input('update_type', 'loads');
         $invoiceType = $request->input('invoice_type', 'preinvoice');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
@@ -72,6 +79,7 @@ class WaitingTimeInvoicesController extends Controller
             'tbl_booking_request.CompanyName',
             'tbl_booking_request.OpportunityName',
             'tbl_booking_request.InvoiceHold',
+            'tbl_booking1.MaterialName',
             \DB::raw('MAX(tbl_booking1.BookingID) as BookingID'),
             \DB::raw('MAX(tbl_booking1.BookingType) as BookingType')
         ])
@@ -79,10 +87,11 @@ class WaitingTimeInvoicesController extends Controller
             ->where('tbl_booking1.BookingType', 3)
             ->groupBy([
                 'tbl_booking1.BookingRequestID',
-                'tbl_booking_request.CreateDateTime',
+               // 'tbl_booking_request.CreateDateTime',
                 'tbl_booking_request.CompanyName',
                 'tbl_booking_request.OpportunityName',
-                'tbl_booking_request.InvoiceHold'
+                'tbl_booking_request.InvoiceHold',
+                'tbl_booking1.MaterialName',
             ])
             ->orderBy('tbl_booking_request.CreateDateTime', 'desc');
 
@@ -107,12 +116,58 @@ class WaitingTimeInvoicesController extends Controller
                   ->from('ready_invoices')
                   ->whereRaw('ready_invoices.BookingRequestID = tbl_booking1.BookingRequestID');
             });
+        }elseif ($invoiceType === 'holdinvoice') {
+            $query->where('tbl_booking_request.InvoiceHold', 1)
+                ->whereNotExists(function ($q) {
+                    $q->select(\DB::raw(1))
+                        ->from('ready_invoices')
+                        ->where('is_hold', 1)
+                        ->whereRaw('ready_invoices.BookingRequestID = tbl_booking1.BookingRequestID');
+                });
+        }
+
+         // Filter by type if specified
+
+        //  if ($type === 'withtipticket') {
+        //     $query->whereExists(function ($q) {
+        //         $q->select(\DB::raw(1))
+        //             ->from('tbl_booking_loads1')
+        //             ->join('tbl_materials', 'tbl_materials.MaterialID', '=', 'tbl_booking_loads1.MaterialID')
+        //             ->where('tbl_materials.Type', '=', 1)
+        //             ->whereRaw('tbl_booking_loads1.BookingRequestID = tbl_booking1.BookingRequestID');
+        //     });
+        // } elseif ($type === 'withouttipticket') {
+        //     $query->whereNotExists(function ($q) {
+        //         $q->select(\DB::raw(1))
+        //             ->from('tbl_booking_loads1')
+        //             ->join('tbl_materials', 'tbl_materials.MaterialID', '=', 'tbl_booking_loads1.MaterialID')
+        //             ->where('tbl_materials.Type', '=', 0)
+        //             ->whereRaw('tbl_booking_loads1.BookingRequestID = tbl_booking1.BookingRequestID');
+        //     });
+        // }elseif($type === 'missingtipticket')
+        // {
+        //     $query->whereNotExists(function ($q) {
+        //         $q->select(\DB::raw(1))
+        //             ->from('tbl_booking_loads1')
+        //             ->join('tbl_materials', 'tbl_materials.MaterialID', '=', 'tbl_booking_loads1.MaterialID')
+        //             ->where('tbl_booking_loads1.Status', '=', 0)
+        //             ->whereRaw('tbl_booking_loads1.BookingRequestID = tbl_booking1.BookingRequestID');
+        //     });
+        // }
+
+         if ($type === 'tonnage') {
+            $query->where('tbl_booking1.TonBook', 1);
+        } elseif ($type === 'loads') {
+            $query->where(function ($q) {
+                $q->whereNull('tbl_booking1.TonBook')
+                    ->orWhere('tbl_booking1.TonBook', '!=', 1);
+            });
         }
 
         return DataTables::of($query)
             ->addIndexColumn()
             ->editColumn('CreateDateTime', function ($row) {
-                return Carbon::parse($row->CreateDateTime)->format('d-m-Y H:i');
+                return Carbon::parse($row->CreateDateTime)->format('d-m-Y');
             })
             ->filterColumn('CreateDateTime', function ($query, $keyword) {
                 $query->where(function ($q) use ($keyword) {
@@ -127,6 +182,9 @@ class WaitingTimeInvoicesController extends Controller
             ->filterColumn('OpportunityName', function ($query, $keyword) {
                 $query->where('tbl_booking_request.OpportunityName', 'like', "%$keyword%");
             })
+            ->filterColumn('MaterialName', function ($query, $keyword) {
+                $query->where('tbl_booking1.MaterialName', 'like', "%$keyword%");
+            })
             ->addColumn('CompanyName', function ($booking) {
                 return $booking->CompanyName ?? 'N/A';
             })
@@ -135,6 +193,9 @@ class WaitingTimeInvoicesController extends Controller
             })
             ->addColumn('CreateDateTime', function ($booking) {
                 return $booking->CreateDateTime ?? 'N/A';
+            })
+             ->addColumn('MaterialName', function ($booking) {
+                return $booking->MaterialName ?? 'N/A';
             })
             ->filterColumn('InvoiceHold', function($query, $keyword) {
                 if (stripos($keyword, 'yes') !== false) {
@@ -148,8 +209,9 @@ class WaitingTimeInvoicesController extends Controller
             })
             ->addColumn('action', function ($booking) {
                 if ($booking->BookingRequestID) {
-                    return '<a href="' . route('invoice.show', Crypt::encrypt($booking->BookingRequestID)) . '"
-                        class="btn btn-sm btn-primary">View</a>';
+                    // return '<a href="' . route('invoice.show', Crypt::encrypt($booking->BookingRequestID)) . '"
+                    //     class="btn btn-sm btn-primary">View</a>';
+                     return '<a href="' . route('invoice.show', [Crypt::encrypt($booking->BookingRequestID), Crypt::encrypt($booking->MaterialName)]) . '" class="btn btn-sm btn-primary">View</a>';
                 }
                 return 'No Booking Found';
             })

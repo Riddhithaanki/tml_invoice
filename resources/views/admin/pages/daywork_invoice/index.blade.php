@@ -5,7 +5,88 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 <div class="table-container mt-4">
     <div class="tab-container mb-3">
-        <ul class="nav nav-tabs justify-content-end flex-nowrap" id="invoiceTabs">
+         <ul class="nav nav-tabs d-flex justify-content-between" id="invoiceTabs" style="overflow-x: unset;">
+                        <div class="d-flex">
+                             <li class="nav-item">
+                            <a class="nav-link {{ !request()->type || request()->type === 'loads' ? 'active' : '' }}"
+                            href="{{ route('daywork.index', [
+                                    'type' => request()->type ?? 'loads',
+                                    'invoice_type' => request()->invoice_type ?? 'preinvoice'
+                            ]) }}">
+                                Loads
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->update_type === 'tonnage' ? 'active' : '' }}"
+                            href="{{ route('daywork.index', [
+                                    'type' => request()->type ?? 'tonnage',
+                                    'invoice_type' => request()->invoice_type ?? 'preinvoice'
+                            ]) }}">
+                                Tonnage
+                            </a>
+                        </li>
+                            <!-- <li class="nav-item">
+                                <a class="nav-link {{ !request('type') || request('type') === 'withtipticket' ? 'active' : '' }} waves-effect"
+                                href="{{ url('daywork-invoice-list') }}/withtipticket?update_type={{ request('update_type') }}&invoice_type={{ request('invoice_type') }}"
+                                role="tab">With Tip Ticket</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request('type') === 'withouttipticket' ? 'active' : '' }} waves-effect"
+                                href="{{ url('daywork-invoice-list') }}/withouttipticket?update_type={{ request('update_type') }}&invoice_type={{ request('invoice_type') }}"
+                                role="tab">Without Tip Ticket</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request('type') === 'missingtipticket' ? 'active' : '' }} waves-effect"
+                                href="{{ url('daywork-invoice-list') }}/missingtipticket?update_type={{ request('update_type') }}&invoice_type={{ request('invoice_type') }}"
+                                role="tab">Missing Tip Ticket</a>
+                            </li> -->
+                        </div>
+
+                        <div class="d-flex-new">
+                            <li class="nav-item">
+                                <a class="nav-link {{ !request('invoice_type') || request('invoice_type') === 'preinvoice' ? 'active' : '' }} waves-effect"
+                                href="{{ url('daywork-invoice-list') }}/{{ request('type') ?? 'withtipticket' }}?invoice_type=preinvoice">
+                                    Pre Invoice
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request('invoice_type') === 'readyinvoice' ? 'active' : '' }} waves-effect"
+                                href="{{ url('daywork-invoice-list') }}/{{ request('type') ?? 'withtipticket' }}?invoice_type=readyinvoice">
+                                    Ready Invoice
+                                </a>
+                            </li>
+                              <li class="nav-item">
+                            <a class="nav-link {{ request('invoice_type') === 'holdinvoice' ? 'active' : '' }} waves-effect"
+                                href="{{ url('daywork-invoice-list') }}/{{ request('type') ?? 'withtipticket' }}?invoice_type=holdinvoice">
+                                    Hold Invoice
+                                </a>
+                            </li>
+                        </div>
+                    </ul>
+                     <!-- 2nd Row: Loads and Tonnage -->
+                    <!-- <ul class="nav nav-tabs mt-2">
+                        <li class="nav-item">
+                            <a class="nav-link {{ !request()->update_type || request()->update_type === 'loads' ? 'active' : '' }}"
+                            href="{{ route('daywork.index', [
+                                    'type' => request()->type ?? 'withtipticket',
+                                    'update_type' => 'loads',
+                                    'invoice_type' => request()->invoice_type ?? 'preinvoice'
+                            ]) }}">
+                                Loads
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->update_type === 'tonnage' ? 'active' : '' }}"
+                            href="{{ route('daywork.index', [
+                                    'type' => request()->type ?? 'withtipticket',
+                                    'update_type' => 'tonnage',
+                                    'invoice_type' => request()->invoice_type ?? 'preinvoice'
+                            ]) }}">
+                                Tonnage
+                            </a>
+                        </li>
+                    </ul> -->
+        <!-- <ul class="nav nav-tabs justify-content-end flex-nowrap" id="invoiceTabs">
             <li class="nav-item">
                 <a class="nav-link {{ $invoice_type === 'preinvoice' ? 'active' : '' }}" id="pre-invoice-tab"
                     href="{{ route('daywork.index', ['invoice_type' => 'preinvoice']) }}">Pre Invoice</a>
@@ -14,7 +95,7 @@
                 <a class="nav-link {{ $invoice_type === 'readyinvoice' ? 'active' : '' }}" id="ready-invoice-tab"
                     href="{{ route('daywork.index', ['invoice_type' => 'readyinvoice']) }}">Ready Invoice</a>
             </li>
-        </ul>
+        </ul> -->
     </div>
 
     <div class="table-header">
@@ -57,22 +138,26 @@
         <table id="invoiceTable" class="table table-hover">
             <thead>
                 <tr class="filters">
-                    <th>Booking ID</th>
-                    <th>Booking Date</th>
-                    <th>Company Name</th>
-                    <th>Site Name</th>
-                    <th>On Hold</th>
-                    <th>Action</th>
+                    <!-- <th>Booking ID</th>
+                    <th>Booking Date</th> -->
+                        <th>Company Name</th>
+                        <th>Site Name</th>
+                        <th>Material name</th>
+                        <!-- <th>On Hold</th> -->
+                        <th>Action</th>
                 </tr>
-                <tr class="search-row">
-                    
-                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Booking ID"></th>
-                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Date"></th>
-                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Company"></th>
-                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Site"></th>
-                     <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search Hold"></th>
-                    <th></th>
-                </tr>
+                   <tr class="search-row">
+                       <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Search Company"></th>
+                        <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Search Site">
+                        </th>
+                        <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Material Name">
+                        </th>
+                        <!-- <th><input type="text" class="column-ntrol form-control-sm column-search" placeholder="Search hold" /></th> -->
+                        <th></th>
+                    </tr>
             </thead>
         </table>
     </div>
@@ -104,19 +189,48 @@
             ajax: {
                 url: "{{ route('daywork.data') }}",
                 data: function (d) {
+                    // d.invoice_type = '{{ request('invoice_type', 'preinvoice') }}';
+                    // d.start_date = $('#startDate').val();
+                    // d.end_date = $('#endDate').val();
+                    //d.type = '{{ request('type', 'withtipticket') }}';
+                    d.type = '{{ request('type', 'load') }}';
                     d.invoice_type = '{{ request('invoice_type', 'preinvoice') }}';
                     d.start_date = $('#startDate').val();
                     d.end_date = $('#endDate').val();
                 }
             },
-            columns: [
-                { data: 'BookingRequestID', name: 'BookingRequestID' },
-                { data: 'CreateDateTime', name: 'CreateDateTime' },
-                { data: 'CompanyName', name: 'CompanyName' },
-                { data: 'OpportunityName', name: 'OpportunityName' },
-                 { data: 'InvoiceHold', name: 'InvoiceHold'},
-                { data: 'action', name: 'action', orderable: false, searchable: false }
-            ],
+            // columns: [
+            //     { data: 'BookingRequestID', name: 'BookingRequestID' },
+            //     { data: 'CreateDateTime', name: 'CreateDateTime' },
+            //     { data: 'CompanyName', name: 'CompanyName' },
+            //     { data: 'OpportunityName', name: 'OpportunityName' },
+            //      { data: 'InvoiceHold', name: 'InvoiceHold'},
+            //     { data: 'action', name: 'action', orderable: false, searchable: false }
+            // ],
+             columns: [
+            {
+                            data: 'CompanyName',
+                            name: 'CompanyName'
+                        },
+                        {
+                            data: 'OpportunityName',
+                            name: 'OpportunityName'
+                        },
+                        {
+                            data: 'MaterialName',
+                            name: 'MaterialName'
+                        },
+                        // {
+                        //     data: 'InvoiceHold',
+                        //     name: 'InvoiceHold'
+                        // },
+                        {
+                            data: 'action',
+                            name: 'action',
+                            orderable: false,
+                            searchable: false
+                        }
+        ],
             order: [[2, 'desc']],
             pageLength: 100,
             lengthMenu: [1, 10, 50, 100],
@@ -196,8 +310,24 @@ $('#globalSearchInput').on('input', function () {
     color:rgb(0, 0, 0) !important;
     font-weight: 600;
 }
+.d-flex-new {
+    display: flex !important;
+    margin-right: 10px;
+   
+}
+div.dataTables_processing {
+    position: absolute;
+    top: 5%!important;
+    left: 50%;
+    width: 200px;
+    margin-left: -100px;
+    margin-top: -26px;
+    text-align: center;
+    padding: 2px;
+    z-index: 10;
+}
 
-          #globalSearchInput {
+#globalSearchInput {
     width: 80%;
     height: 40px;
 }
