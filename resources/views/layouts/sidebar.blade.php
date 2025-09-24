@@ -70,6 +70,15 @@
             </a>
         </li>
 
+        <li class="menu-item {{ Request::routeIs('splitinvoice') ? 'active' : '' }}">
+            <a href="{{ route('splitinvoice') }}" class="menu-link">
+                <div class="d-flex align-items-center">
+                    <img src="{{ asset('svg/sidebar/waitime.png') }}" alt="Split Invoice" class="menu-icon">
+                </div>
+                <div>Split Invoice</div>
+            </a>
+        </li>
+
         <li class="menu-item {{ Request::routeIs('invoice.differences') ? 'active' : '' }}">
             <a href="{{ route('invoice.differences') }}" class="menu-link">
                 <div class="d-flex align-items-center">

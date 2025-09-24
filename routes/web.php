@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\WaitingTimeInvoicesController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\InvoiceController;
 use App\Http\Controllers\Customer\TicketController;
+use App\Http\Controllers\SplitInvoice;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\FdController;
@@ -72,7 +73,8 @@ Route::middleware(['web', 'auth', 'admin' , 'log_activity', 'network_error'])->g
     Route::get('/get-merge-booking-items', [DashboardController::class, 'getMergeBookingItems'])->name('get.mergebookings.items');
     Route::post('/split-invoice', [DashboardController::class, 'splitInvoice'])->name('split.invoice');
     Route::post('/merge-booking', [DashboardController::class, 'mergeBooking'])->name('merge.booking');
-  
+    Route::get('/splitinvoice',[SplitInvoice::class,'index'])->name('splitinvoice');
+    Route::get('/view-split/{id}', [SplitInvoice::class, 'viewSplitInvoice'])->name('view.splitinvoice');
 
     // Price Routes
 

@@ -150,6 +150,7 @@ public function newindex(Request $request)
                     ->join('tbl_materials', 'tbl_materials.MaterialID', '=', 'tbl_booking_loads1.MaterialID')
                     ->whereIn('tbl_materials.Type', [0, 1, 2])
                     ->whereRaw('tbl_booking_loads1.BookingRequestID = tbl_booking1.BookingRequestID');
+                    
             });
         } elseif ($type === 'missingtipticket') {
             // Show records where there is at least one HAZ or Non-HAZ load and tip ticket is missing (null or empty)
@@ -197,6 +198,9 @@ public function newindex(Request $request)
                     ->orWhereRaw("DATE_FORMAT(tbl_booking_request.CreateDateTime, '%d-%m-%Y') like ?", ["%{$keyword}%"])
                     ->orWhereRaw("DATE_FORMAT(tbl_booking_request.CreateDateTime, '%H:%i') like ?", ["%{$keyword}%"]);
                 });
+            })
+            ->filterColumn('BookinRequestID', function ($query, $keyword) {
+                $query->where('tbl_booking_request.BookingRequestID', 'like', "%$keyword%");
             })
             ->filterColumn('CompanyName', function ($query, $keyword) {
                 $query->where('tbl_booking_request.CompanyName', 'like', "%$keyword%");

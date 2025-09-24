@@ -347,6 +347,7 @@
                                 $subtotal = 0;
                                 
                             @endphp
+                            
                             @foreach ($bookings as $booking)
                                 @php
                                     // Check if this booking has any valid loads
@@ -379,7 +380,8 @@
                                     $subtotal += $totalAmount;
                                 @endphp
                                
-                              @if ($reqMaterial === $booking->MaterialName)
+                              {{-- @if ($reqMaterial === $booking->MaterialName) --}}
+                                    
                                 <tr>
                                     <td class="text-center">
                                         <button class="btn btn-sm btn-outline-primary toggle-invoice"
@@ -430,7 +432,7 @@
                                         </div>
                                     </td>
                                 </tr>
-                                @endif
+                                {{-- @endif --}}
                             @endforeach
                         </tbody>
                         <tfoot>
@@ -1313,155 +1315,232 @@
             });
 
             // Merge Booking Modal Handler
-            $('#mergeBookingModal').on('show.bs.modal', function (e) {
-                var button = $(e.relatedTarget);
-                var invoiceId = button.data('invoice-id');
-                var modal = $(this);
+            // $('#mergeBookingModal').on('show.bs.modal', function (e) {
+            //     var button = $(e.relatedTarget);
+            //     var invoiceId = button.data('invoice-id');
+            //     var modal = $(this);
 
-                console.log('Opening merge modal with invoice ID:', invoiceId);
+            //     console.log('Opening merge modal with invoice ID:', invoiceId);
 
-                // Clear previous content and show loading
-                modal.find('.modal-body').html(`
-                    <div class="text-center py-4">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-2 text-primary">Loading bookings...</p>
-                    </div>
-                `);
+            //     // Clear previous content and show loading
+            //     modal.find('.modal-body').html(`
+            //         <div class="text-center py-4">
+            //             <div class="spinner-border text-primary" role="status">
+            //                 <span class="visually-hidden">Loading...</span>
+            //             </div>
+            //             <p class="mt-2 text-primary">Loading bookings...</p>
+            //         </div>
+            //     `);
 
-                // Fetch merge booking items
-                $.ajax({
-                    url: "{{ route('get.mergebookings.items') }}",
-                    type: "GET",
-                    data: { invoice_id: invoiceId },
-                    success: function(response) {
-                        console.log('Merge bookings response:', response);
+            //     // Fetch merge booking items
+            //     $.ajax({
+            //         url: "{{ route('get.mergebookings.items') }}",
+            //         type: "GET",
+            //         data: { invoice_id: invoiceId },
+            //         success: function(response) {
+            //             console.log('Merge bookings response:', response);
 
-                        if (!response.eligible_bookings || response.eligible_bookings.length === 0) {
-                            modal.find('.modal-body').html('<div class="alert alert-warning">No bookings found to merge.</div>');
-                            return;
-                        }
+            //             if (!response.eligible_bookings || response.eligible_bookings.length === 0) {
+            //                 modal.find('.modal-body').html('<div class="alert alert-warning">No bookings found to merge.</div>');
+            //                 return;
+            //             }
 
-                        let html = `
-                            <div class="alert alert-info mb-3">
-                                <strong>Original Booking:</strong><br>
-                                Booking ID: ${response.original_booking.booking_id}<br>
-                                Company: ${response.original_booking.company_name}<br>
-                                Project: ${response.original_booking.opportunity_name}
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-primary">
-                                        <tr>
-                                            <th width="5%">Select</th>
-                                            <th width="10%">Booking ID</th>
-                                            <th width="15%">Date</th>
-                                            <th width="10%">Total Loads</th>
-                                            <th width="15%">Total Amount</th>
-                                            <th width="45%">Details</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>`;
+            //             let html = `
+            //                 <div class="alert alert-info mb-3">
+            //                     <strong>Original Booking:</strong><br>
+            //                     Booking ID: ${response.original_booking.booking_id}<br>
+            //                     Company: ${response.original_booking.company_name}<br>
+            //                     Opportunity : ${response.original_booking.opportunity_name}
+            //                 </div>
+            //                 <div class="table-responsive">
+            //                     <table class="table table-bordered table-hover">
+            //                         <thead class="table-primary">
+            //                             <tr>
+            //                                 <th width="5%">Select</th>
+            //                                 <th width="10%">Booking ID</th>
+            //                                 <th width="15%">Date</th>
+            //                                 <th width="10%">Total Loads</th>
+            //                                 <th width="15%">Total Amount</th>
+            //                                 <th width="45%">Details</th>
+            //                             </tr>
+            //                         </thead>
+            //                         <tbody>`;
 
-                        response.eligible_bookings.forEach(function(booking) {
-                            console.log('Processing booking:', booking);
+            //             response.eligible_bookings.forEach(function(booking) {
+            //                 console.log('Processing booking:', booking);
                             
-                            const loads = booking.loads || [];
-                            const totalLoads = booking.total_loads || 0;
-                            const totalAmount = booking.total_amount || 0;
+            //                 const loads = booking.loads || [];
+            //                 const totalLoads = booking.total_loads || 0;
+            //                 const totalAmount = booking.total_amount || 0;
 
-                            html += `
-                                <tr>
-                                    <td class="text-center">
-                                        <input type="checkbox" class="booking-checkbox form-check-input"
-                                               data-booking-id="${booking.booking_request_id}">
-                                    </td>
-                                    <td>
-                                        <strong>${booking.booking_id}</strong>
-                                        ${booking.parent_invoice_id ? 
-                                            `<br><small class="text-info"><i class="fas fa-code-branch"></i> Split Booking</small>` : ''}
-                                        ${booking.is_merged ? 
-                                            `<br><small class="text-warning"><i class="fas fa-link"></i> Merged</small>` : ''}
-                                    </td>
-                                    <td>${formatDateTime(booking.CreateDateTime) || 'N/A'}</td>
-                                    <td class="text-center">${totalLoads}</td>
-                                    <td class="text-end">£${formatNumber(totalAmount)}</td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-outline-info view-loads-btn"
-                                                data-booking-id="${booking.booking_id}">
-                                            <i class="fas fa-truck me-1"></i> View Loads
-                                        </button>
-                                        ${booking.split_info ? `
-                                            <div class="mt-2 small text-muted">
-                                                <i class="fas fa-info-circle"></i> 
-                                                ${booking.split_info.source_booking_id === booking.booking_id ? 
-                                                    `Split to: ${booking.split_info.target_booking_id}` : 
-                                                    `Split from: ${booking.split_info.source_booking_id}`}
-                                            </div>
-                                        ` : ''}
-                                    </td>
-                                </tr>
-                                <tr class="loads-details d-none" id="loads-${booking.booking_id}">
-                                    <td colspan="6">
-                                        <div class="loads-content p-3 bg-light">
-                                            <table class="table table-sm table-bordered mb-0">
-                                                <thead class="table-secondary">
-                                                    <tr>
-                                                        <th>Load ID</th>
-                                                        <th>Material</th>
-                                                        <th>Conveyance</th>
-                                                        <th>Driver</th>
-                                                        <th>Vehicle</th>
-                                                        <th>Price</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>`;
+            //                 html += `
+            //                     <tr>
+            //                         <td class="text-center">
+            //                             <input type="checkbox" class="booking-checkbox form-check-input"
+            //                                    data-booking-id="${booking.booking_request_id}">
+            //                         </td>
+            //                         <td>
+            //                             <strong>${booking.booking_id}</strong>
+            //                             ${booking.parent_invoice_id ? 
+            //                                 `<br><small class="text-info"><i class="fas fa-code-branch"></i> Split Booking</small>` : ''}
+            //                             ${booking.is_merged ? 
+            //                                 `<br><small class="text-warning"><i class="fas fa-link"></i> Merged</small>` : ''}
+            //                         </td>
+            //                         <td>${formatDateTime(booking.CreateDateTime) || 'N/A'}</td>
+            //                         <td class="text-center">${totalLoads}</td>
+            //                         <td class="text-end">£${formatNumber(totalAmount)}</td>
+            //                         <td>
+            //                             <button type="button" class="btn btn-sm btn-outline-info view-loads-btn"
+            //                                     data-booking-id="${booking.booking_id}">
+            //                                 <i class="fas fa-truck me-1"></i> View Loads
+            //                             </button>
+            //                             ${booking.split_info ? `
+            //                                 <div class="mt-2 small text-muted">
+            //                                     <i class="fas fa-info-circle"></i> 
+            //                                     ${booking.split_info.source_booking_id === booking.booking_id ? 
+            //                                         `Split to: ${booking.split_info.target_booking_id}` : 
+            //                                         `Split from: ${booking.split_info.source_booking_id}`}
+            //                                 </div>
+            //                             ` : ''}
+            //                         </td>
+            //                     </tr>
+            //                     <tr class="loads-details d-none" id="loads-${booking.booking_id}">
+            //                         <td colspan="6">
+            //                             <div class="loads-content p-3 bg-light">
+            //                                 <table class="table table-sm table-bordered mb-0">
+            //                                     <thead class="table-secondary">
+            //                                         <tr>
+            //                                             <th>Load ID</th>
+            //                                             <th>Material</th>
+            //                                             <th>Conveyance</th>
+            //                                             <th>Driver</th>
+            //                                             <th>Vehicle</th>
+            //                                             <th>Price</th>
+            //                                         </tr>
+            //                                     </thead>
+            //                                     <tbody>`;
                                                 
-                            if (loads && loads.length > 0) {
-                                loads.forEach(load => {
-                                    html += `
-                                        <tr>
-                                            <td>${load.load_id}</td>
-                                            <td>${load.material_name}</td>
-                                            <td>${load.conveyance_no || 'N/A'}</td>
-                                            <td>${load.driver_name || 'N/A'}</td>
-                                            <td>${load.vehicle_reg_no || 'N/A'}</td>
-                                            <td class="text-end">£${formatNumber(load.price)}</td>
-                                        </tr>`;
-                                });
-                            } else {
-                                html += `<tr><td colspan="6" class="text-center">No load details available</td></tr>`;
-                            }
+            //                 if (loads && loads.length > 0) {
+            //                     loads.forEach(load => {
+            //                         html += `
+            //                             <tr>
+            //                                 <td>${load.load_id}</td>
+            //                                 <td>${load.material_name}</td>
+            //                                 <td>${load.conveyance_no || 'N/A'}</td>
+            //                                 <td>${load.driver_name || 'N/A'}</td>
+            //                                 <td>${load.vehicle_reg_no || 'N/A'}</td>
+            //                                 <td class="text-end">£${formatNumber(load.price)}</td>
+            //                             </tr>`;
+            //                     });
+            //                 } else {
+            //                     html += `<tr><td colspan="6" class="text-center">No load details available</td></tr>`;
+            //                 }
 
-                            html += `
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </td>
-                                </tr>`;
-                        });
+            //                 html += `
+            //                                     </tbody>
+            //                                 </table>
+            //                             </div>
+            //                         </td>
+            //                     </tr>`;
+            //             });
 
-                        html += `</tbody></table></div>`;
+            //             html += `</tbody></table></div>`;
                         
-                        console.log('Generated HTML:', html);
-                        modal.find('.modal-body').html(html);
+            //             console.log('Generated HTML:', html);
+            //             modal.find('.modal-body').html(html);
 
-                        // Add click handler for view loads button
-                        $('.view-loads-btn').on('click', function() {
-                            const bookingId = $(this).data('booking-id');
-                            $(`#loads-${bookingId}`).toggleClass('d-none');
-                            $(this).find('i').toggleClass('fa-truck fa-chevron-up');
-                        });
-                    },
-                    error: function(xhr) {
-                        console.error('Error loading merge bookings:', xhr);
-                        modal.find('.modal-body').html(
-                            '<div class="alert alert-danger">Error loading bookings. Please try again.</div>'
-                        );
-                    }
-                });
+            //             // Add click handler for view loads button
+            //             $('.view-loads-btn').on('click', function() {
+            //                 const bookingId = $(this).data('booking-id');
+            //                 $(`#loads-${bookingId}`).toggleClass('d-none');
+            //                 $(this).find('i').toggleClass('fa-truck fa-chevron-up');
+            //             });
+            //         },
+            //         error: function(xhr) {
+            //             console.error('Error loading merge bookings:', xhr);
+            //             modal.find('.modal-body').html(
+            //                 '<div class="alert alert-danger">Error loading bookings. Please try again.</div>'
+            //             );
+            //         }
+            //     });
+            // });
+
+ $('#mergeBookingModal').on('show.bs.modal', function (e) {
+    var button = $(e.relatedTarget);
+    var invoiceId = button.data('invoice-id');
+    var modal = $(this);
+
+    // Show loading spinner
+    modal.find('.modal-body').html(`
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-primary">Loading loads...</p>
+        </div>
+    `);
+
+    // Fetch loads from backend
+    $.ajax({
+        url: "{{ route('get.mergebookings.items') }}",
+        type: "GET",
+        data: { invoice_id: invoiceId },
+        success: function(response) {
+            if (!response.success || !response.loads || response.loads.length === 0) {
+                modal.find('.modal-body').html('<div class="alert alert-warning">No loads found.</div>');
+                return;
+            }
+
+            let html = `
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-primary">
+                            <tr>
+                                <th><input type="checkbox" id="select-all-loads"></th>
+                                <th>Conveyance No</th>
+                                <th>Ticket No</th>
+                                <th>Created Date</th>
+                                <th>Material</th>
+                                <th>Driver</th>
+                                <th>Load Type</th>
+                                <th>Lorry Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+            response.loads.forEach(function(load, index) {
+                html += `
+                    <tr>
+                        <td class="text-center">
+                            <input type="checkbox" class="load-checkbox" value="${load.LoadID}">
+                        </td>
+                        <td>${load.ConveyanceNo || 'N/A'}</td>
+                        <td>${load.TicketID || 'N/A'}</td>
+                        <td>${formatDateTime(load.created_datetime) || 'N/A'}</td>
+                        <td>${load.material_name || 'N/A'}</td>
+                        <td>${load.DriverName || 'N/A'}</td>
+                        <td>${load.load_type || 'N/A'}</td>
+                        <td>${load.lorry_type || 'N/A'}</td>
+                    </tr>`;
             });
+
+            html += `</tbody></table></div>`;
+            modal.find('.modal-body').html(html);
+
+            // Master checkbox functionality
+            $('#select-all-loads').on('change', function() {
+                $('.load-checkbox').prop('checked', this.checked);
+            });
+        },
+        error: function(xhr) {
+            console.error('Error loading merge bookings:', xhr);
+            modal.find('.modal-body').html(
+                '<div class="alert alert-danger">Error loading bookings. Please try again.</div>'
+            );
+        }
+    });
+});
+
 
             // Helper function to format numbers
             function formatNumber(num) {

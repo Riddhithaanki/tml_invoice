@@ -116,7 +116,7 @@
                     </ul>
 
                     <!-- 2nd Row: Loads and Tonnage -->
-                    <ul class="nav nav-tabs mt-2">
+                    {{-- <ul class="nav nav-tabs mt-2">
                         <li class="nav-item">
                             <a class="nav-link {{ !request()->update_type || request()->update_type === 'loads' ? 'active' : '' }}"
                             href="{{ route('collection.newindex', [
@@ -137,7 +137,7 @@
                                 Tonnage
                             </a>
                         </li>
-                    </ul>
+                    </ul> --}}
                                                                                 
            </div>
 
@@ -183,7 +183,7 @@
             <table id="invoiceTable" class="table table-hover">
                 <thead>
                     <tr class="filters">
-                        <!-- <th>Booking ID</th> -->
+                        <th>Booking ID</th>
                         <!-- <th>Booking Date</th> -->
                         <th>Company Name</th>
                         <th>Site Name</th>
@@ -192,6 +192,8 @@
                         <th>Action</th>
                     </tr>
                     <tr class="search-row">
+                        <th><input type="text" class="form-control form-control-sm column-search"
+                                placeholder="Search Booking ID"></th>   
                         <th><input type="text" class="form-control form-control-sm column-search"
                                 placeholder="Search Company"></th>
                        
@@ -267,10 +269,10 @@
                             }
                    },
                      columns: [
-                        //{
-                    //         data: 'BookingRequestID',
-                    //         name: 'BookingRequestID'
-                    //     },
+                        {
+                            data: 'BookingRequestID',
+                            name: 'BookingRequestID'
+                        },
                         // {
                         //     data: 'CreateDateTime',
                         //     name: 'CreateDateTime'
