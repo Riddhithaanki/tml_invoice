@@ -49,6 +49,7 @@ class DashboardController extends Controller
     {
         try {
             $id = Crypt::decrypt($id);
+            
             $reqMaterial = Crypt::decrypt($material);
             // First try to find the booking
             $booking = Booking::where('BookingRequestID', $id)
@@ -72,7 +73,7 @@ class DashboardController extends Controller
             $invoice = BookingRequest::with(['booking', 'invoice_items', 'invoice'])
                 ->where('BookingRequestID', $bookingRequestId)
                 ->first();
-
+            
             if (!$invoice) {
                 return abort(404, 'Invoice not found');
             }
@@ -89,12 +90,12 @@ class DashboardController extends Controller
                     ]);
                 }])
                 ->where('BookingRequestID', $invoice->BookingRequestID)
-                ->when($isSplitInvoice, function ($query) use ($invoice) {
-                    return $query->where('parent_invoice_id', $invoice->InvoiceID);
-                })
-                ->when(!$isSplitInvoice, function ($query) {
-                    return $query->whereNull('parent_invoice_id');
-                })
+                // ->when($isSplitInvoice, function ($query) use ($invoice) {
+                //     return $query->where('parent_invoice_id', $invoice->InvoiceID);
+                // })
+                // ->when(!$isSplitInvoice, function ($query) {
+                //     return $query->whereNull('parent_invoice_id');
+                // })
                 ->get()
                 ->each(function ($booking) {
                     // Set the total number of loads
@@ -117,7 +118,7 @@ class DashboardController extends Controller
                     $booking->TotalAmount = $totalAmount;
                     $booking->Price = $pricePerLoad;
                 });
-
+            
             return view('admin.pages.invoice.invoice_details', compact('invoice', 'bookings', 'booking', 'isSplitInvoice','reqMaterial'));
 
         } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
@@ -281,193 +282,96 @@ class DashboardController extends Controller
         return response()->json(['invoice_items' => $items]);
     }
 
-    public function getMergeBookingItems(Request $request)
-    {
-        try {
-            $id = $request->invoice_id;
-            
-            \Log::info('Starting getMergeBookingItems for booking ID: ' . $id);
+public function getMergeBookingItems(Request $request)
+{
+    try {
+        $id = $request->invoice_id;
 
-            // Get original booking details
-            $originalBooking = DB::table('tbl_booking1 as b')
-                ->join('tbl_booking_request as br', 'b.BookingRequestID', '=', 'br.BookingRequestID')
-                ->where('b.BookingID', $id)
-                ->select([
-                    'b.BookingID',
-                    'b.BookingType',
-                    'br.CompanyName',
-                    'br.OpportunityName',
-                    'b.parent_invoice_id',
-                    'b.is_merged',
-                    'b.BookingRequestID'
-                ])
-                ->first();
+        // 1️⃣ Get original booking company & opportunity
+        $originalBooking = DB::table('tbl_booking1 as b')
+            ->join('tbl_booking_request as br', 'b.BookingRequestID', '=', 'br.BookingRequestID')
+            ->where('b.BookingID', $id)
+            ->select('br.CompanyName', 'br.OpportunityName')
+            ->first();
 
-            if (!$originalBooking) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Original booking not found'
-                ], 404);
-            } 
-
-            \Log::info('Original booking details:', (array)$originalBooking);
-
-            // Get all eligible bookings with the same company and opportunity
-            $query = DB::table('tbl_booking1 as b')
-                ->join('tbl_booking_request as br', 'b.BookingRequestID', '=', 'br.BookingRequestID')
-                ->leftJoin('booking_relationships as brel', function($join) {
-                    $join->on('b.BookingID', '=', 'brel.source_booking_id')
-                        ->orOn('b.BookingID', '=', 'brel.target_booking_id');
-                })
-                ->select([
-                    'b.BookingID as booking_id',
-                    'b.BookingRequestID as booking_request_id',
-                    'br.CompanyName as company_name',
-                    'br.OpportunityName as opportunity_name',
-                    'b.BookingType as booking_type',
-                    'b.parent_invoice_id',
-                    'b.is_merged',
-                    'br.CreateDateTime',
-                    DB::raw('(SELECT COUNT(bl.LoadID) FROM tbl_booking_loads1 bl WHERE bl.BookingID = b.BookingID AND bl.Status != 5) as total_loads'),
-                    DB::raw('(SELECT COALESCE(SUM(bl.LoadPrice), 0) FROM tbl_booking_loads1 bl WHERE bl.BookingID = b.BookingID AND bl.Status != 5) as total_amount'),
-                    'brel.relationship_type',
-                    'brel.source_booking_id',
-                    'brel.target_booking_id',
-                    DB::raw('(
-                        SELECT JSON_ARRAYAGG(
-                            JSON_OBJECT(
-                                "load_id", bl.LoadID,
-                                "material_name", bl.MaterialID,
-                                "conveyance_no", bl.ConveyanceNo,
-                                "quantity", 1,
-                                "price", bl.LoadPrice,
-                                "ticket_id", bl.TicketID,
-                                "driver_name", bl.DriverName,
-                                "vehicle_reg_no", bl.VehicleRegNo,
-                                "gross_weight", bl.GrossWeight,
-                                "net_weight", bl.Net,
-                                "status", bl.Status,
-                                "job_start_date", bl.JobStartDateTime
-                            )
-                        )
-                        FROM tbl_booking_loads1 bl 
-                        WHERE bl.BookingID = b.BookingID 
-                        AND bl.Status != 5
-                        ORDER BY bl.JobStartDateTime DESC
-                    ) as loads_json')
-                ])
-                ->where('br.CompanyName', $originalBooking->CompanyName)
-                ->where('br.OpportunityName', $originalBooking->OpportunityName)
-                ->where('b.BookingID', '!=', $id)
-                ->where(function($query) {
-                    $query->where(function($q) {
-                        // Include non-merged bookings
-                        $q->where('b.is_merged', 0);
-                    })
-                    ->orWhere(function($q) {
-                        // Include split bookings
-                        $q->whereNotNull('b.parent_invoice_id');
-                    })
-                    ->orWhere(function($q) {
-                        // Include bookings that are part of a split relationship
-                        $q->whereNotNull('brel.relationship_type')
-                          ->where('brel.relationship_type', 'split');
-                    });
-                })
-                ->where('br.is_delete', 0)  // Only include non-deleted bookings
-                ->whereExists(function ($query) {
-                    $query->select(DB::raw(1))
-                        ->from('tbl_booking_loads1 as bl')
-                        ->whereRaw('bl.BookingID = b.BookingID')
-                        ->where('bl.Status', '!=', 5)
-                        ->where('bl.LoadPrice', '>', 0);
-                })
-                ->groupBy([
-                    'b.BookingID',
-                    'b.BookingRequestID',
-                    'br.CompanyName',
-                    'br.OpportunityName',
-                    'b.BookingType',
-                    'b.parent_invoice_id',
-                    'b.is_merged',
-                    'br.CreateDateTime',
-                    'brel.relationship_type',
-                    'brel.source_booking_id',
-                    'brel.target_booking_id'
-                ])
-                ->orderBy('br.CreateDateTime', 'DESC');
-
-            \Log::info('Generated SQL:', [
-                'sql' => $query->toSql(),
-                'bindings' => $query->getBindings()
-            ]);
-
-            $eligibleBookings = $query->get();
-
-            \Log::info('Found eligible bookings count: ' . $eligibleBookings->count());
-
-            if ($eligibleBookings->isEmpty()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No eligible bookings found for merge'
-                ], 404);
-            }
-
-            // Transform the loads_json string to actual JSON for each booking
-            $eligibleBookings = $eligibleBookings->map(function($booking) {
-                $booking->loads = json_decode($booking->loads_json);
-                unset($booking->loads_json);
-                
-                // Check if this is a split booking
-                $booking->is_split = !is_null($booking->parent_invoice_id) || 
-                                   ($booking->relationship_type === 'split');
-                
-                // Get the original booking details if this is a split
-                if ($booking->is_split) {
-                    $parentId = $booking->parent_invoice_id ?? 
-                               ($booking->source_booking_id === $booking->booking_id ? 
-                                $booking->target_booking_id : $booking->source_booking_id);
-                    
-                    if ($parentId) {
-                        $parentBooking = DB::table('tbl_booking1 as b')
-                            ->join('tbl_booking_request as br', 'b.BookingRequestID', '=', 'br.BookingRequestID')
-                            ->where('b.BookingID', $parentId)
-                            ->select('b.BookingID', 'br.CompanyName', 'br.OpportunityName')
-                            ->first();
-                            
-                        if ($parentBooking) {
-                            $booking->parent_booking = $parentBooking;
-                        }
-                    }
-                }
-                
-                return $booking;
-            });
-
-            return response()->json([
-                'success' => true,
-                'original_booking' => [
-                    'booking_id' => $originalBooking->BookingID,
-                    'booking_request_id' => $originalBooking->BookingRequestID,
-                    'company_name' => $originalBooking->CompanyName,
-                    'opportunity_name' => $originalBooking->OpportunityName,
-                    'booking_type' => $originalBooking->BookingType,
-                    'parent_invoice_id' => $originalBooking->parent_invoice_id,
-                    'is_merged' => $originalBooking->is_merged
-                ],
-                'eligible_bookings' => $eligibleBookings
-            ]);
-
-        } catch (\Exception $e) {
-            \Log::error('Error in getMergeBookingItems: ' . $e->getMessage());
-            \Log::error($e->getTraceAsString());
-            
+        if (!$originalBooking) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error fetching merge items: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Original booking not found'
+            ], 404);
         }
+
+        // 2️⃣ Get matching loads
+        $loads = DB::table('tbl_booking_loads1 as bl')
+            ->join('tbl_booking1 as b', 'bl.BookingID', '=', 'b.BookingID')
+            ->join('tbl_booking_request as br', 'b.BookingRequestID', '=', 'br.BookingRequestID')
+            ->leftJoin('tbl_materials as m', 'bl.MaterialID', '=', 'm.MaterialID')
+            ->where('br.CompanyName', $originalBooking->CompanyName)
+            ->where('br.OpportunityName', $originalBooking->OpportunityName)
+            ->where('bl.Status', '!=', 5)
+            ->where('b.is_merged', 0)
+            ->select([
+                'bl.LoadID',
+                'bl.ConveyanceNo',
+                'bl.TicketID',
+                'bl.JobStartDateTime as created_datetime',
+                'bl.DriverName',
+                'm.MaterialName as material_name',
+                'b.TonBook',
+                'b.LorryType'
+            ])
+            ->orderBy('bl.JobStartDateTime', 'DESC')
+            ->get();
+
+        // 3️⃣ Transform data
+        $loads = $loads->map(function ($item) {
+            // Convert TonBook → Load Type
+            $item->load_type = ($item->TonBook == 1) ? 'Tonnage' : 'Load';
+
+            // Convert numeric LorryType → Text
+            $lorryTypeMap = [
+                1 => 'Tipper',
+                2 => 'Grab',
+                3 => 'Bin'
+            ];
+            $item->lorry_type = $lorryTypeMap[$item->LorryType] ?? 'N/A';
+
+            // Add checkbox property (frontend can use this for selection)
+            $item->checkbox = false;
+
+            // Remove LoadID from public response (still keep for selection internally)
+            unset($item->LoadID);
+
+            // Remove raw numeric values from response
+            unset($item->TonBook, $item->LorryType);
+
+            return $item;
+        });
+
+        if ($loads->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No loads found for this company & opportunity'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'loads' => $loads
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Error in getMergeBookingItems: ' . $e->getMessage());
+        \Log::error($e->getTraceAsString());
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Error fetching loads: ' . $e->getMessage()
+        ], 500);
     }
+}
+
+
 
     public function splitInvoice(Request $request)
     {
@@ -475,11 +379,13 @@ class DashboardController extends Controller
             DB::beginTransaction();
 
             $splitResults = [];
+            
             foreach ($request->loads as $load) {
+                
                 // Validate load exists and get booking with its request
                 $booking = Booking::with(['bookingRequest', 'loads'])
                     ->findOrFail($load['LoadID']);
-
+                
                 if (!$booking->bookingRequest) {
                     throw new \Exception('Booking request not found for booking ID: ' . $load['LoadID']);
                 }
@@ -502,6 +408,7 @@ class DashboardController extends Controller
                 // Create new invoice for split
                 $splitInvoice = new BookingInvoice([
                     'BookingRequestID' => $booking->BookingRequestID,
+                    'BookingID' => $booking->BookingID,
                     'InvoiceDate' => now(),
                     'InvoiceType' => 0,
                     'InvoiceNumber' => $this->generateNextInvoiceNumber(),
@@ -526,48 +433,48 @@ class DashboardController extends Controller
                 $splitInvoice->save();
 
                 // Create a new booking entry for the split
-                $newBooking = new Booking();
-                $newBooking->BookingRequestID = $booking->BookingRequestID;
-                $newBooking->BookingType = $booking->BookingType;
-                $newBooking->TipID = $booking->TipID ?? 0;
-                $newBooking->MaterialID = $booking->MaterialID;
-                $newBooking->MaterialName = $booking->MaterialName;
-                $newBooking->SICCode = $booking->SICCode;
-                $newBooking->PurchaseOrderNo = $booking->PurchaseOrderNo;
-                $newBooking->DayWorkType = $booking->DayWorkType;
-                $newBooking->TonBook = $booking->TonBook;
-                $newBooking->TotalTon = $booking->TotalTon;
-                $newBooking->TonPerLoad = $booking->TonPerLoad;
-                $newBooking->LoadType = $booking->LoadType;
-                $newBooking->LorryType = $booking->LorryType;
-                $newBooking->Loads = $booking->Loads;
-                $newBooking->Days = $booking->Days;
-                $newBooking->Price = $booking->Price;
-                $newBooking->PriceApproved = $booking->PriceApproved;
-                $newBooking->PriceApprovedBy = $booking->PriceApprovedBy;
-                $newBooking->TotalAmount = $booking->TotalAmount;
-                $newBooking->Notes = $booking->Notes;
-                $newBooking->BookedBy = $booking->BookedBy;
-                $newBooking->UpdatedBy = auth()->id();
-                $newBooking->parent_invoice_id = $splitInvoice->InvoiceId;
-                $newBooking->is_merged = 0;
-                $newBooking->merged_at = null;
-                $newBooking->merged_from = null;
-                $newBooking->merged_to = null;
-                $newBooking->OpenPO = $booking->OpenPO ?? 0;
-                $newBooking->CreateDateTime = now();
-                $newBooking->UpdateDateTime = now();
-                $newBooking->save();
+                // $newBooking = new Booking();
+                // $newBooking->BookingRequestID = $booking->BookingRequestID;
+                // $newBooking->BookingType = $booking->BookingType;
+                // $newBooking->TipID = $booking->TipID ?? 0;
+                // $newBooking->MaterialID = $booking->MaterialID;
+                // $newBooking->MaterialName = $booking->MaterialName;
+                // $newBooking->SICCode = $booking->SICCode;
+                // $newBooking->PurchaseOrderNo = $booking->PurchaseOrderNo;
+                // $newBooking->DayWorkType = $booking->DayWorkType;
+                // $newBooking->TonBook = $booking->TonBook;
+                // $newBooking->TotalTon = $booking->TotalTon;
+                // $newBooking->TonPerLoad = $booking->TonPerLoad;
+                // $newBooking->LoadType = $booking->LoadType;
+                // $newBooking->LorryType = $booking->LorryType;
+                // $newBooking->Loads = $booking->Loads;
+                // $newBooking->Days = $booking->Days;
+                // $newBooking->Price = $booking->Price;
+                // $newBooking->PriceApproved = $booking->PriceApproved;
+                // $newBooking->PriceApprovedBy = $booking->PriceApprovedBy;
+                // $newBooking->TotalAmount = $booking->TotalAmount;
+                // $newBooking->Notes = $booking->Notes;
+                // $newBooking->BookedBy = $booking->BookedBy;
+                // $newBooking->UpdatedBy = auth()->id();
+                // $newBooking->parent_invoice_id = $splitInvoice->InvoiceId;
+                // $newBooking->is_merged = 0;
+                // $newBooking->merged_at = null;
+                // $newBooking->merged_from = null;
+                // $newBooking->merged_to = null;
+                // $newBooking->OpenPO = $booking->OpenPO ?? 0;
+                // $newBooking->CreateDateTime = now();
+                // $newBooking->UpdateDateTime = now();
+                // $newBooking->save();
 
                 // Move selected loads to the new booking
-                DB::table('tbl_booking_loads1')
-                    ->where('BookingID', $booking->BookingID)
-                    ->update(['BookingID' => $newBooking->BookingID]);
+                // DB::table('tbl_booking_loads1')
+                //     ->where('BookingID', $booking->BookingID)
+                //     ->update(['BookingID' => $newBooking->BookingID]);
 
                 // Create relationship record
                 BookingRelationship::create([
                     'source_booking_id' => $booking->BookingID,
-                    'target_booking_id' => $newBooking->BookingID,
+                    'target_booking_id' => $booking->BookingRequestID,
                     'relationship_type' => 'split',
                     'metadata' => json_encode([
                         'original_invoice_id' => $booking->parent_invoice_id,
@@ -585,7 +492,7 @@ class DashboardController extends Controller
                 $this->createAuditLog($booking->BookingID, 'split', [
                     'original_state' => $booking->getOriginal(),
                     'split_invoice_id' => $splitInvoice->InvoiceId,
-                    'new_booking_id' => $newBooking->BookingID,
+                    'new_booking_id' => $booking->BookingID,
                     'split_details' => [
                         'total_amount' => $totalAmount,
                         'vat_amount' => $vatAmount,
@@ -594,7 +501,7 @@ class DashboardController extends Controller
                 ]);
 
                 $splitResults[] = [
-                    'booking_id' => $newBooking->BookingID,
+                    'booking_id' => $booking->BookingID,
                     'new_invoice_id' => $splitInvoice->InvoiceId,
                     'invoice_number' => $splitInvoice->InvoiceNumber,
                     'total_amount' => $totalAmount,

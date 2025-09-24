@@ -104,8 +104,9 @@ class InvoiceController extends Controller
         $request->validate([
             'new_price' => 'required|numeric|min:0',
         ]);
+        
         // Find the load by TicketID
-        $load = BookingLoad::where('ConveyanceNo', $request->conveyance_no)->first();
+        $load = BookingLoad::where('TicketID', $request->conveyance_no)->first();
         
         if (!$load) {
             return response()->json(['error' => 'Load not found'], 404);
@@ -113,7 +114,7 @@ class InvoiceController extends Controller
 
         // Store old price for history (optional)
         PriceHistory::create([
-            'ConveyanceNo' => $load->ConveyanceNo,
+            'ConveyanceNo' => $load->TicketID,
             'OldPrice' => $load->LoadPrice,
             'NewPrice' => $request->new_price,
             'ChangedBy' => auth()->id(),

@@ -16,6 +16,7 @@ class BookingInvoice extends Model
     protected $fillable = [
         'InvoiceId',
         'BookingRequestID',
+        'BookingID',
         'InvoiceDate',
         'InvoiceType',
         'InvoiceNumber',
